@@ -1,0 +1,190 @@
+src/
+├── assets/
+│   ├── logo.png
+│   ├── logoPolos.png
+│   └── lms.png
+│
+├── components/
+│   ├── common/
+│   │   ├── SectionHeader.jsx
+│   │   ├── CTABlock.jsx
+│   │   ├── BentoCard.jsx
+│   │   ├── Loader.jsx
+│   │   ├── Reveal.jsx
+│   │   └── ProgressBar.jsx
+│   │
+│   ├── home/
+│   │   ├── HeroSection.jsx
+│   │   ├── TickerSection.jsx
+│   │   ├── BentoSection.jsx
+│   │   └── ProgramSection.jsx
+│   │
+│   ├── ppdb/
+│   │   ├── PPDBHero.jsx
+│   │   ├── PPDBTimeline.jsx
+│   │   ├── PPDBGelombang.jsx
+│   │   ├── PPDBDokumen.jsx
+│   │   ├── PPDBBiaya.jsx
+│   │   ├── PPDBTestimoni.jsx
+│   │   ├── PPDBFaq.jsx
+│   │   └── PPDBForm.jsx
+│   │
+│   ├── tentang/
+│   │   ├── TentangIntro.jsx
+│   │   ├── VisiMisi.jsx
+│   │   └── QualityAssurance.jsx
+│   │
+│   ├── kurikulum/
+│   │   ├── KurikulumProgress.jsx
+│   │   ├── KurikulumPilar.jsx
+│   │   ├── MataPelajaran.jsx
+│   │   └── LMSSection.jsx
+│   │
+│   └── kesantrian/
+│       ├── KesantrianBanner.jsx
+│       ├── ShiftTimeline.jsx
+│       ├── JadwalHarian.jsx
+│       └── FasilitasGrid.jsx
+│
+├── layouts/
+│   └── MainLayout.jsx
+│
+├── pages/
+│   ├── HomePage.jsx
+│   ├── TentangPage.jsx
+│   ├── KurikulumPage.jsx
+│   ├── PPDBPage.jsx
+│   ├── GaleriPage.jsx
+│   └── KesantrianPage.jsx
+│
+├── routes/
+│   └── AppRoutes.jsx
+│
+├── hooks/
+│   └── useCountdown.js
+│
+├── utils/
+│   └── constants.js
+│
+├── App.jsx
+├── main.jsx
+└── index.css
+
+
+
+import { useState } from "react";
+import { Camera, FileText, ArrowRight, Check } from "lucide-react";
+import SectionHeader from "../common/SectionHeader";
+import Reveal from "../common/Reveal";
+
+function Field({ label, placeholder, type = "text", value, onChange, required }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[12.5px] font-semibold text-[#284061]">{label}</label>
+      <input type={type} required={required} placeholder={placeholder} value={value} onChange={onChange} className="px-4 py-3 rounded-xl border-[1.5px] border-slate-200 text-[13px] bg-slate-50 focus:bg-white focus:border-[#284061] focus:ring-2 focus:ring-[#284061]/15 outline-none transition-all placeholder:text-slate-400" />
+    </div>
+  );
+}
+
+function UploadField({ label, Icon, txt, sub }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[12.5px] font-semibold text-[#284061]">{label}</label>
+      <div className="px-5 py-6 border-2 border-dashed border-slate-200 rounded-xl text-center cursor-pointer bg-slate-50 hover:border-[#284061] hover:bg-white transition-all">
+        <Icon size={26} className="mx-auto mb-2 text-[#284061]" />
+        <div className="text-[12.5px] font-medium text-[#284061] mb-1">{txt}</div>
+        <div className="text-[11px] text-slate-400">{sub}</div>
+      </div>
+    </div>
+  );
+}
+
+export default function PPDBForm() {
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState({
+    nama: "", ortu: "", jenjang: "", asal: "", hp: "", email: "", alamat: "", setuju: false,
+  });
+
+  const update = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
+
+  const submit = (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setTimeout(() => {
+      setSubmitting(false);
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 4000);
+    }, 1200);
+  };
+
+  return (
+    <section id="formulir-ppdb" className="py-20 lg:py-24 bg-slate-50">
+      <div className="w-[min(1180px,92vw)] mx-auto">
+        <SectionHeader
+          tag="Pendaftaran"
+          title="Formulir"
+          italic="Calon Santri"
+          description="Silakan isi formulir di bawah ini. Data yang Anda berikan akan kami jaga kerahasiaannya sesuai kebijakan privasi pesantren."
+        />
+
+        <Reveal>
+          <div className="bg-white border border-slate-100 rounded-3xl p-7 lg:p-10 shadow-xl shadow-slate-200/40 max-w-4xl mx-auto">
+            {submitted && (
+              <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-[13px] font-medium flex items-center gap-3">
+                <Check size={20} className="flex-shrink-0" />
+                <div>
+                  <div className="font-bold">Pendaftaran Diterima!</div>
+                  <div className="text-[12px] font-normal">Tim PPDB akan menghubungi Anda dalam 1×24 jam.</div>
+                </div>
+              </div>
+            )}
+            <form onSubmit={submit} className="grid sm:grid-cols-2 gap-5">
+              <Field label="Nama Lengkap Calon Santri" placeholder="Tulis nama lengkap" value={form.nama} onChange={update("nama")} required />
+              <Field label="Nama Orang Tua / Wali" placeholder="Nama ayah atau wali" value={form.ortu} onChange={update("ortu")} required />
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[12.5px] font-semibold text-[#284061]">Jenjang yang Dipilih</label>
+                <select
+                  required
+                  value={form.jenjang}
+                  onChange={update("jenjang")}
+                  className="px-4 py-3 rounded-xl border-[1.5px] border-slate-200 text-[13px] bg-slate-50 focus:bg-white focus:border-[#284061] focus:ring-2 focus:ring-[#284061]/15 outline-none transition-all cursor-pointer"
+                >
+                  <option value="" disabled>Pilih jenjang</option>
+                  <option value="mts">MTs (Madrasah Tsanawiyah)</option>
+                  <option value="sma">SMA (Sekolah Menengah Atas)</option>
+                </select>
+              </div>
+
+              <Field label="Asal Sekolah" placeholder="Sekolah asal saat ini" value={form.asal} onChange={update("asal")} required />
+              <Field label="Nomor Handphone Aktif" type="tel" placeholder="08xx xxxx xxxx" value={form.hp} onChange={update("hp")} required />
+              <Field label="Alamat Email" type="email" placeholder="nama@email.com" value={form.email} onChange={update("email")} />
+
+              <div className="sm:col-span-2">
+                <Field label="Alamat Lengkap" placeholder="Tulis alamat lengkap domisili" value={form.alamat} onChange={update("alamat")} required />
+              </div>
+
+              <UploadField label="Upload Foto Calon Santri" Icon={Camera} txt="Klik untuk upload foto" sub="Format: JPG/PNG · Max 2MB" />
+              <UploadField label="Upload Rapor / Ijazah" Icon={FileText} txt="Klik untuk upload dokumen" sub="Format: PDF · Max 5MB" />
+
+              <div className="sm:col-span-2">
+                <label className="flex items-start gap-2.5 cursor-pointer group">
+                  <input type="checkbox" required checked={form.setuju} onChange={update("setuju")} className="w-4 h-4 mt-1 accent-[#284061] flex-shrink-0" />
+                  <span className="text-[12.5px] text-slate-500 leading-[1.6] group-hover:text-slate-700 transition-colors">
+                    Saya menyatakan bahwa data yang diisi adalah benar dan dapat dipertanggungjawabkan. Saya bersedia mengikuti seluruh proses seleksi PPDB Pesantren Al Kautsar.
+                  </span>
+                </label>
+              </div>
+
+              <button type="submit" disabled={submitting} className="sm:col-span-2 justify-self-start inline-flex items-center gap-2 bg-gradient-to-br from-[#284061] to-[#1a2d47] text-white px-8 py-3 rounded-xl text-[13.5px] font-bold shadow-xl shadow-[#284061]/25 hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed">
+                {submitting ? "Mengirim..." : "Daftar Sekarang"} {!submitting && <ArrowRight size={15} />}
+              </button>
+            </form>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
