@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Check, ChevronDown, Upload } from "lucide-react";
 import { GILDA_FONT } from "../utils/constants";
 import Reveal from "../components/common/Reveal";
+import { GA } from "../utils/analytics";
 
 function Field({ label, placeholder, type = "text", value, onChange, required, className = "", maxLength, minLength, pattern, title, inputMode }) {
   return (
@@ -107,6 +108,9 @@ export default function FormulirPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [files, setFiles] = useState({ foto_santri: null, bukti_transfer: null });
 
+  // Track saat halaman formulir dibuka
+  useEffect(() => { GA.formOpen(); }, []);
+
   const [form, setForm] = useState({
     namaLengkap: "", nomorOrtu: "", emailOrtu: "", jenisKelamin: "",
     tempatLahir: "", nikSantri: "", nomorKK: "", nisn: "",
@@ -147,6 +151,7 @@ export default function FormulirPage() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Gagal mengirim pendaftaran.");
 
+      GA.formSubmit(json.data?.nomor_pendaftaran);
       setSubmitted(true);
     } catch (err) {
       setErrorMsg(err.message);
