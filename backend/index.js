@@ -1,8 +1,6 @@
 require("dotenv").config();
 const express  = require("express");
 const cors     = require("cors");
-const path     = require("path");
-const fs       = require("fs");
 
 const pendaftaranRoute = require("./routes/pendaftaran");
 
@@ -10,14 +8,9 @@ const app  = express();
 const PORT = process.env.PORT || 3001;
 
 
-const uploadsDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
-
 app.use(cors({ origin: process.env.FRONTEND_URL || "*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.use("/uploads", express.static(uploadsDir));
 
 app.use("/api/pendaftaran", pendaftaranRoute);
 

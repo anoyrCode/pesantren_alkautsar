@@ -1,14 +1,29 @@
-const express = require("express");
-const multer  = require("multer");
-const path    = require("path");
-const fs      = require("fs");
-const pool    = require("../db");
+const express   = require("express");
+const multer    = require("multer");
+const path      = require("path");
+const pool      = require("../db");
+const supabase  = require("../supabase");
 
-function hapusFileUpload(files) {
-  if (!files) return;
-  Object.values(files).flat().forEach((f) => {
-    fs.unlink(f.path, () => {});
-  });
+const BUCKET = "ppdb";
+
+async function uploadToSupabase(file, folder) {
+  const ext      = path.extname(file.originalname);
+  const nama     = `${Date.now()}-${Math.round(Math.random() * 1e6)}${ext}`;
+  const filePath = `${folder}/${nama}`;
+
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(filePath, file.buffer, { contentType: file.mimetype });
+
+  if (error) throw new Error(`Gagal upload ${folder}: ${error.message}`);
+
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(filePath);
+  return { url: data.publicUrl, path: filePath };
+}
+
+async function hapusFileSupabase(paths) {
+  if (!paths || !paths.length) return;
+  await supabase.storage.from(BUCKET).remove(paths);
 }
 
 const router = express.Router();
@@ -69,18 +84,9 @@ function validasiForm(b) {
   return errors;
 }
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, "../uploads")),
-  filename: (req, file, cb) => {
-    const unik = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
-    const ext  = path.extname(file.originalname);
-    cb(null, `${file.fieldname}-${unik}${ext}`);
-  },
-});
-
 const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // maks 5 MB
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = ["image/jpeg", "image/png", "application/pdf"];
     if (allowed.includes(file.mimetype)) return cb(null, true);
@@ -90,7 +96,7 @@ const upload = multer({
 
 
 async function generateNomor() {
-  const tahun = new Date().getFullYear();
+  const tahun = 2027;
   const { rows } = await pool.query(
     "SELECT COUNT(*) FROM pendaftaran WHERE created_at >= $1",
     [`${tahun}-01-01`]
@@ -110,22 +116,31 @@ router.post(
     try {
       const b = req.body;
 
-      
       if (!req.files?.foto_santri || !req.files?.bukti_transfer) {
-        hapusFileUpload(req.files);
         return res.status(400).json({ error: "File foto santri dan bukti transfer wajib diupload." });
       }
 
-      
       const errors = validasiForm(b);
       if (errors.length) {
-        hapusFileUpload(req.files);
         return res.status(400).json({ error: errors[0], errors });
       }
 
-      const urlFoto    = `/uploads/${req.files.foto_santri[0].filename}`;
-      const urlTransfer = `/uploads/${req.files.bukti_transfer[0].filename}`;
-      const nomor      = await generateNomor();
+      const uploadedPaths = [];
+      let urlFoto, urlTransfer;
+
+      try {
+        const foto     = await uploadToSupabase(req.files.foto_santri[0],    "foto_santri");
+        uploadedPaths.push(foto.path);
+        const transfer = await uploadToSupabase(req.files.bukti_transfer[0], "bukti_transfer");
+        uploadedPaths.push(transfer.path);
+        urlFoto     = foto.url;
+        urlTransfer = transfer.url;
+      } catch (uploadErr) {
+        await hapusFileSupabase(uploadedPaths);
+        return res.status(500).json({ error: uploadErr.message });
+      }
+
+      const nomor = await generateNomor();
 
       const query = `
         INSERT INTO pendaftaran (
@@ -186,7 +201,6 @@ router.post(
         data: rows[0],
       });
     } catch (err) {
-      hapusFileUpload(req.files);
       console.error("Error pendaftaran:", err.message);
       res.status(500).json({ error: "Terjadi kesalahan server. Silakan coba lagi." });
     }
