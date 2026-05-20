@@ -3,15 +3,24 @@ const express  = require("express");
 const cors     = require("cors");
 
 const pendaftaranRoute = require("./routes/pendaftaran");
+const adminRoute       = require("./routes/admin");
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
 
-
-app.use(cors({ origin: process.env.FRONTEND_URL || "*" }));
+const allowedOrigins = (process.env.FRONTEND_URL || "").split(",").map(o => o.trim()).filter(Boolean);
+app.use(cors({
+  origin: allowedOrigins.length ? allowedOrigins : "*",
+}));
+// Bypass ngrok browser warning untuk semua request
+app.use((req, res, next) => {
+  res.setHeader("ngrok-skip-browser-warning", "true");
+  next();
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use("/api/admin",       adminRoute);
 app.use("/api/pendaftaran", pendaftaranRoute);
 
 app.get("/", (req, res) => {

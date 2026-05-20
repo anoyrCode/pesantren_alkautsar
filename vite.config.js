@@ -8,11 +8,15 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  server : {
-    host : true,
-    allowedHosts : [
-      'nonincreasable-jaxen-solenoidal.ngrok-free.dev'
-    ]
+  server: {
+    host: true,
+    allowedHosts: ["nonincreasable-jaxen-solenoidal.ngrok-free.dev"],
+    proxy: {
+      "/api": {
+        target: "http://localhost:3001",
+        changeOrigin: true,
+      },
+    },
   }
 
 })

@@ -4,6 +4,7 @@ import { ArrowRight, ArrowLeft, Check, ChevronDown, Upload } from "lucide-react"
 import { GILDA_FONT } from "../utils/constants";
 import Reveal from "../components/common/Reveal";
 import { GA } from "../utils/analytics";
+import { apiFetch } from "../utils/api";
 
 function Field({ label, placeholder, type = "text", value, onChange, required, className = "", maxLength, minLength, pattern, title, inputMode }) {
   return (
@@ -143,7 +144,7 @@ export default function FormulirPage() {
       fd.append("foto_santri",    files.foto_santri);
       fd.append("bukti_transfer", files.bukti_transfer);
 
-      const res = await fetch("http://localhost:3001/api/pendaftaran", {
+      const res = await apiFetch("/api/pendaftaran", {
         method: "POST",
         body: fd,
       });

@@ -3,6 +3,7 @@ const multer    = require("multer");
 const path      = require("path");
 const pool      = require("../db");
 const supabase  = require("../supabase");
+const auth      = require("../middleware/auth");
 
 const BUCKET = "ppdb";
 
@@ -98,10 +99,14 @@ const upload = multer({
 async function generateNomor() {
   const tahun = 2027;
   const { rows } = await pool.query(
-    "SELECT COUNT(*) FROM pendaftaran WHERE created_at >= $1",
-    [`${tahun}-01-01`]
+    "SELECT nomor_pendaftaran FROM pendaftaran WHERE nomor_pendaftaran LIKE $1 ORDER BY nomor_pendaftaran DESC LIMIT 1",
+    [`PPDB-${tahun}-%`]
   );
-  const urutan = parseInt(rows[0].count) + 1;
+  let urutan = 1;
+  if (rows.length > 0) {
+    const bagian = rows[0].nomor_pendaftaran.split("-");
+    urutan = parseInt(bagian[2]) + 1;
+  }
   return `PPDB-${tahun}-${String(urutan).padStart(5, "0")}`;
 }
 
@@ -208,10 +213,10 @@ router.post(
 );
 
 
-router.get("/", async (req, res) => {
+router.get("/", auth, async (req, res) => {
   try {
     const { rows } = await pool.query(
-      "SELECT id, nomor_pendaftaran, nama_lengkap, nomor_hp_ortu, status, created_at FROM pendaftaran ORDER BY created_at DESC"
+      "SELECT id, nomor_pendaftaran, nama_lengkap, jenis_kelamin, nomor_hp_ortu, sekolah_asal, status, created_at FROM pendaftaran ORDER BY created_at DESC"
     );
     res.json({ data: rows });
   } catch (err) {
@@ -221,7 +226,7 @@ router.get("/", async (req, res) => {
 });
 
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", auth, async (req, res) => {
   try {
     const { rows } = await pool.query(
       "SELECT * FROM pendaftaran WHERE id = $1",
