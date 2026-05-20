@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, FileDown } from "lucide-react";
 import { apiFetch } from "../../utils/api";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 function getToken() {
   return localStorage.getItem("admin_token");
@@ -30,10 +32,151 @@ function Section({ title, children }) {
   );
 }
 
+function exportPDF(d) {
+  const doc      = new jsPDF({ unit: "mm", format: "a4" });
+  const PAGE_W   = 210;
+  const MARGIN   = 14;
+  const C_NAVY   = [40, 64, 97];
+  const C_GRAY   = [90, 90, 90];
+  const C_LIGHT  = [240, 245, 252];
+
+  // ── Header banner ──
+  doc.setFillColor(...C_NAVY);
+  doc.rect(0, 0, PAGE_W, 30, "F");
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.text("PESANTREN AL KAUTSAR", MARGIN, 12);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.text("Formulir Pendaftaran Peserta Didik Baru (PPDB) 2027/2028", MARGIN, 20);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text(d.nomor_pendaftaran, PAGE_W - MARGIN, 16, { align: "right" });
+
+  let y = 36;
+
+  function section(title, rows) {
+    const filtered = rows.filter(([, v]) => v != null && String(v).trim() !== "");
+    if (!filtered.length) return;
+    autoTable(doc, {
+      startY: y,
+      head: [[{ content: title, colSpan: 2 }]],
+      body: filtered,
+      theme: "plain",
+      margin: { left: MARGIN, right: MARGIN },
+      styles: {
+        fontSize: 8.5,
+        cellPadding: { top: 2.8, bottom: 2.8, left: 3.5, right: 3.5 },
+        lineColor: [220, 225, 235],
+        lineWidth: 0.15,
+        textColor: [30, 30, 30],
+      },
+      headStyles: {
+        fillColor: C_LIGHT,
+        textColor: C_NAVY,
+        fontStyle: "bold",
+        fontSize: 8.5,
+        lineColor: C_LIGHT,
+      },
+      columnStyles: {
+        0: { cellWidth: 54, textColor: C_GRAY },
+        1: { cellWidth: "auto" },
+      },
+      alternateRowStyles: { fillColor: [250, 252, 255] },
+    });
+    y = doc.lastAutoTable.finalY + 5;
+  }
+
+  section("DATA SANTRI", [
+    ["Nama Lengkap",            d.nama_lengkap],
+    ["Jenis Kelamin",           d.jenis_kelamin?.trim()],
+    ["Tempat Lahir",            d.tempat_lahir],
+    ["NIK",                     d.nik_santri],
+    ["Nomor KK",                d.nomor_kk],
+    ["NISN",                    d.nisn],
+    ["Golongan Darah",          d.golongan_darah],
+    ["Berat Badan",             d.berat_badan ? `${d.berat_badan} kg` : null],
+    ["Tinggi Badan",            d.tinggi_badan ? `${d.tinggi_badan} cm` : null],
+    ["Anak ke-",                d.anak_ke?.toString()],
+    ["Hobi",                    d.hobi],
+    ["Cita-cita",               d.cita_cita],
+    ["Penyakit / Kondisi",      d.penyakit],
+    ["No. HP Orang Tua",        d.nomor_hp_ortu],
+    ["Email Orang Tua",         d.email_ortu],
+  ]);
+
+  section("ALAMAT", [
+    ["Alamat Rumah",   d.alamat_rumah],
+    ["Kelurahan",      d.kelurahan],
+    ["Kecamatan",      d.kecamatan],
+    ["Kabupaten/Kota", d.kabupaten],
+    ["Provinsi",       d.provinsi],
+    ["Status Rumah",   d.status_rumah],
+  ]);
+
+  section("DATA AYAH", [
+    ["Nama",         d.nama_ayah],
+    ["NIK",          d.nik_ayah],
+    ["No. WhatsApp", d.wa_ayah],
+    ["Pendidikan",   d.pendidikan_ayah],
+    ["Pekerjaan",    d.pekerjaan_ayah],
+    ["Penghasilan",  d.gaji_ayah],
+    ["Status Nikah", d.status_nikah_ayah],
+  ]);
+
+  section("DATA IBU", [
+    ["Nama",         d.nama_ibu],
+    ["NIK",          d.nik_ibu],
+    ["No. WhatsApp", d.wa_ibu],
+    ["Pendidikan",   d.pendidikan_ibu],
+    ["Pekerjaan",    d.pekerjaan_ibu],
+    ["Penghasilan",  d.gaji_ibu],
+    ["Status Nikah", d.status_nikah_ibu],
+  ]);
+
+  if (d.nama_wali || d.wa_wali) {
+    section("DATA WALI", [
+      ["Nama Wali",    d.nama_wali],
+      ["No. WhatsApp", d.wa_wali],
+    ]);
+  }
+
+  section("ASAL SEKOLAH", [
+    ["Nama Sekolah",    d.sekolah_asal],
+    ["NPSN",            d.npsn],
+    ["Alamat Sekolah",  d.alamat_sekolah],
+  ]);
+
+  section("DOKUMEN", [
+    ["Foto Santri",    d.url_foto_santri],
+    ["Bukti Transfer", d.url_bukti_transfer],
+  ]);
+
+  // ── Footer tiap halaman ──
+  const total = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= total; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(...C_NAVY);
+    doc.setLineWidth(0.25);
+    doc.line(MARGIN, 285, PAGE_W - MARGIN, 285);
+    doc.setFontSize(7.5);
+    doc.setTextColor(...C_GRAY);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Dicetak: ${new Date().toLocaleString("id-ID")}`, MARGIN, 290);
+    doc.text(`Halaman ${i} / ${total}`, PAGE_W - MARGIN, 290, { align: "right" });
+  }
+
+  doc.save(`${d.nomor_pendaftaran} - ${d.nama_lengkap}.pdf`);
+}
+
 export default function AdminDetail() {
-  const { id }     = useParams();
-  const navigate   = useNavigate();
-  const [d, setD]  = useState(null);
+  const { id }    = useParams();
+  const navigate  = useNavigate();
+  const [d, setD] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -70,6 +213,13 @@ export default function AdminDetail() {
           <h1 className="text-lg font-bold text-gray-800">{d.nama_lengkap}</h1>
           <p className="text-xs text-gray-500 font-mono">{d.nomor_pendaftaran}</p>
         </div>
+        <button
+          onClick={() => exportPDF(d)}
+          className="ml-auto flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
+        >
+          <FileDown size={15} />
+          Export PDF
+        </button>
       </header>
 
       <main className="px-6 py-6 max-w-5xl mx-auto space-y-4">
@@ -79,7 +229,7 @@ export default function AdminDetail() {
             Dokumen
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <DocCard label="Foto Santri" url={d.url_foto_santri} />
+            <DocCard label="Foto Santri"    url={d.url_foto_santri} />
             <DocCard label="Bukti Transfer" url={d.url_bukti_transfer} />
           </div>
         </div>
@@ -112,23 +262,23 @@ export default function AdminDetail() {
         </Section>
 
         <Section title="Data Ayah">
-          <Field label="Nama Ayah"       value={d.nama_ayah} />
-          <Field label="NIK Ayah"        value={d.nik_ayah} />
-          <Field label="No. WA Ayah"     value={d.wa_ayah} />
-          <Field label="Pendidikan"      value={d.pendidikan_ayah} />
-          <Field label="Pekerjaan"       value={d.pekerjaan_ayah} />
-          <Field label="Penghasilan"     value={d.gaji_ayah} />
-          <Field label="Status Nikah"    value={d.status_nikah_ayah} />
+          <Field label="Nama Ayah"    value={d.nama_ayah} />
+          <Field label="NIK Ayah"     value={d.nik_ayah} />
+          <Field label="No. WA Ayah"  value={d.wa_ayah} />
+          <Field label="Pendidikan"   value={d.pendidikan_ayah} />
+          <Field label="Pekerjaan"    value={d.pekerjaan_ayah} />
+          <Field label="Penghasilan"  value={d.gaji_ayah} />
+          <Field label="Status Nikah" value={d.status_nikah_ayah} />
         </Section>
 
         <Section title="Data Ibu">
-          <Field label="Nama Ibu"        value={d.nama_ibu} />
-          <Field label="NIK Ibu"         value={d.nik_ibu} />
-          <Field label="No. WA Ibu"      value={d.wa_ibu} />
-          <Field label="Pendidikan"      value={d.pendidikan_ibu} />
-          <Field label="Pekerjaan"       value={d.pekerjaan_ibu} />
-          <Field label="Penghasilan"     value={d.gaji_ibu} />
-          <Field label="Status Nikah"    value={d.status_nikah_ibu} />
+          <Field label="Nama Ibu"     value={d.nama_ibu} />
+          <Field label="NIK Ibu"      value={d.nik_ibu} />
+          <Field label="No. WA Ibu"   value={d.wa_ibu} />
+          <Field label="Pendidikan"   value={d.pendidikan_ibu} />
+          <Field label="Pekerjaan"    value={d.pekerjaan_ibu} />
+          <Field label="Penghasilan"  value={d.gaji_ibu} />
+          <Field label="Status Nikah" value={d.status_nikah_ibu} />
         </Section>
 
         {(d.nama_wali || d.wa_wali) && (
@@ -139,9 +289,9 @@ export default function AdminDetail() {
         )}
 
         <Section title="Asal Sekolah">
-          <Field label="Nama Sekolah"    value={d.sekolah_asal} />
-          <Field label="NPSN"            value={d.npsn} />
-          <Field label="Alamat Sekolah"  value={d.alamat_sekolah} />
+          <Field label="Nama Sekolah"   value={d.sekolah_asal} />
+          <Field label="NPSN"           value={d.npsn} />
+          <Field label="Alamat Sekolah" value={d.alamat_sekolah} />
         </Section>
 
         <p className="text-xs text-gray-400 text-right pb-4">
