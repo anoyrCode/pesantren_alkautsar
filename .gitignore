@@ -21,6 +21,11 @@ backend/.env
 backend/uploads/*
 !backend/uploads/.gitkeep
 
+# Catatan & dokumen kerja lokal (tidak untuk repo)
+*.md
+!README.md
+docs/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
