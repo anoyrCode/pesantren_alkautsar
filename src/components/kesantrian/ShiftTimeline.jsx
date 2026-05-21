@@ -22,10 +22,10 @@ export default function ShiftTimeline() {
         </p>
 
         <div className="relative pl-16 sm:pl-20">
-          <div className="absolute left-6 sm:left-[26px] top-0 bottom-0 w-[1.5px] bg-gradient-to-b from-amber-500 to-slate-200" />
+          <div className="absolute left-6 sm:left-6.5 top-0 bottom-0 w-[1.5px] bg-linear-to-b from-amber-500 to-slate-200" />
           {SHIFTS.map((s) => (
             <div key={s.n} className="relative flex gap-5 py-5 group hover:translate-x-1 transition-transform">
-              <div className="absolute -ml-16 sm:-ml-20 w-[52px] h-[52px] flex-shrink-0 bg-gradient-to-br from-[#284061] to-[#1a2d47] border-2 border-amber-500 rounded-xl flex flex-col items-center justify-center z-10 shadow-lg shadow-[#284061]/25">
+              <div className="absolute -ml-16 sm:-ml-20 w-13 h-13 shrink-0 bg-linear-to-br from-[#284061] to-[#1a2d47] border-2 border-amber-500 rounded-xl flex flex-col items-center justify-center z-10 shadow-lg shadow-[#284061]/25">
                 <span className="text-[9px] font-bold tracking-wider text-amber-300 uppercase">Shift</span>
                 <span className="text-[13px] font-bold text-white">{s.n}</span>
               </div>

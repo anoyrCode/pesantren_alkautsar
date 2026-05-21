@@ -22,21 +22,30 @@ export default function JadwalHarian() {
         <div className="grid lg:grid-cols-3 gap-5">
           {JADWAL.map((j, k) => (
             <Reveal key={k} delay={k * 80}>
-              <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all">
-                <div className="bg-gradient-to-br from-[#284061] to-[#1a2d47] p-5 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/15 rounded-lg flex items-center justify-center text-white">
+              <div className="group bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 h-full flex flex-col">
+                {/* Card header */}
+                <div className="bg-linear-to-br from-[#284061] to-[#1a2d47] p-5 flex items-center gap-3 relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
+                  <div className="relative z-10 w-10 h-10 bg-white/15 border border-white/20 rounded-xl flex items-center justify-center text-amber-300">
                     <j.Icon size={18} />
                   </div>
-                  <div>
+                  <div className="relative z-10">
                     <div className="text-[13.5px] font-bold text-white">{j.t}</div>
                     <div className="text-[11px] text-white/50">{j.r}</div>
                   </div>
+                  {/* Amber bottom accent */}
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-amber-400/60 to-transparent" />
                 </div>
-                <div className="p-5 px-6">
+
+                {/* Schedule rows */}
+                <div className="p-5 px-6 flex-1">
                   {j.list.map(([act, time], i) => (
-                    <div key={i} className={`flex justify-between items-center py-2.5 ${i < j.list.length - 1 ? "border-b border-dashed border-slate-100" : ""} hover:translate-x-1 transition-transform`}>
-                      <span className="text-[12.5px] text-slate-900 font-medium">{act}</span>
-                      <span className="text-[11px] font-bold text-[#284061] bg-slate-100 px-2.5 py-1 rounded-md">{time}</span>
+                    <div
+                      key={i}
+                      className={`flex justify-between items-center py-2.5 ${i < j.list.length - 1 ? "border-b border-dashed border-slate-100" : ""} hover:translate-x-1 transition-transform`}
+                    >
+                      <span className="text-[12.5px] text-slate-700 font-medium">{act}</span>
+                      <span className="text-[11px] font-bold text-[#284061] bg-[#284061]/[.07] px-2.5 py-1 rounded-lg tabular-nums">{time}</span>
                     </div>
                   ))}
                 </div>
