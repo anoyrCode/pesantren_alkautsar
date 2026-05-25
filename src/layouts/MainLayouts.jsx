@@ -102,7 +102,7 @@ export default function MainLayout() {
             </button>
           ))}
         </div>
-     
+
         <div className="flex items-center gap-2.5 flex-shrink-0">
           <button
             onClick={() => handleNav("/ppdb")}

@@ -110,7 +110,6 @@ async function generateNomor() {
   return `PPDB-${tahun}-${String(urutan).padStart(5, "0")}`;
 }
 
-
 router.post(
   "/",
   upload.fields([
