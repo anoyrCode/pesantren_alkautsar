@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate, Link } from "react-router-dom";
 import { Menu, X, ArrowRight, MapPin, Phone, Clock, MessageCircle } from "lucide-react";
 
@@ -151,7 +151,7 @@ export default function MainLayout() {
         <Outlet />
       </main>
       {/* ─── FOOTER ─── */}
-      <footer className="bg-gradient-to-br from-[#1a2d47] to-[#0f1f33] pt-16 lg:pt-20">
+      <footer className="bg-linear-to-br from-[#1a2d47] to-[#0f1f33] pt-16 lg:pt-20">
         <div className="w-[min(1180px,92vw)] mx-auto">
           <div className="grid sm:grid-cols-2 lg:grid-cols-[1.8fr_1fr_1fr_1.2fr] gap-10 lg:gap-12 mb-12">
             <div>

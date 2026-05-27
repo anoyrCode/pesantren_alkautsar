@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Camera, FileText, ArrowRight, Check } from "lucide-react";
 import SectionHeader from "../common/SectionHeader";
 import Reveal from "../common/Reveal";
@@ -103,7 +103,7 @@ export default function PPDBForm() {
                 </label>
               </div>
 
-              <button type="submit" disabled={submitting} className="sm:col-span-2 justify-self-start inline-flex items-center gap-2 bg-gradient-to-br from-[#284061] to-[#1a2d47] text-white px-8 py-3 rounded-xl text-[13.5px] font-bold shadow-xl shadow-[#284061]/25 hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed">
+              <button type="submit" disabled={submitting} className="sm:col-span-2 justify-self-start inline-flex items-center gap-2 bg-linear-to-br from-[#284061] to-[#1a2d47] text-white px-8 py-3 rounded-xl text-[13.5px] font-bold shadow-xl shadow-[#284061]/25 hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed">
                 {submitting ? "Mengirim..." : "Daftar Sekarang"} {!submitting && <ArrowRight size={15} />}
               </button>
             </form>

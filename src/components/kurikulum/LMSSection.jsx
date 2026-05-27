@@ -1,4 +1,4 @@
-import { BarChart3, Smartphone, Users } from "lucide-react";
+﻿import { BarChart3, Smartphone, Users } from "lucide-react";
 import { GILDA_FONT } from "../../utils/constants";
 import Reveal from "../common/Reveal";
 import lms from "../../assets/lms.png";
@@ -35,7 +35,7 @@ export default function LMSSection() {
           <ul className="space-y-4">
             {FEATURES.map(([Icon, t, d]) => (
               <li key={t} className="flex gap-3.5 items-start">
-                <div className="w-9 h-9 flex-shrink-0 rounded-xl bg-gradient-to-br from-[#284061] to-[#1a2d47] flex items-center justify-center text-white">
+                <div className="w-9 h-9 flex-shrink-0 rounded-xl bg-linear-to-br from-[#284061] to-[#1a2d47] flex items-center justify-center text-white">
                   <Icon size={15} />
                 </div>
                 <div>

@@ -1,4 +1,4 @@
-import { UtensilsCrossed, BedDouble, Shirt, Monitor, BookOpen, Shirt as Uniform } from "lucide-react";
+﻿import { UtensilsCrossed, BedDouble, Shirt, Monitor, BookOpen, Shirt as Uniform } from "lucide-react";
 import { GILDA_FONT } from "../../utils/constants";
 import SectionHeader from "../common/SectionHeader";
 import Reveal from "../common/Reveal";
@@ -28,7 +28,7 @@ export default function PPDBBiaya() {
         <div className="grid lg:grid-cols-3 gap-5">
           {FEES.map((f, i) => (
             <Reveal key={i} delay={i * 80}>
-              <div className={`rounded-2xl p-7 text-center hover:-translate-y-1 transition-all h-full ${f.featured ? "bg-gradient-to-br from-[#284061] to-[#1a2d47] text-white shadow-2xl shadow-[#284061]/25" : "bg-white border border-slate-100 hover:shadow-xl"}`}>
+              <div className={`rounded-2xl p-7 text-center hover:-translate-y-1 transition-all h-full ${f.featured ? "bg-linear-to-br from-[#284061] to-[#1a2d47] text-white shadow-2xl shadow-[#284061]/25" : "bg-white border border-slate-100 hover:shadow-xl"}`}>
                 <div className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-4 ${f.featured ? "bg-amber-500/20 text-amber-300" : "bg-amber-500/10 text-amber-500"}`}>
                   {f.tag}
                 </div>

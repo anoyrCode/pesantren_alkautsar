@@ -1,4 +1,4 @@
-import { BookOpen, Languages, FlaskConical, Globe2, Rocket, Briefcase } from "lucide-react";
+﻿import { BookOpen, Languages, FlaskConical, Globe2, Rocket, Briefcase } from "lucide-react";
 import { GILDA_FONT } from "../../utils/constants";
 import Reveal from "../common/Reveal";
 
@@ -25,7 +25,7 @@ export default function KurikulumPilar() {
           <Reveal key={i} delay={i * 70}>
             <div className="group bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all h-full flex flex-col">
               <div className="p-6 pb-3 flex items-start justify-between">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#284061] to-[#1a2d47] flex items-center justify-center text-white">
+                <div className="w-11 h-11 rounded-xl bg-linear-to-br from-[#284061] to-[#1a2d47] flex items-center justify-center text-white">
                   <k.Icon size={18} />
                 </div>
                 <div className="text-right">

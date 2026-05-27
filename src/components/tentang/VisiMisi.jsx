@@ -18,7 +18,7 @@ export default function VisiMisi() {
 
         <div className="grid lg:grid-cols-2 gap-5">
           <Reveal>
-            <div className="bg-gradient-to-br from-[#284061] to-[#1a2d47] rounded-3xl p-8 lg:p-10 relative overflow-hidden h-full">
+            <div className="bg-linear-to-br from-[#284061] to-[#1a2d47] rounded-3xl p-8 lg:p-10 relative overflow-hidden h-full">
               <div className="absolute top-0 right-0 w-64 h-64 rounded-full" style={{ background: "radial-gradient(circle,rgba(192,155,90,.12) 0%,transparent 65%)" }} />
               <div className="text-[11px] font-bold tracking-wider uppercase text-amber-300 inline-flex items-center gap-2 mb-4 relative z-10">
                 <span className="w-4 h-[1.5px] rounded bg-amber-300" /> Visi

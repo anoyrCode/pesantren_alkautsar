@@ -1,10 +1,10 @@
-import { GILDA_FONT } from "../../utils/constants";
+﻿import { GILDA_FONT } from "../../utils/constants";
 
 export default function BentoCard({ dark, gold, span, tag, num, sub, title, body, emoji, chips, multiStats }) {
   const base = "group relative overflow-hidden rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1";
   let bgClass = "bg-white border border-slate-100 hover:border-slate-200 hover:shadow-xl";
-  if (dark) bgClass = "bg-gradient-to-br from-[#284061] to-[#1a2d47] hover:from-[#1a2d47] hover:to-[#142844]";
-  if (gold) bgClass = "bg-gradient-to-br from-amber-500 to-amber-600";
+  if (dark) bgClass = "bg-linear-to-br from-[#284061] to-[#1a2d47] hover:from-[#1a2d47] hover:to-[#142844]";
+  if (gold) bgClass = "bg-linear-to-br from-amber-500 to-amber-600";
 
   const tagColor = dark ? "text-amber-300" : gold ? "text-white/70" : "text-amber-500";
   const titleColor = dark || gold ? "text-white" : "text-[#284061]";

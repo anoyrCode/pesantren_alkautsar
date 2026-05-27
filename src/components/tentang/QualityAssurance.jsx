@@ -1,4 +1,4 @@
-import { GraduationCap, Flag, Sparkles } from "lucide-react";
+﻿import { GraduationCap, Flag, Sparkles } from "lucide-react";
 import { GILDA_FONT } from "../../utils/constants";
 import SectionHeader from "../common/SectionHeader";
 import Reveal from "../common/Reveal";
@@ -24,7 +24,7 @@ export default function QualityAssurance() {
           {QA.map((q, i) => (
             <Reveal key={i} delay={i * 80}>
               <div className="group bg-white border border-slate-100 rounded-2xl p-7 relative overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all h-full">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#284061] to-[#1a2d47] flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-11 h-11 rounded-xl bg-linear-to-br from-[#284061] to-[#1a2d47] flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform">
                   <q.Icon size={18} />
                 </div>
                 <h3 className="text-[15px] font-bold text-[#284061] mb-3">{q.t}</h3>

@@ -1,17 +1,27 @@
+import { useState } from "react";
 import { GILDA_FONT } from "../../utils/constants";
 import Reveal from "../common/Reveal";
+import useParallax from "../../hooks/useParallax";
 
 const STATS = [["901", "Santri Aktif"], ["24h", "Pengawasan"], ["1:10", "Rasio Musyrif"], ["110", "CCTV Aktif"]];
 
 export default function KesantrianBanner() {
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const { ref: bannerRef, y: pY } = useParallax(1);
+
+  function onMove(e) {
+    const r = e.currentTarget.getBoundingClientRect();
+    setPos({ x: (e.clientX - r.left - r.width / 2) / r.width, y: (e.clientY - r.top - r.height / 2) / r.height });
+  }
+
   return (
     <Reveal>
-      <div className="bg-linear-to-br from-[#284061] to-[#1a2d47] rounded-3xl p-9 lg:p-14 relative overflow-hidden mb-14">
-        {/* Decorative orbs */}
+      <div ref={bannerRef} className="bg-linear-to-br from-[#284061] to-[#1a2d47] rounded-3xl p-9 lg:p-14 relative overflow-hidden mb-14" onMouseMove={onMove}>
+        {/* Decorative orbs — mouse parallax + scroll parallax combined */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-amber-400/7 blur-3xl" />
-          <div className="absolute -bottom-20 -left-10 w-56 h-56 rounded-full bg-[#3a6090]/40 blur-2xl" />
-          <div className="absolute top-0 right-0 w-full h-full" style={{ background: "radial-gradient(ellipse 55% 70% at 85% 15%, rgba(192,155,90,.1) 0%, transparent 60%)" }} />
+          <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-amber-400/7 blur-3xl" style={{ transform: `translate3d(${pos.x * 22}px, ${pos.y * 16 + pY * -0.12}px, 0)`, transition: "transform 0.15s linear" }} />
+          <div className="absolute -bottom-20 -left-10 w-56 h-56 rounded-full bg-[#3a6090]/40 blur-2xl" style={{ transform: `translate3d(${pos.x * -16}px, ${pos.y * -12 + pY * 0.1}px, 0)`, transition: "transform 0.2s linear" }} />
+          <div className="absolute top-0 right-0 w-full h-full" style={{ background: "radial-gradient(ellipse 55% 70% at 85% 15%, rgba(192,155,90,.1) 0%, transparent 60%)", transform: `translateY(${pY * 0.07}px)` }} />
         </div>
 
         {/* Dot pattern */}

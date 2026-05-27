@@ -13,7 +13,7 @@ const PROGRAMS = [
 
 export default function ProgramSection() {
   return (
-    <section className="py-20 lg:py-24 bg-gradient-to-b from-slate-50 to-white">
+    <section className="py-20 lg:py-24 bg-linear-to-b from-slate-50 to-white">
       <div className="w-[min(1180px,92vw)] mx-auto">
         <SectionHeader tag="Program Unggulan" title="Program" italic="Pembentukan Santri" />
 
@@ -21,7 +21,7 @@ export default function ProgramSection() {
           {PROGRAMS.map((p, i) => (
             <Reveal key={i} delay={i * 60}>
               <div className="group bg-white border border-slate-100 rounded-2xl p-7 hover:shadow-xl hover:shadow-[#284061]/8 hover:-translate-y-1 transition-all duration-300 h-full">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#284061] to-[#1a2d47] flex items-center justify-center text-white mb-5 group-hover:scale-110 group-hover:-rotate-3 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[#284061] to-[#1a2d47] flex items-center justify-center text-white mb-5 group-hover:scale-110 group-hover:-rotate-3 transition-transform">
                   <p.Icon size={20} />
                 </div>
                 <h3 className="text-[16px] font-bold text-[#284061] mb-2">{p.title}</h3>

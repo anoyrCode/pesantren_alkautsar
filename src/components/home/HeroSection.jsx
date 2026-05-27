@@ -1,31 +1,56 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, MapPin } from "lucide-react";
 import { ARABIC_FONT, GILDA_FONT } from "../../utils/constants";
+import useParallax from "../../hooks/useParallax";
 
 export default function HeroSection() {
   const navigate = useNavigate();
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [px, setPx] = useState({ x: 0, y: 0 });
+  const { ref: sectionRef, y: pY } = useParallax(1);
+
+  function onMove(e) {
+    const r = e.currentTarget.getBoundingClientRect();
+    setPos({ x: (e.clientX - r.left - r.width / 2) / r.width, y: (e.clientY - r.top - r.height / 2) / r.height });
+    setPx({ x: e.clientX - r.left, y: e.clientY - r.top });
+  }
 
   return (
-    <section className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden bg-[#1a2d47]">
+    <section ref={sectionRef} className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden bg-[#1a2d47]" onMouseMove={onMove}>
       {/* layer background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1a2d47] via-[#284061] to-[#3a5a8c]" />
-      <div className="absolute inset-0 opacity-50" style={{ background: "radial-gradient(ellipse 70% 60% at 80% 20%,rgba(192,155,90,.18) 0%,transparent 55%)" }} />
+      <div className="absolute inset-0 bg-linear-to-br from-[#1a2d47] via-[#284061] to-[#3a5a8c]" />
+      <div
+        className="absolute inset-0 opacity-50"
+        style={{
+          background: "radial-gradient(ellipse 70% 60% at 80% 20%,rgba(192,155,90,.18) 0%,transparent 55%)",
+          transform: `translateY(${pY * 0.12}px)`,
+        }}
+      />
       <div
         className="absolute inset-0 opacity-40"
         style={{
           backgroundImage: "linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px)",
           backgroundSize: "72px 72px",
           maskImage: "radial-gradient(ellipse 80% 70% at 50% 50%,black 30%,transparent 75%)",
+          transform: `translateY(${pY * 0.07}px)`,
         }}
       />
 
-      {/* buletan muter animasi */}
-      <div className="absolute -right-20 -top-20 w-[480px] h-[480px] rounded-full border border-white/5 animate-[spin_20s_linear_infinite] pointer-events-none" />
-      <div className="absolute -left-16 -bottom-16 w-[360px] h-[360px] rounded-full border border-amber-500/10 animate-[spin_28s_linear_infinite_reverse] pointer-events-none" />
+      {/* cursor glow */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle 380px at ${px.x}px ${px.y}px, rgba(212,140,26,.08), transparent 65%)` }} />
+
+      {/* decorative circles — mouse parallax + scroll parallax combined */}
+      <div className="absolute -right-20 -top-20 pointer-events-none" style={{ transform: `translate3d(${pos.x * 24}px, ${pos.y * 18 + pY * -0.1}px, 0)`, transition: "transform 0.12s linear" }}>
+        <div className="w-120 h-120 rounded-full border border-white/5 animate-[spin_20s_linear_infinite]" />
+      </div>
+      <div className="absolute -left-16 -bottom-16 pointer-events-none" style={{ transform: `translate3d(${pos.x * -16}px, ${pos.y * -12 + pY * 0.08}px, 0)`, transition: "transform 0.18s linear" }}>
+        <div className="w-90 h-90 rounded-full border border-amber-500/10 animate-[spin_28s_linear_infinite_reverse]" />
+      </div>
 
       <div className="relative z-10 w-[min(1180px,92vw)] mx-auto flex flex-col lg:flex-row gap-12 lg:gap-16 items-center py-12 lg:py-12">
         <div className="flex-1">
-          <div className="inline-flex items-center gap-2.5 bg-white/[.08] border border-white/15 rounded-full pr-4 pl-2 py-1.5 mb-6 backdrop-blur-md animate-[fU_.7s_ease-out]">
+          <div className="inline-flex items-center gap-2.5 bg-white/8 border border-white/15 rounded-full pr-4 pl-2 py-1.5 mb-6 backdrop-blur-md animate-[fU_.7s_ease-out]">
             <div className="w-5 h-5 rounded-full bg-amber-500/80 flex items-center justify-center">
               <MapPin size={10} className="text-white" />
             </div>
@@ -33,7 +58,7 @@ export default function HeroSection() {
               Sidoarjo · 901 Santri · MTs & SMA
             </span>
           </div>
-        
+
           <h1
             className="text-white leading-[1.05] tracking-tight mb-6 animate-[fU_.7s_.08s_ease-out_both]"
             style={{ ...GILDA_FONT, fontSize: "clamp(36px,5.5vw,64px)" }}
@@ -47,7 +72,7 @@ export default function HeroSection() {
             Lembaga pendidikan Islam terpadu di Sidoarjo, di bawah naungan Kemenag dan Kemdikbud, bermanhaj Ahlussunnah wal Jamaah — memadukan aqidah, bahasa, dan akademik dalam satu sistem kepesantrenan 6 tahun.
           </p>
           <div className="flex flex-wrap gap-3 mb-12 animate-[fU_.7s_.24s_ease-out_both]">
-            <button onClick={() => navigate("/ppdb")} className="inline-flex items-center gap-2 bg-gradient-to-br from-amber-500 to-amber-600 text-white px-6 py-3 rounded-xl text-[13.5px] font-semibold shadow-xl shadow-amber-500/30 hover:shadow-2xl hover:-translate-y-0.5 transition-all hover:cursor-pointer">
+            <button onClick={() => navigate("/ppdb")} className="inline-flex items-center gap-2 bg-linear-to-br from-amber-500 to-amber-600 text-white px-6 py-3 rounded-xl text-[13.5px] font-semibold shadow-xl shadow-amber-500/30 hover:shadow-2xl hover:-translate-y-0.5 transition-all hover:cursor-pointer">
               Daftar PPDB <ArrowRight size={15} />
             </button>
             <button onClick={() => navigate("/tentang")} className="inline-flex items-center gap-2 text-white px-6 py-3 border border-white/25 rounded-xl text-[13.5px] font-semibold hover:bg-white/10 hover:border-white/50 transition-all hover:cursor-pointer">
@@ -73,19 +98,19 @@ export default function HeroSection() {
         </div>
 
         {/* kartu info sebelah kanan */}
-        <div className="hidden lg:flex flex-col gap-3 animate-[fL_.75s_.22s_ease-out_both] w-[420px] flex-shrink-0">
+        <div className="hidden lg:flex flex-col gap-3 animate-[fL_.75s_.22s_ease-out_both] w-105 shrink-0">
           {[
             { tag: "Inovasi Pembelajaran", title: "Discovery Task — Standar PISA", body: "Diskusi kelompok kecil, guru sebagai fasilitator, diterapkan untuk Diniyah dan Umum.", chips: ["PISA", "Diniyah", "LMS"] },
             { tag: "Akademik Kompetitif", title: "48jp Diniyah · 42jp Sains", body: "Pola bimbel intensif terstruktur. Super Camp UTBK untuk santri berprestasi.", chips: ["UTBK", "Super Camp", "ITS Tekno"] },
             { tag: "Keamanan & Kenyamanan", title: "3 Shift Musyrif · Rasio 1:10", body: "Sambungrejo, Sukodono, Sidoarjo. Anti-bullying, anti-LGBT.", chips: ["Sidoarjo", "Anti-Bullying"] },
           ].map((c, i) => (
-            <div key={i} className="group bg-white/[.07] border border-white/10 rounded-2xl p-5 backdrop-blur-md hover:bg-white/10 hover:border-white/20 hover:-translate-x-1 transition-all">
+            <div key={i} className="group bg-white/7 border border-white/10 rounded-2xl p-5 backdrop-blur-md hover:bg-white/10 hover:border-white/20 hover:-translate-x-1 transition-all">
               <div className="text-[10px] font-bold tracking-wider uppercase text-amber-300 mb-2">{c.tag}</div>
               <div className="text-[15px] font-semibold text-white mb-1.5">{c.title}</div>
               <div className="text-[12.5px] text-white/50 leading-relaxed font-light">{c.body}</div>
               <div className="flex gap-1.5 flex-wrap mt-2.5">
                 {c.chips.map((ch) => (
-                  <span key={ch} className="px-2 py-[2px] rounded-full text-[10.5px] font-semibold bg-white/[.08] border border-white/[.12] text-white/60">{ch}</span>
+                  <span key={ch} className="px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-white/8 border border-white/12 text-white/60">{ch}</span>
                 ))}
               </div>
             </div>
@@ -97,7 +122,7 @@ export default function HeroSection() {
       <div className="absolute bottom-0 left-0 right-0 overflow-hidden py-3 border-t border-white/5">
         <div className="flex whitespace-nowrap animate-[marq_26s_linear_infinite]">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="inline-flex items-center gap-5 px-6 text-base text-white/[.07] flex-shrink-0" style={{ ...ARABIC_FONT, direction: "rtl" }}>
+            <div key={i} className="inline-flex items-center gap-5 px-6 text-base text-white/7 shrink-0" style={{ ...ARABIC_FONT, direction: "rtl" }}>
               الكوثر — للعلم والإيمان — أهل السنة والجماعة — نهضة الأمة
             </div>
           ))}

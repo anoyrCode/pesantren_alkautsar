@@ -1,4 +1,4 @@
-import logoPolos from "../../assets/logoPolos.png";
+﻿import logoPolos from "../../assets/logoPolos.png";
 
 export default function Loader({ loading }) {
   return (
@@ -9,7 +9,7 @@ export default function Loader({ loading }) {
     >
       <img src={logoPolos} className="w-20 animate-pulse" alt="logo" />
       <div className="w-[180px] h-[2px] bg-white/10 rounded-full overflow-hidden">
-        <div className="h-full bg-gradient-to-r from-amber-500 to-amber-300 rounded-full animate-[ldFill_1.5s_ease-out_forwards]" />
+        <div className="h-full bg-linear-to-r from-amber-500 to-amber-300 rounded-full animate-[ldFill_1.5s_ease-out_forwards]" />
       </div>
       <div className="text-[11px] font-medium tracking-[.12em] uppercase text-white/30">
         Pesantren Al Kautsar · Sidoarjo

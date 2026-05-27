@@ -1,4 +1,4 @@
-import { BookOpen, Languages, FlaskConical, Globe2 } from "lucide-react";
+﻿import { BookOpen, Languages, FlaskConical, Globe2 } from "lucide-react";
 import SectionHeader from "../common/SectionHeader";
 import Reveal from "../common/Reveal";
 import ProgressBar from "../common/ProgressBar";
@@ -15,7 +15,7 @@ export default function KurikulumProgress() {
       />
 
       <Reveal>
-        <div className="bg-gradient-to-br from-[#284061] to-[#1a2d47] rounded-3xl p-8 lg:p-12 relative overflow-hidden mb-14">
+        <div className="bg-linear-to-br from-[#284061] to-[#1a2d47] rounded-3xl p-8 lg:p-12 relative overflow-hidden mb-14">
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 80% at 90% 10%,rgba(192,155,90,.12) 0%,transparent 55%)" }} />
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center relative z-10">
             <div>

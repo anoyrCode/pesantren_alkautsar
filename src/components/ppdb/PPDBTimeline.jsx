@@ -1,4 +1,4 @@
-import SectionHeader from "../common/SectionHeader";
+﻿import SectionHeader from "../common/SectionHeader";
 import Reveal from "../common/Reveal";
 import { GILDA_FONT } from "../../utils/constants";
 
@@ -18,7 +18,7 @@ export default function PPDBTimeline() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {STEPS.map((s, i) => (
             <Reveal key={i} delay={i * 80}>
-              <div className={`relative rounded-2xl p-6 text-center hover:-translate-y-1 transition-all h-full ${s.current ? "bg-gradient-to-br from-[#284061] to-[#1a2d47] shadow-xl shadow-[#284061]/25" : "bg-white border border-slate-100 hover:shadow-xl"}`}>
+              <div className={`relative rounded-2xl p-6 text-center hover:-translate-y-1 transition-all h-full ${s.current ? "bg-linear-to-br from-[#284061] to-[#1a2d47] shadow-xl shadow-[#284061]/25" : "bg-white border border-slate-100 hover:shadow-xl"}`}>
                 <div className={`w-11 h-11 rounded-full flex items-center justify-center mx-auto mb-4 ${s.current ? "bg-white/15 border-2 border-white/25 text-amber-300" : "bg-slate-50 border-2 border-slate-200 text-[#284061]"}`} style={GILDA_FONT}>
                   <span className="text-base font-bold">{s.n}</span>
                 </div>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { GILDA_FONT } from "../../utils/constants";
 
 export default function ProgressBar({ width, label, value, icon: Icon }) {
@@ -32,7 +32,7 @@ export default function ProgressBar({ width, label, value, icon: Icon }) {
       </div>
       <div className="h-[6px] bg-white/10 rounded-full overflow-hidden">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-300 origin-left transition-transform duration-[1250ms] ease-out"
+          className="h-full rounded-full bg-linear-to-r from-amber-500 to-amber-300 origin-left transition-transform duration-[1250ms] ease-out"
           style={{ transform: animate ? `scaleX(${width / 100})` : "scaleX(0)" }}
         />
       </div>

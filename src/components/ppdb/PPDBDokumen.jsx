@@ -1,4 +1,4 @@
-import { Camera, FileCheck, Check } from "lucide-react";
+﻿import { Camera, FileCheck, Check } from "lucide-react";
 import { GILDA_FONT } from "../../utils/constants";
 import Reveal from "../common/Reveal";
 
@@ -33,7 +33,7 @@ export default function PPDBDokumen() {
               {DOCS.map((d, i) => (
                 <Reveal key={i} delay={i * 60}>
                   <div className="group flex items-start gap-4 p-4 bg-white rounded-xl border border-slate-100 hover:shadow-md hover:-translate-y-0.5 transition-all">
-                    <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-gradient-to-br from-[#284061] to-[#1a2d47] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                    <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-linear-to-br from-[#284061] to-[#1a2d47] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
                       <d.Icon size={16} />
                     </div>
                     <div>
@@ -56,9 +56,9 @@ export default function PPDBDokumen() {
                 {STEPS.map((s, i, arr) => (
                   <div key={s.n} className="relative flex gap-4">
                     {i < arr.length - 1 && (
-                      <div className={`absolute left-[19px] top-11 bottom-0 w-0.5 ${s.done ? "bg-gradient-to-b from-amber-500 to-amber-200" : "bg-slate-200"}`} />
+                      <div className={`absolute left-[19px] top-11 bottom-0 w-0.5 ${s.done ? "bg-linear-to-b from-amber-500 to-amber-200" : "bg-slate-200"}`} />
                     )}
-                    <div className={`w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-[13px] relative z-10 ${s.done ? "bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/30" : "bg-slate-100 text-slate-400 border-2 border-slate-200"}`}>
+                    <div className={`w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-[13px] relative z-10 ${s.done ? "bg-linear-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/30" : "bg-slate-100 text-slate-400 border-2 border-slate-200"}`}>
                       {s.done ? <Check size={15} /> : s.n}
                     </div>
                     <div className="flex-1 pb-2">

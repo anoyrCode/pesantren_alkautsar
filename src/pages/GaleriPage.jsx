@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { GALLERY_FILTERS, GALLERY_ITEMS } from "../utils/constants";
 import SectionHeader from "../components/common/SectionHeader";
 import Reveal from "../components/common/Reveal";
@@ -45,10 +45,10 @@ export default function GaleriPage() {
                     g.cls === "tall" ? "row-span-2" : g.cls === "wide" ? "col-span-2" : ""
                   }`}
                 >
-                  <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${g.gt} group-hover:scale-110 transition-transform duration-500`}>
+                  <div className={`w-full h-full flex items-center justify-center bg-linear-to-br ${g.gt} group-hover:scale-110 transition-transform duration-500`}>
                     <g.Icon size={48} className="text-white/70" />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#284061]/95 via-[#284061]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-5">
+                  <div className="absolute inset-0 bg-linear-to-t from-[#284061]/95 via-[#284061]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-5">
                     <div className="text-[13px] font-bold text-white mb-1">{g.title}</div>
                     <div className="text-[10.5px] text-amber-300 font-bold tracking-wider uppercase">{g.c}</div>
                   </div>

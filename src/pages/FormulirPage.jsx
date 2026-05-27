@@ -108,6 +108,8 @@ export default function FormulirPage() {
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [files, setFiles] = useState({ foto_santri: null, bukti_transfer: null });
+  const [hPos, setHPos] = useState({ x: 0, y: 0 });
+  const [hPx, setHPx] = useState({ x: 0, y: 0 });
 
   // Track saat halaman formulir dibuka
   useEffect(() => { GA.formOpen(); }, []);
@@ -127,6 +129,12 @@ export default function FormulirPage() {
 
   const set = (k) => (e) =>
     setForm((f) => ({ ...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
+
+  function onHeaderMove(e) {
+    const r = e.currentTarget.getBoundingClientRect();
+    setHPos({ x: (e.clientX - r.left - r.width / 2) / r.width, y: (e.clientY - r.top - r.height / 2) / r.height });
+    setHPx({ x: e.clientX - r.left, y: e.clientY - r.top });
+  }
 
   const submit = async (e) => {
     e.preventDefault();
@@ -174,7 +182,7 @@ export default function FormulirPage() {
           </p>
           <button
             onClick={() => navigate("/ppdb")}
-            className="inline-flex items-center gap-2 bg-gradient-to-br from-[#284061] to-[#1a2d47] text-white px-7 py-3 rounded-xl text-[13.5px] font-semibold hover:-translate-y-0.5 transition-all"
+            className="inline-flex items-center gap-2 bg-linear-to-br from-[#284061] to-[#1a2d47] text-white px-7 py-3 rounded-xl text-[13.5px] font-semibold hover:-translate-y-0.5 transition-all"
           >
             Kembali ke PPDB <ArrowRight size={15} />
           </button>
@@ -188,8 +196,15 @@ export default function FormulirPage() {
       <style>{`@keyframes fU{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}`}</style>
 
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#1a2d47] via-[#284061] to-[#3a5a8c] py-14 lg:py-18">
-        <div className="w-[min(1180px,92vw)] mx-auto">
+      <div className="relative overflow-hidden bg-linear-to-br from-[#1a2d47] via-[#284061] to-[#3a5a8c] py-14 lg:py-18" onMouseMove={onHeaderMove}>
+        <div className="absolute -right-10 -top-10 pointer-events-none" style={{ transform: `translate3d(${hPos.x * 20}px, ${hPos.y * 15}px, 0)`, transition: "transform 0.12s linear" }}>
+          <div className="w-72 h-72 rounded-full border border-white/5 animate-[spin_22s_linear_infinite]" />
+        </div>
+        <div className="absolute -left-10 -bottom-10 pointer-events-none" style={{ transform: `translate3d(${hPos.x * -14}px, ${hPos.y * -10}px, 0)`, transition: "transform 0.18s linear" }}>
+          <div className="w-56 h-56 rounded-full border border-amber-500/10 animate-[spin_30s_linear_infinite_reverse]" />
+        </div>
+        <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle 300px at ${hPx.x}px ${hPx.y}px, rgba(212,140,26,.07), transparent 65%)` }} />
+        <div className="relative z-10 w-[min(1180px,92vw)] mx-auto">
           <button
             onClick={() => navigate("/ppdb")}
             className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-[12.5px] font-medium mb-6 transition-colors animate-[fU_.5s_ease-out_both]"
@@ -303,7 +318,7 @@ export default function FormulirPage() {
                   required
                   checked={form.setuju}
                   onChange={set("setuju")}
-                  className="w-4 h-4 mt-0.5 accent-[#284061] flex-shrink-0"
+                  className="w-4 h-4 mt-0.5 accent-[#284061] shrink-0"
                 />
                 <span className="text-[13px] text-slate-500 leading-[1.7] group-hover:text-slate-700 transition-colors">
                   Saya menyatakan bahwa seluruh data yang diisi adalah benar, lengkap, dan dapat dipertanggungjawabkan. Saya bersedia mengikuti seluruh proses seleksi PPDB Pesantren Al Kautsar Sidoarjo.
@@ -318,7 +333,7 @@ export default function FormulirPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="inline-flex items-center gap-2 bg-gradient-to-br from-amber-500 to-amber-600 text-white px-8 py-3.5 rounded-xl text-[13.5px] font-bold shadow-xl shadow-amber-500/30 hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 bg-linear-to-br from-amber-500 to-amber-600 text-white px-8 py-3.5 rounded-xl text-[13.5px] font-bold shadow-xl shadow-amber-500/30 hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {submitting ? "Mengirim..." : "Kirim Pendaftaran"} {!submitting && <ArrowRight size={15} />}
                 </button>

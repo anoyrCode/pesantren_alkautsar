@@ -1,18 +1,42 @@
+import { useState } from "react";
 import { Clock, ArrowRight, ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GILDA_FONT } from "../../utils/constants";
 import Reveal from "../common/Reveal";
 import useCountdown from "../../hooks/useCountdown";
+import useParallax from "../../hooks/useParallax";
 
 export default function PPDBHero() {
   const navigate = useNavigate();
   const countdown = useCountdown("2026-07-15");
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [px, setPx] = useState({ x: 0, y: 0 });
+  const { ref: sectionRef, y: pY } = useParallax(1);
+
+  function onMove(e) {
+    const r = e.currentTarget.getBoundingClientRect();
+    setPos({ x: (e.clientX - r.left - r.width / 2) / r.width, y: (e.clientY - r.top - r.height / 2) / r.height });
+    setPx({ x: e.clientX - r.left, y: e.clientY - r.top });
+  }
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#1a2d47] via-[#284061] to-[#3a5a8c]">
-      <div className="absolute inset-0 opacity-60" style={{ background: "radial-gradient(ellipse 60% 70% at 70% 30%,rgba(192,155,90,.18) 0%,transparent 55%)" }} />
-      <div className="absolute -right-20 -top-20 w-96 h-96 rounded-full border border-white/5 animate-[spin_25s_linear_infinite] pointer-events-none" />
-      <div className="absolute -left-16 -bottom-16 w-72 h-72 rounded-full border border-amber-500/10 animate-[spin_20s_linear_infinite_reverse] pointer-events-none" />
+    <section ref={sectionRef} className="relative overflow-hidden bg-linear-to-br from-[#1a2d47] via-[#284061] to-[#3a5a8c]" onMouseMove={onMove}>
+      <div
+        className="absolute inset-0 opacity-60"
+        style={{
+          background: "radial-gradient(ellipse 60% 70% at 70% 30%,rgba(192,155,90,.18) 0%,transparent 55%)",
+          transform: `translateY(${pY * 0.12}px)`,
+        }}
+      />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle 350px at ${px.x}px ${px.y}px, rgba(212,140,26,.07), transparent 65%)` }} />
+
+      {/* decorative circles — mouse parallax + scroll parallax combined */}
+      <div className="absolute -right-20 -top-20 pointer-events-none" style={{ transform: `translate3d(${pos.x * 22}px, ${pos.y * 16 + pY * -0.1}px, 0)`, transition: "transform 0.12s linear" }}>
+        <div className="w-96 h-96 rounded-full border border-white/5 animate-[spin_25s_linear_infinite]" />
+      </div>
+      <div className="absolute -left-16 -bottom-16 pointer-events-none" style={{ transform: `translate3d(${pos.x * -15}px, ${pos.y * -11 + pY * 0.08}px, 0)`, transition: "transform 0.18s linear" }}>
+        <div className="w-72 h-72 rounded-full border border-amber-500/10 animate-[spin_20s_linear_infinite_reverse]" />
+      </div>
 
       <div className="relative z-10 w-[min(1180px,92vw)] mx-auto py-20 lg:py-24">
         <div className="grid lg:grid-cols-[1.4fr_1fr] gap-12 items-center">
@@ -36,7 +60,7 @@ export default function PPDBHero() {
 
             <Reveal delay={200}>
               <div className="flex flex-wrap gap-3">
-                <button onClick={() => navigate("/ppdb/formulir")} className="inline-flex items-center gap-2 bg-gradient-to-br from-amber-500 to-amber-600 text-white px-6 py-3 rounded-xl text-[13.5px] font-semibold shadow-xl shadow-amber-500/30 hover:-translate-y-0.5 transition-all">
+                <button onClick={() => navigate("/ppdb/formulir")} className="inline-flex items-center gap-2 bg-linear-to-br from-amber-500 to-amber-600 text-white px-6 py-3 rounded-xl text-[13.5px] font-semibold shadow-xl shadow-amber-500/30 hover:-translate-y-0.5 transition-all">
                   Daftar Sekarang <ArrowRight size={15} />
                 </button>
                 <a href="#timeline-ppdb" className="inline-flex items-center gap-2 text-white px-6 py-3 border border-white/25 rounded-xl text-[13.5px] font-semibold hover:bg-white/10 transition-all">
@@ -47,8 +71,8 @@ export default function PPDBHero() {
           </div>
 
           <Reveal direction="right">
-            <div className="bg-white/[.07] border border-white/15 rounded-3xl p-7 backdrop-blur-xl relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+            <div className="bg-white/7 border border-white/15 rounded-3xl p-7 backdrop-blur-xl relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-amber-400 to-transparent" />
               <div className="text-center">
                 <div className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-wider uppercase text-amber-300 mb-2">
                   <Clock size={12} /> Pendaftaran Dibuka Dalam
@@ -56,7 +80,7 @@ export default function PPDBHero() {
                 <h3 className="text-white mb-5" style={{ ...GILDA_FONT, fontSize: "20px" }}>Jangan Sampai Terlewat</h3>
                 <div className="grid grid-cols-4 gap-2">
                   {[["Hari", countdown.days], ["Jam", countdown.hours], ["Menit", countdown.mins], ["Detik", countdown.secs]].map(([l, v]) => (
-                    <div key={l} className="bg-white/[.08] border border-white/[.12] rounded-xl p-3 hover:bg-amber-500/15 transition-all">
+                    <div key={l} className="bg-white/8 border border-white/12 rounded-xl p-3 hover:bg-amber-500/15 transition-all">
                       <div className="text-white tabular-nums" style={{ ...GILDA_FONT, fontSize: "24px", lineHeight: 1 }}>
                         {String(v).padStart(2, "0")}
                       </div>
@@ -85,8 +109,6 @@ export default function PPDBHero() {
             </div>
           </Reveal>
         </div>
-
-
 
         <Reveal>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-12 pt-8 border-t border-white/10">
