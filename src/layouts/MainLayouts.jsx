@@ -79,15 +79,23 @@ export default function MainLayout() {
 
       {/* ─── NAVBAR ─── */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-[1000] h-16 flex items-center justify-between transition-all duration-300 px-5 md:px-10 lg:px-16 border-b-2 border-black/10 ${
+        className={`fixed top-0 left-0 right-0 z-[1000] h-16 flex items-center justify-between transition-all duration-300 px-5 md:px-10 lg:px-16 border-b-2 border-black/10 overflow-hidden ${
           navSolid || mobileOpen ? "bg-white/35 backdrop-blur-xl shadow-sm border-b border-slate-100" : "bg-white/70 backdrop-blur-sm"
         }`}
       >
-        <Link to="/" className="flex items-center gap-3 cursor-pointer group flex-shrink-0">
+        {/* Subtle dot grid texture */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(circle, rgba(40,64,97,0.045) 1px, transparent 1px)",
+            backgroundSize: "22px 22px",
+          }}
+        />
+<Link to="/" className="flex items-center gap-3 cursor-pointer group shrink-0 relative z-10">
           <img src={logo} width={160} alt="Al Kautsar" />
         </Link>
 
-        <div className="hidden md:flex items-center gap-1 bg-slate-100/60 border border-slate-200/80 rounded-full p-1 backdrop-blur-sm">
+        <div className="hidden md:flex items-center gap-1 bg-slate-100/60 border border-slate-200/80 rounded-full p-1 backdrop-blur-sm relative z-10">
           {NAV_LINKS.map((l) => (
             <button
               key={l.id}
@@ -103,7 +111,7 @@ export default function MainLayout() {
           ))}
         </div>
 
-        <div className="flex items-center gap-2.5 flex-shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0 relative z-10">
           <button
             onClick={() => handleNav("/ppdb")}
             className="hidden md:inline-flex items-center gap-1.5 bg-[#284061] hover:bg-[#1a2d47] text-white px-5 py-2.5 rounded-xl text-[13px] font-semibold shadow-lg shadow-[#284061]/25 hover:-translate-y-0.5 transition-all"
@@ -123,7 +131,7 @@ export default function MainLayout() {
 
       {/* ─── MOBILE DRAWER ─── */}
       <div
-        className={`md:hidden fixed top-16 left-0 right-0 bottom-0 z-[999] bg-white px-6 py-4 pb-8 flex flex-col gap-1 overflow-y-auto transition-transform duration-300 border-t border-slate-100 ${
+        className={`md:hidden fixed top-16 left-0 right-0 bottom-0 z-999 bg-white px-6 py-4 pb-8 flex flex-col gap-1 overflow-y-auto transition-transform duration-300 border-t border-slate-100 ${
           mobileOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -165,16 +173,16 @@ export default function MainLayout() {
 
               <div className="flex gap-2">
 
-                <a href="https://www.facebook.com/share/18pHZcpQzX/" className="w-9 h-9 rounded-lg bg-white/[.06] border border-white/[.08] flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
+                <a href="https://www.facebook.com/share/18pHZcpQzX/" className="w-9 h-9 rounded-lg bg-white/6 border border-white/8 flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
                     <FacebookIcon size={15} />
                 </a>
-                <a href="https://www.instagram.com/pesantrenalkautsarsidoarjo?igsh=bzNsYXNneTFyeXk3" className="w-9 h-9 rounded-lg bg-white/[.06] border border-white/[.08] flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
+                <a href="https://www.instagram.com/pesantrenalkautsarsidoarjo?igsh=bzNsYXNneTFyeXk3" className="w-9 h-9 rounded-lg bg-white/6 border border-white/8 flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
                     <InstagramIcon size={15} />
                 </a>
-                <a href="https://m.youtube.com/@pesantrenalkautsarsidoarjo" className="w-9 h-9 rounded-lg bg-white/[.06] border border-white/[.08] flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
+                <a href="https://m.youtube.com/@pesantrenalkautsarsidoarjo" className="w-9 h-9 rounded-lg bg-white/6 border border-white/8 flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
                     <YoutubeIcon size={15} />
                 </a>
-                <a className="w-9 h-9 rounded-lg bg-white/[.06] border border-white/[.08] flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
+                <a className="w-9 h-9 rounded-lg bg-white/6 border border-white/8 flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
                     <MessageCircle size={15} />
                 </a>
               </div>
@@ -228,7 +236,7 @@ export default function MainLayout() {
           </div>
 
 
-          <div className="h-px bg-white/[.06]" />
+          <div className="h-px bg-white/6" />
           <div className="flex justify-between items-center py-5 flex-wrap gap-3">
             <span className="text-[12px] text-white/25">© 2026 Pesantren Al Kautsar Sidoarjo. Hak cipta dilindungi.</span>
             <div className="flex gap-5">

@@ -3,7 +3,7 @@ import { GILDA_FONT } from "../../utils/constants";
 import Reveal from "../common/Reveal";
 
 const DOCS = [
-  { Icon: Camera, t: "Pas Foto Berwarna", d: "Foto terbaru ukuran 3x4 dengan latar belakang merah/biru" },
+  { Icon: Camera, t: "Pas Foto Berwarna", d: "Foto terbaru ukuran 3x4 dengan latar belakang merah/biru dengan format JPG" },
   { Icon: FileCheck, t: "Bukti Transfer Registrasi", d: "Bukti pembayaran registrasi santri baru sesuai nominal yang ditentukan" },
 ];
 
