@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Check, ChevronDown, Upload } from "lucide-react";
 import { GILDA_FONT } from "../utils/constants";
+import SEO from "../components/common/SEO";
 import Reveal from "../components/common/Reveal";
 import { GA } from "../utils/analytics";
 import { apiFetch } from "../utils/api";
@@ -192,6 +193,12 @@ export default function FormulirPage() {
   }
 
   return (
+    <>
+    <SEO
+      title="Formulir Pendaftaran PPDB"
+      description="Isi formulir pendaftaran online Pesantren Al Kautsar. Lengkapi data diri santri, data orang tua/wali, asal sekolah, dan upload dokumen persyaratan secara mudah."
+      path="/ppdb/formulir"
+    />
     <div className="bg-slate-50 min-h-screen">
       <style>{`@keyframes fU{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}`}</style>
 
@@ -351,5 +358,6 @@ export default function FormulirPage() {
         </form>
       </div>
     </div>
+    </>
   );
 }

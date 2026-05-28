@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { MapPin, Phone, Globe } from "lucide-react";
+import SEO from "../components/common/SEO";
 import KesantrianBanner from "../components/kesantrian/KesantrianBanner";
 import ShiftTimeline from "../components/kesantrian/ShiftTimeline";
 import JadwalHarian from "../components/kesantrian/JadwalHarian";
@@ -18,6 +19,11 @@ export default function KesantrianPage() {
 
   return (
     <>
+      <SEO
+        title="Kehidupan Santri"
+        description="Kehidupan santri di Pesantren Al Kautsar — jadwal harian, program shift belajar, fasilitas lengkap, dan lingkungan islami yang mendukung tumbuh kembang santri secara optimal."
+        path="/kesantrian"
+      />
       <section className="pt-10 pb-20 lg:pt-12 lg:pb-24">
         <div className="w-[min(1180px,92vw)] mx-auto">
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-start">

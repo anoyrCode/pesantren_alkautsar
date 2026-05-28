@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Admin routes — jangan di-index
+Disallow: /admin/
+Disallow: /admin/login
+Disallow: /admin/dashboard
+Disallow: /admin/santri/
+
+Sitemap: https://alkautsar.sch.id/sitemap.xml

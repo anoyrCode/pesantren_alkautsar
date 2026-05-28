@@ -1,5 +1,6 @@
 ﻿import { useState } from "react";
 import { GALLERY_FILTERS, GALLERY_ITEMS } from "../utils/constants";
+import SEO from "../components/common/SEO";
 import SectionHeader from "../components/common/SectionHeader";
 import Reveal from "../components/common/Reveal";
 
@@ -7,7 +8,13 @@ export default function GaleriPage() {
   const [filter, setFilter] = useState("all");
 
   return (
-    <section className="pt-10 pb-20 lg:pt-10 lg:pb-24">
+    <>
+      <SEO
+        title="Galeri"
+        description="Galeri foto dan dokumentasi kegiatan Pesantren Al Kautsar — kehidupan santri, kegiatan belajar, ibadah, olahraga, dan berbagai program unggulan pesantren."
+        path="/galeri"
+      />
+      <section className="pt-10 pb-20 lg:pt-10 lg:pb-24">
       <div className="w-[min(1180px,92vw)] mx-auto">
         <SectionHeader
           tag="Dokumentasi"
@@ -58,5 +65,6 @@ export default function GaleriPage() {
         </Reveal>
       </div>
     </section>
+    </>
   );
 }

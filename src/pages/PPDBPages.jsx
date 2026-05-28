@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import SEO from "../components/common/SEO";
 import PPDBHero from "../components/ppdb/PPDBHero";
 import PPDBTimeline from "../components/ppdb/PPDBTimeline";
 import PPDBDokumen from "../components/ppdb/PPDBDokumen";
@@ -12,6 +13,11 @@ export default function PPDBPage() {
 
   return (
     <>
+      <SEO
+        title="PPDB 2025/2026 — Pendaftaran Santri Baru"
+        description="Penerimaan Peserta Didik Baru (PPDB) Pesantren Al Kautsar. Informasi lengkap jadwal pendaftaran, persyaratan dokumen, biaya, dan alur seleksi masuk pesantren."
+        path="/ppdb"
+      />
       <PPDBHero />
       <PPDBTimeline />
       <PPDBDokumen />

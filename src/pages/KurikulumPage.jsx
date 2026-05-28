@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import SEO from "../components/common/SEO";
 import KurikulumProgress from "../components/kurikulum/KurikulumProgress";
 import KurikulumPilar from "../components/kurikulum/KurikulumPilar";
 import MataPelajaran from "../components/kurikulum/MataPelajaran";
@@ -9,6 +10,11 @@ export default function KurikulumPage() {
   const navigate = useNavigate();
   return (
     <>
+      <SEO
+        title="Kurikulum"
+        description="Program pendidikan Pesantren Al Kautsar — kurikulum terpadu yang menggabungkan ilmu agama (Quran, Fiqh, Hadits), ilmu umum, dan pengembangan karakter santri."
+        path="/kurikulum"
+      />
       <section className="pt-10 pb-20 lg:pt-12 lg:pb-24">
         <div className="w-[min(1180px,92vw)] mx-auto">
           <KurikulumProgress />

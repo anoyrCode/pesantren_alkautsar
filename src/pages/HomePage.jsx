@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import SEO from "../components/common/SEO";
 import HeroSection from "../components/home/HeroSection";
 import TickerSection from "../components/home/TickerSection";
 import BentoSection from "../components/home/BentoSection";
@@ -9,6 +10,11 @@ export default function HomePage() {
   const navigate = useNavigate();
   return (
     <>
+      <SEO
+        title="Boarding School Islam Modern"
+        description="Pesantren Al Kautsar Sidoarjo — lembaga pendidikan Islam terpadu yang memadukan kurikulum pesantren, nasional, dan internasional. Daftarkan putra-putri Anda sekarang."
+        path="/"
+      />
       <HeroSection />
       <TickerSection />
       <BentoSection />

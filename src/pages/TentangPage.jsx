@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import SEO from "../components/common/SEO";
 import TentangIntro from "../components/tentang/TentangIntro";
 import VisiMisi from "../components/tentang/VisiMisi";
 import QualityAssurance from "../components/tentang/QualityAssurance";
@@ -8,6 +9,11 @@ function TentangPage() {
   const navigate = useNavigate();
   return (
     <>
+      <SEO
+        title="Tentang Kami"
+        description="Kenali lebih dekat Pesantren Al Kautsar — sejarah berdiri, visi misi, nilai-nilai, dan komitmen kami dalam mencetak generasi muslim yang berilmu dan berakhlak mulia."
+        path="/tentang"
+      />
       <TentangIntro />
       <VisiMisi />
       <QualityAssurance />
