@@ -1,3 +1,24 @@
+import imgDiscovery1    from "../assets/fotogaleri/discovery-task-1.JPG";
+import imgDiscovery2    from "../assets/fotogaleri/discovery-task-2.JPG";
+import imgDiscovery3    from "../assets/fotogaleri/discovery-task-3.JPG";
+import imgDiscovery4    from "../assets/fotogaleri/discovery-task-4.JPG";
+import imgKantin1       from "../assets/fotogaleri/kantin-1.JPG";
+import imgKantin2       from "../assets/fotogaleri/kantin-2.JPG";
+import imgLapangan1     from "../assets/fotogaleri/lapangan-1.JPG";
+import imgLapangan2     from "../assets/fotogaleri/lapangan-2.JPG";
+import imgKolam1        from "../assets/fotogaleri/kolam-renang-1.JPG";
+import imgKolam2        from "../assets/fotogaleri/kolam-renang-2.JPG";
+import imgBasket        from "../assets/fotogaleri/basket.JPG";
+import imgFutsal        from "../assets/fotogaleri/futsal.JPG";
+import imgDauroh1       from "../assets/fotogaleri/dauroh-1.JPG";
+import imgDauroh2       from "../assets/fotogaleri/dauroh-2.JPG";
+import imgCeramah       from "../assets/fotogaleri/ceramah-idul-adha.JPG";
+import imgPenyembelihan1 from "../assets/fotogaleri/penyembelihan-1.JPG";
+import imgPenyembelihan2 from "../assets/fotogaleri/penyembelihan-2.JPG";
+import imgPenyembelihan3 from "../assets/fotogaleri/penyembelihan-3.JPG";
+import imgPenyembelihan4 from "../assets/fotogaleri/penyembelihan-4.JPG";
+import imgPenyembelihan5 from "../assets/fotogaleri/penyembelihan-5.JPG";
+
 export const ARABIC_FONT = { fontFamily: "'Noto Naskh Arabic', serif" };
 export const GILDA_FONT = { fontFamily: "'Gilda Display', serif" };
 
@@ -26,31 +47,34 @@ export const SMA_SUBJECTS = [
   ["Fisika", 2], ["Kimia", 2], ["Biologi", 2], ["TIK", 2], ["PPKN", 2], ["Sejarah", 2],
 ];
 
-import { BookOpen, Languages, FlaskConical, BedDouble, Users, Utensils, Dumbbell, Trophy, Monitor, GraduationCap, Globe2, Smartphone } from "lucide-react";
-
 export const GALLERY_ITEMS = [
-  { c: "pembelajaran", Icon: BookOpen, title: "Pembelajaran Dengan Leveling", cls: "tall", gt: "from-[#1a2d47] to-[#284061]" },
-  { c: "pembelajaran", Icon: Languages, title: "Muhadhoroh Bahasa Arab", gt: "from-[#284061] to-[#3a5a8c]" },
-  { c: "pembelajaran", Icon: FlaskConical, title: "Pembelajaran dengan Discovery Task", cls: "wide", gt: "from-[#1a2d47] via-[#3a5a8c] to-[#c09b5a]" },
-  { c: "asrama", Icon: BedDouble, title: "Kamar Asrama Bersih & Rapi", gt: "from-[#c09b5a] to-[#284061]" },
-  { c: "kegiatan", Icon: Users, title: "Sholat Berjamaah Rutin", cls: "tall", gt: "from-[#3a5a8c] to-[#c8d6e8]" },
-  { c: "asrama", Icon: Utensils, title: "Makan Bergizi 3x Sehari", gt: "from-[#1a2d47] to-[#c09b5a]" },
-  { c: "kegiatan", Icon: Dumbbell, title: "Olahraga Pagi & 5R", gt: "from-[#3a5a8c] to-[#1a2d47]" },
-  { c: "prestasi", Icon: Trophy, title: "Santri Berprestasi & Wisuda", cls: "wide", gt: "from-[#1a2d47] to-[#3a5a8c]" },
-  { c: "lms", Icon: Monitor, title: "LMS Dashboard Real-Time", gt: "from-[#284061] to-[#c09b5a]" },
-  { c: "prestasi", Icon: GraduationCap, title: "Sertifikat ITS Tekno", gt: "from-[#c09b5a] to-[#d4b47a]" },
-  { c: "pembelajaran", Icon: Globe2, title: "Kelas Bahasa Inggris", gt: "from-[#3a5a8c] to-[#c09b5a]" },
-  { c: "lms", Icon: Smartphone, title: "Input Nilai & Absensi LMS", gt: "from-[#c8d6e8] to-[#284061]" },
+  { src: imgDiscovery1,    alt: "Pembelajaran Discovery Task 1",  category: "pembelajaran" },
+  { src: imgDiscovery2,    alt: "Pembelajaran Discovery Task 2",  category: "pembelajaran" },
+  { src: imgDiscovery3,    alt: "Pembelajaran Discovery Task 3",  category: "pembelajaran" },
+  { src: imgDiscovery4,    alt: "Pembelajaran Discovery Task 4",  category: "pembelajaran" },
+  { src: imgKantin1,       alt: "Kantin Pesantren 1",             category: "fasilitas" },
+  { src: imgKantin2,       alt: "Kantin Pesantren 2",             category: "fasilitas" },
+  { src: imgLapangan1,     alt: "Lapangan Olahraga 1",            category: "fasilitas" },
+  { src: imgLapangan2,     alt: "Lapangan Olahraga 2",            category: "fasilitas" },
+  { src: imgKolam1,        alt: "Kolam Renang 1",                 category: "fasilitas" },
+  { src: imgKolam2,        alt: "Kolam Renang 2",                 category: "fasilitas" },
+  { src: imgBasket,        alt: "Lapangan Basket",                category: "fasilitas" },
+  { src: imgFutsal,        alt: "Lapangan Futsal",                category: "fasilitas" },
+  { src: imgDauroh1,       alt: "Kegiatan Dauroh 1",              category: "kajian" },
+  { src: imgDauroh2,       alt: "Kegiatan Dauroh 2",              category: "kajian" },
+  { src: imgCeramah,       alt: "Ceramah Idul Adha",              category: "kajian" },
+  { src: imgPenyembelihan1, alt: "Penyembelihan Qurban 1",        category: "kajian" },
+  { src: imgPenyembelihan2, alt: "Penyembelihan Qurban 2",        category: "kajian" },
+  { src: imgPenyembelihan3, alt: "Penyembelihan Qurban 3",        category: "kajian" },
+  { src: imgPenyembelihan4, alt: "Penyembelihan Qurban 4",        category: "kajian" },
+  { src: imgPenyembelihan5, alt: "Penyembelihan Qurban 5",        category: "kajian" },
 ];
 
-
 export const GALLERY_FILTERS = [
-  { id: "all", label: "Semua" },
+  { id: "all",          label: "Semua" },
   { id: "pembelajaran", label: "Pembelajaran" },
-  { id: "asrama", label: "Asrama" },
-  { id: "kegiatan", label: "Kegiatan" },
-  { id: "prestasi", label: "Prestasi" },
-  { id: "lms", label: "Digital & LMS" },
+  { id: "fasilitas",    label: "Fasilitas" },
+  { id: "kajian",       label: "Kajian" },
 ];
 
 export const FAQS = [
