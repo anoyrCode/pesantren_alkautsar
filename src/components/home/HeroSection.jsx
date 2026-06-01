@@ -123,7 +123,7 @@ export default function HeroSection() {
         <div className="flex whitespace-nowrap animate-[marq_26s_linear_infinite]">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="inline-flex items-center gap-5 px-6 text-base text-white/7 shrink-0" style={{ ...ARABIC_FONT, direction: "rtl" }}>
-              الكوثر — للعلم والإيمان — أهل السنة والجماعة — نهضة الأمة
+              الكوثر — للعلم والإيمان — أهل السنة والجماعة — على منهج السلف الصالح
             </div>
           ))}
         </div>

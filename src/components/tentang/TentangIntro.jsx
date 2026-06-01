@@ -33,7 +33,7 @@ export default function TentangIntro() {
                 <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full" style={{ background: "radial-gradient(circle,rgba(192,155,90,.15) 0%,transparent 65%)", transform: `translate3d(${pos.x * 20}px, ${pos.y * 15 + pY * 0.1}px, 0)`, transition: "transform 0.18s linear" }} />
 
                 <div className="text-[clamp(22px,3vw,32px)] text-white/14 text-right mb-6 leading-snug font-bold relative z-10" style={{ ...ARABIC_FONT, direction: "rtl" }}>
-                  الكوثر — نهضة الأمة بالتوحيد والعلم والإيمان والتقوى
+                  الكوثر — تربية على منهج السلف الصالح بالتوحيد والعلم والإيمان والتقوى
                 </div>
                 <blockquote className="border-l-2 border-amber-500 pl-5 text-[14px] leading-[1.85] font-light italic text-white/70 mb-7 relative z-10">
                   "Lembaga Pendidikan Islam di Sidoarjo yang memadukan pendidikan di bawah naungan Kementerian Agama dan Kementerian Pendidikan Dasar & Menengah RI dengan sistem kepesantrenan selama 6 tahun."

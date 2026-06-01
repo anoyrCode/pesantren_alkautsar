@@ -5,8 +5,8 @@ import Reveal from "../common/Reveal";
 
 const FEES = [
   { tag: "Pendaftaran", l: "Biaya Daftar", amt: "Rp 450", suf: "rb", n: "Biaya pendaftaran sebesar Rp 450.000 dibayarkan saat pengisian formulir dan pengunggahan dokumen." },
-  { tag: "Paket Lengkap", l: "Biaya Awal Masuk", amt: "Rp 22", suf: "jt", n: "Termasuk biaya gedung, SPP 1 bulan, seragam, discovery task, dan perlengkapan asrama.", featured: true },
-  { tag: "Bulanan", l: "SPP Bulanan", amt: "Rp 1,9", suf: "jt", n: "Sudah termasuk biaya pendidikan, asrama, makan 3x sehari bergizi, dan laundry harian." },
+  { tag: "Paket Lengkap", l: "Biaya Awal Masuk", amt: "Rp 23", suf: "jt", n: "Termasuk biaya gedung, SPP 1 bulan, seragam, discovery task, dan perlengkapan asrama.", featured: true },
+  { tag: "Bulanan", l: "SPP Bulanan", amt: "Rp 2,1", suf: "jt", n: "Sudah termasuk biaya pendidikan, asrama, makan 3x sehari bergizi, dan laundry harian." },
 ];
 
 const FACILITIES = [
