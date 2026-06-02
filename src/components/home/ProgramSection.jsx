@@ -3,9 +3,9 @@ import SectionHeader from "../common/SectionHeader";
 import Reveal from "../common/Reveal";
 
 const PROGRAMS = [
-  { Icon: Target, title: "Tahfidz Al-Qur'an", desc: "Program hafalan Al-Qur'an dengan metode mutqin, rutin setiap hari setelah ashar." },
   { Icon: Globe2, title: "Bahasa Arab Aktif", desc: "Bahasa Arab sebagai bahasa utama lingkungan pesantren dan pengantar ilmu agama. Bahasa Inggris diajarkan sebagai mata pelajaran pendukung." },
   { Icon: FlaskConical, title: "Super Camp UTBK", desc: "Program intensif untuk santri berprestasi mempersiapkan UTBK, SNBP, dan seleksi PTN." },
+  { Icon: Target, title: "Tahfidz Al-Qur'an", desc: "Program hafalan Al-Qur'an dengan metode mutqin, rutin setiap hari setelah ashar." },
   { Icon: Briefcase, title: "Wirausaha & Magang", desc: "Agrobisnis, Manajemen Trainee, dan Grafika untuk kelas 12 sebagai bekal karir." },
   { Icon: Monitor, title: "Web Design ITS Tekno", desc: "Pelatihan tersertifikasi bidang teknologi bersama ITS untuk kelas 10 & 11." },
   { Icon: ShieldCheck, title: "Karakter & 5R", desc: "Pembiasaan Ringkas, Rapi, Resik, Rawat, Rajin sebagai pondasi karakter santri." },
