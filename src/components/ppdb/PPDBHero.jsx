@@ -8,7 +8,7 @@ import useParallax from "../../hooks/useParallax";
 
 export default function PPDBHero() {
   const navigate = useNavigate();
-  const countdown = useCountdown("2026-07-15");
+  const countdown = useCountdown("2026-08-01");
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [px, setPx] = useState({ x: 0, y: 0 });
   const { ref: sectionRef, y: pY } = useParallax(1);
@@ -54,7 +54,7 @@ export default function PPDBHero() {
             </Reveal>
             <Reveal delay={140}>
               <p className="text-[15px] leading-[1.85] font-light text-white/65 max-w-xl mb-8">
-                Pendaftaran jenjang MTs dan SMA tahun ajaran 2027/2028 kini dibuka mulai <span className="text-amber-300 font-medium">15 Juli</span> hingga <span className="text-amber-300 font-medium">15 September</span>. Kuota terbatas — segera daftarkan putra-putri Anda sebelum kehabisan tempat.
+                Pendaftaran jenjang MTs dan SMA tahun ajaran 2027/2028 kini dibuka mulai <span className="text-amber-300 font-medium">1 Agustus</span> hingga <span className="text-amber-300 font-medium">30 September</span>. Kuota terbatas — segera daftarkan putra-putri Anda sebelum kehabisan tempat.
               </p>
             </Reveal>
 
@@ -91,7 +91,7 @@ export default function PPDBHero() {
                 <div className="mt-5 pt-4 border-t border-white/10">
                   <div className="flex items-center justify-between text-[11.5px] text-white/60 mb-2">
                     <span>Periode Pendaftaran</span>
-                    <span className="font-bold text-amber-300">15 Jul – 15 Sep</span>
+                    <span className="font-bold text-amber-300">1 Ags – 30 Sep</span>
                   </div>
                   <div className="flex items-center justify-between text-[11.5px] text-white/60 mb-3">
                     <span>Status Pendaftaran</span>
@@ -102,7 +102,7 @@ export default function PPDBHero() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
                       <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-400" />
                     </span>
-                    <span className="text-[12px] text-amber-300 font-semibold">MTs & SMA · Dibuka 15 Juli 2026</span>
+                    <span className="text-[12px] text-amber-300 font-semibold">MTs & SMA · Dibuka 1 Agustus 2026</span>
                   </div>
                 </div>
               </div>

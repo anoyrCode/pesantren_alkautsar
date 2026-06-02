@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, ArrowLeft, Check, ChevronDown, Upload } from "lucide-react";
+import { ArrowRight, ArrowLeft, Check, ChevronDown, Upload, Clock, CalendarX2 } from "lucide-react";
+import useCountdown from "../hooks/useCountdown";
 import { GILDA_FONT } from "../utils/constants";
 import SEO from "../components/common/SEO";
 import Reveal from "../components/common/Reveal";
@@ -103,6 +104,56 @@ const STATUS_NIKAH = ["Menikah", "Cerai Hidup", "Cerai Mati"];
 const STATUS_RUMAH = ["Milik Pribadi", "Sewa", "Kontrak", "Milik Orang Tua"];
 const GOL_DARAH = ["A", "B", "AB", "O", "Tidak Diketahui"];
 
+const PPDB_OPEN = new Date("2026-08-01T00:00:00");
+
+function PpdbClosedModal() {
+  const countdown = useCountdown("2026-08-01");
+  const navigate = useNavigate();
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1a2d47]/80 backdrop-blur-sm px-4">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden"
+           style={{ animation: "fU 0.4s cubic-bezier(0.16,1,0.3,1) forwards" }}>
+        {/* Header navy */}
+        <div className="bg-linear-to-br from-[#1a2d47] via-[#284061] to-[#3a5a8c] px-8 pt-8 pb-7 text-center relative">
+          <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center mx-auto mb-4">
+            <CalendarX2 size={26} className="text-amber-300" />
+          </div>
+          <h2 className="text-white text-[22px] mb-1" style={GILDA_FONT}>Pendaftaran Belum Dibuka</h2>
+          <p className="text-white/60 text-[13px]">Formulir akan tersedia mulai <span className="text-amber-300 font-semibold">1 Agustus 2026</span></p>
+        </div>
+        {/* Countdown */}
+        <div className="px-8 pt-6 pb-2">
+          <p className="text-center text-[11.5px] font-bold tracking-wider uppercase text-slate-400 mb-4 flex items-center justify-center gap-1.5">
+            <Clock size={12} /> Dibuka dalam
+          </p>
+          <div className="grid grid-cols-4 gap-2 mb-6">
+            {[["Hari", countdown.days], ["Jam", countdown.hours], ["Menit", countdown.mins], ["Detik", countdown.secs]].map(([l, v]) => (
+              <div key={l} className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-center">
+                <div className="text-[26px] font-bold text-[#284061] tabular-nums leading-none" style={GILDA_FONT}>
+                  {String(v).padStart(2, "0")}
+                </div>
+                <div className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">{l}</div>
+              </div>
+            ))}
+          </div>
+          <p className="text-[13px] text-slate-500 text-center leading-relaxed mb-6">
+            Periode pendaftaran berlangsung <strong className="text-[#284061]">1 Agustus – 30 September 2026</strong>. Pantau terus halaman PPDB untuk informasi terbaru.
+          </p>
+        </div>
+        {/* Actions */}
+        <div className="px-8 pb-8 flex flex-col gap-3">
+          <button
+            onClick={() => navigate("/ppdb")}
+            className="w-full bg-linear-to-br from-[#284061] to-[#1a2d47] text-white py-3 rounded-xl text-[13.5px] font-semibold hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+          >
+            Kembali ke Halaman PPDB <ArrowRight size={15} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function FormulirPage() {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
@@ -111,6 +162,7 @@ export default function FormulirPage() {
   const [files, setFiles] = useState({ foto_santri: null, bukti_transfer: null });
   const [hPos, setHPos] = useState({ x: 0, y: 0 });
   const [hPx, setHPx] = useState({ x: 0, y: 0 });
+  const showClosedModal = new Date() < PPDB_OPEN;
 
   // Track saat halaman formulir dibuka
   useEffect(() => { GA.formOpen(); }, []);
@@ -194,6 +246,7 @@ export default function FormulirPage() {
 
   return (
     <>
+    {showClosedModal && <PpdbClosedModal />}
     <SEO
       title="Formulir Pendaftaran PPDB"
       description="Isi formulir pendaftaran online Pesantren Al Kautsar. Lengkapi data diri santri, data orang tua/wali, asal sekolah, dan upload dokumen persyaratan secara mudah."
@@ -311,7 +364,7 @@ export default function FormulirPage() {
                 7. Upload Dokumen
               </h2>
               <div className="grid sm:grid-cols-2 gap-4">
-                <UploadField label="Foto Calon Santri" accept="image/*" hint="Format: JPG/PNG · Max 2MB" required onChange={(f) => setFiles((p) => ({ ...p, foto_santri: f }))} />
+                <UploadField label="Foto Calon Santri" accept="image/*" hint="Format: JPG/PNG · Max 2MB · Rasio 3×4 (portrait), min. 300×400 px" required onChange={(f) => setFiles((p) => ({ ...p, foto_santri: f }))} />
                 <UploadField label="Foto Bukti Transfer Biaya Daftar" accept="image/*,.pdf" hint="Format: JPG/PNG/PDF · Max 5MB" required onChange={(f) => setFiles((p) => ({ ...p, bukti_transfer: f }))} />
               </div>
             </div>

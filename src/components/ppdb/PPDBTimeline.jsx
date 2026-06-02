@@ -3,8 +3,8 @@ import Reveal from "../common/Reveal";
 import { GILDA_FONT } from "../../utils/constants";
 
 const STEPS = [
-  { n: "01", t: "Pendaftaran Online", d: "15 Juli – 15 Sep 2026", c: "Isi formulir pendaftaran & unggah dokumen. Biaya pendaftaran Rp 450.000.", current: true },
-  { n: "02", t: "Tes Seleksi", d: "15 – 30 Agustus 2026", c: "Tes potensi akademik, baca Al-Qur'an, dan wawancara orang tua & calon santri." },
+  { n: "01", t: "Pendaftaran Online", d: "1 Agustus – 30 Sep 2026", c: "Isi formulir pendaftaran & unggah dokumen. Biaya pendaftaran Rp 450.000.", current: true },
+  { n: "02", t: "Tes Seleksi", d: "15 – 16 Oktober 2026", c: "Tes potensi akademik, baca Al-Qur'an, dan wawancara orang tua & calon santri." },
   { n: "03", t: "Pengumuman", d: "30 November 2026", c: "Hasil seleksi diumumkan melalui website dan akun resmi Pesantren Al Kautsar." },
   { n: "04", t: "Daftar Ulang & Masuk", d: "Juni 2027", c: "Registrasi ulang, pembayaran biaya awal, dan awal tahun ajaran baru 2027/2028." },
 ];
