@@ -19,7 +19,7 @@ function TentangPage() {
       <QualityAssurance />
       <section className="pb-16">
         <div className="w-[min(1180px,92vw)] mx-auto">
-          <CTABlock title="Percayakan Pendidikan" emTitle="Putra-Putri Anda" sub="Bersama Al Kautsar, kami membangun fondasi kokoh untuk generasi penerus bangsa dan agama" onPrimary={() => navigate("/ppdb")} />
+          <CTABlock title="Menitipkan Amanah," emTitle="Merajut Masa Depan" sub="Di Pesantren Al Kautsar Sidoarjo, kami memahami bahwa pendidikan adalah perjalanan panjang. Mari berkolaborasi menyiapkan generasi yang kokoh akidahnya dan luas wawasannya." onPrimary={() => navigate("/ppdb")} />
         </div>
       </section>
     </>
