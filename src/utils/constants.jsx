@@ -8,11 +8,14 @@ import imgLapangan1     from "../assets/fotogaleri/lapangan-1.JPG";
 import imgLapangan2     from "../assets/fotogaleri/lapangan-2.JPG";
 import imgKolam1        from "../assets/fotogaleri/kolam-renang-1.JPG";
 import imgKolam2        from "../assets/fotogaleri/kolam-renang-2.JPG";
+import imgKolam3        from "../assets/fotogaleri/kolam-renang-3.JPG";
 import imgBasket        from "../assets/fotogaleri/basket.JPG";
 import imgFutsal        from "../assets/fotogaleri/futsal.JPG";
 import imgDauroh1       from "../assets/fotogaleri/dauroh-1.JPG";
 import imgDauroh2       from "../assets/fotogaleri/dauroh-2.JPG";
+import imgDauroh3       from "../assets/fotogaleri/dauroh-3.JPG";
 import imgCeramah       from "../assets/fotogaleri/ceramah-idul-adha.JPG";
+import imgCeramah2      from "../assets/fotogaleri/ceramah-idul-adha-2.JPG";
 import imgPenyembelihan1 from "../assets/fotogaleri/penyembelihan-1.JPG";
 import imgPenyembelihan2 from "../assets/fotogaleri/penyembelihan-2.JPG";
 import imgPenyembelihan3 from "../assets/fotogaleri/penyembelihan-3.JPG";
@@ -58,16 +61,19 @@ export const GALLERY_ITEMS = [
   { src: imgLapangan2,     alt: "Lapangan Olahraga 2",            category: "fasilitas" },
   { src: imgKolam1,        alt: "Kolam Renang 1",                 category: "fasilitas" },
   { src: imgKolam2,        alt: "Kolam Renang 2",                 category: "fasilitas" },
-  { src: imgBasket,        alt: "Lapangan Basket",                category: "fasilitas" },
-  { src: imgFutsal,        alt: "Lapangan Futsal",                category: "fasilitas" },
+  { src: imgKolam3,        alt: "Kolam Renang 3",                 category: "fasilitas" },
+  { src: imgBasket,        alt: "Lapangan Basket",                category: "kegiatan" },
+  { src: imgFutsal,        alt: "Lapangan Futsal",                category: "kegiatan" },
   { src: imgDauroh1,       alt: "Kegiatan Dauroh 1",              category: "kajian" },
   { src: imgDauroh2,       alt: "Kegiatan Dauroh 2",              category: "kajian" },
+  { src: imgDauroh3,       alt: "Kegiatan Dauroh 3",              category: "kajian" },
   { src: imgCeramah,       alt: "Ceramah Idul Adha",              category: "kajian" },
-  { src: imgPenyembelihan1, alt: "Penyembelihan Qurban 1",        category: "kajian" },
-  { src: imgPenyembelihan2, alt: "Penyembelihan Qurban 2",        category: "kajian" },
-  { src: imgPenyembelihan3, alt: "Penyembelihan Qurban 3",        category: "kajian" },
-  { src: imgPenyembelihan4, alt: "Penyembelihan Qurban 4",        category: "kajian" },
-  { src: imgPenyembelihan5, alt: "Penyembelihan Qurban 5",        category: "kajian" },
+  { src: imgCeramah2,      alt: "Ceramah Idul Adha 2",            category: "kajian" },
+  { src: imgPenyembelihan1, alt: "Penyembelihan Qurban 1",        category: "kegiatan" },
+  { src: imgPenyembelihan2, alt: "Penyembelihan Qurban 2",        category: "kegiatan" },
+  { src: imgPenyembelihan3, alt: "Penyembelihan Qurban 3",        category: "kegiatan" },
+  { src: imgPenyembelihan4, alt: "Penyembelihan Qurban 4",        category: "kegiatan" },
+  { src: imgPenyembelihan5, alt: "Penyembelihan Qurban 5",        category: "kegiatan" },
 ];
 
 export const GALLERY_FILTERS = [
@@ -75,6 +81,7 @@ export const GALLERY_FILTERS = [
   { id: "pembelajaran", label: "Pembelajaran" },
   { id: "fasilitas",    label: "Fasilitas" },
   { id: "kajian",       label: "Kajian" },
+  { id: "kegiatan",     label: "Kegiatan" },
 ];
 
 export const FAQS = [

@@ -5,7 +5,7 @@ import SectionHeader from "../components/common/SectionHeader";
 import Reveal from "../components/common/Reveal";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
-const CATEGORY_LABEL = { pembelajaran: "Pembelajaran", fasilitas: "Fasilitas", kajian: "Kajian" };
+const CATEGORY_LABEL = { pembelajaran: "Pembelajaran", fasilitas: "Fasilitas", kajian: "Kajian", kegiatan: "Kegiatan" };
 
 export default function GaleriPage() {
   const [filter, setFilter]           = useState("all");
@@ -86,6 +86,11 @@ export default function GaleriPage() {
                 role="button"
                 tabIndex={0}
                 className="break-inside-avoid mb-3 group relative rounded-2xl overflow-hidden cursor-pointer"
+                style={{
+                  animation: "galleryFadeUp 0.45s cubic-bezier(0.16,1,0.3,1) forwards",
+                  animationDelay: `${Math.min(i * 0.055, 0.55)}s`,
+                  opacity: 0,
+                }}
                 onClick={() => setLightboxIdx(i)}
                 onKeyDown={(e) => e.key === "Enter" && setLightboxIdx(i)}
               >
