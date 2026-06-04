@@ -1,0 +1,10 @@
+services:
+  landing:
+    image: ghcr.io/YOUR_GITHUB_USERNAME/al-kautsar-landing:latest
+
+    container_name: al-kautsar-landing
+
+    restart: unless-stopped
+
+    ports:
+      - "3000:80"
