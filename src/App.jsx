@@ -9,8 +9,8 @@ const JSON_LD = {
   "@type": "EducationalOrganization",
   "name": "Pesantren Al Kautsar",
   "alternateName": "Pondok Pesantren Al Kautsar Sidoarjo",
-  "url": "https://alkautsar.sch.id",
-  "logo": "https://alkautsar.sch.id/favicon.png",
+  "url": "https://pesantrenalkautsar.id",
+  "logo": "https://pesantrenalkautsar.id/favicon.png",
   "description": "Lembaga pendidikan Islam modern yang memadukan kurikulum pesantren, nasional, dan internasional untuk mencetak generasi muslim yang berilmu dan berakhlak mulia.",
   "address": {
     "@type": "PostalAddress",

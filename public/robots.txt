@@ -7,4 +7,4 @@ Disallow: /admin/login
 Disallow: /admin/dashboard
 Disallow: /admin/santri/
 
-Sitemap: https://alkautsar.sch.id/sitemap.xml
+Sitemap: https://pesantrenalkautsar.id/sitemap.xml

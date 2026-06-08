@@ -2,43 +2,43 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <url>
-    <loc>https://alkautsar.sch.id/</loc>
+    <loc>https://pesantrenalkautsar.id/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://alkautsar.sch.id/tentang</loc>
+    <loc>https://pesantrenalkautsar.id/tentang</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://alkautsar.sch.id/kurikulum</loc>
+    <loc>https://pesantrenalkautsar.id/kurikulum</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://alkautsar.sch.id/ppdb</loc>
+    <loc>https://pesantrenalkautsar.id/ppdb</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://alkautsar.sch.id/ppdb/formulir</loc>
+    <loc>https://pesantrenalkautsar.id/ppdb/formulir</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://alkautsar.sch.id/kesantrian</loc>
+    <loc>https://pesantrenalkautsar.id/kesantrian</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://alkautsar.sch.id/galeri</loc>
+    <loc>https://pesantrenalkautsar.id/galeri</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
