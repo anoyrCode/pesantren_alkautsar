@@ -1,14 +1,29 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Plus } from "lucide-react";
 import { FAQS } from "../../utils/constants";
 import SectionHeader from "../common/SectionHeader";
 import Reveal from "../common/Reveal";
+
+// JSON-LD FAQPage — agar pertanyaan ini bisa tampil sebagai rich snippet di Google
+const FAQ_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": FAQS.map((f) => ({
+    "@type": "Question",
+    "name": f.q,
+    "acceptedAnswer": { "@type": "Answer", "text": f.a },
+  })),
+};
 
 export default function PPDBFaq() {
   const [open, setOpen] = useState(0);
 
   return (
     <section className="py-20 lg:py-24 bg-white">
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(FAQ_JSON_LD)}</script>
+      </Helmet>
       <div className="w-[min(1180px,92vw)] mx-auto max-w-4xl">
         <SectionHeader
           tag="Pertanyaan Umum"
@@ -27,7 +42,7 @@ export default function PPDBFaq() {
                   className="w-full px-6 py-4 flex items-center justify-between text-left"
                 >
                   <span className={`text-[14px] font-semibold pr-4 ${open === i ? "text-[#284061]" : "text-slate-700"}`}>{f.q}</span>
-                  <span className={`w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center transition-all ${open === i ? "bg-[#284061] text-white rotate-45" : "bg-slate-100 text-slate-500"}`}>
+                  <span className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center transition-all ${open === i ? "bg-[#284061] text-white rotate-45" : "bg-slate-100 text-slate-500"}`}>
                     <Plus size={14} />
                   </span>
                 </button>

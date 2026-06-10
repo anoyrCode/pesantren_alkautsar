@@ -8,10 +8,12 @@ const JSON_LD = {
   "@context": "https://schema.org",
   "@type": "EducationalOrganization",
   "name": "Pesantren Al Kautsar",
-  "alternateName": "Pondok Pesantren Al Kautsar Sidoarjo",
+  "alternateName": ["Pondok Pesantren Al Kautsar Sidoarjo", "PP Al Kautsar"],
   "url": "https://pesantrenalkautsar.id",
   "logo": "https://pesantrenalkautsar.id/favicon.png",
+  "image": "https://pesantrenalkautsar.id/og-image.png",
   "description": "Lembaga pendidikan Islam modern yang memadukan kurikulum pesantren, nasional, dan internasional untuk mencetak generasi muslim yang berilmu dan berakhlak mulia.",
+  "telephone": "+62-822-4169-6699",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Jl. Besuk RT 11 RW 04 Sambungrejo",
@@ -20,7 +22,33 @@ const JSON_LD = {
     "postalCode": "61258",
     "addressCountry": "ID"
   },
-  "sameAs": []
+  "areaServed": {
+    "@type": "AdministrativeArea",
+    "name": "Sidoarjo, Jawa Timur"
+  },
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "contactType": "admissions",
+      "name": "Humas Putra",
+      "telephone": "+62-822-4169-6699",
+      "areaServed": "ID",
+      "availableLanguage": ["id"]
+    },
+    {
+      "@type": "ContactPoint",
+      "contactType": "admissions",
+      "name": "Humas Putri",
+      "telephone": "+62-851-8607-7077",
+      "areaServed": "ID",
+      "availableLanguage": ["id"]
+    }
+  ],
+  "sameAs": [
+    "https://www.facebook.com/share/18pHZcpQzX/",
+    "https://www.instagram.com/pesantrenalkautsarsidoarjo",
+    "https://m.youtube.com/@pesantrenalkautsarsidoarjo"
+  ]
 };
 
 function AppContent() {
