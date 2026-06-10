@@ -29,9 +29,9 @@ export const NAV_LINKS = [
   { id: "beranda", path: "/", label: "Beranda" },
   { id: "tentang", path: "/tentang", label: "Tentang" },
   { id: "kurikulum", path: "/kurikulum", label: "Kurikulum" },
-  { id: "ppdb", path: "/ppdb", label: "PPDB" },
-  { id: "galeri", path: "/galeri", label: "Galeri" },
   { id: "kesantrian", path: "/kesantrian", label: "Kesantrian" },
+  { id: "galeri", path: "/galeri", label: "Galeri" },
+  { id: "ppdb", path: "/ppdb", label: "PPDB" },
 ];
 
 export const MTS_SUBJECTS = [
