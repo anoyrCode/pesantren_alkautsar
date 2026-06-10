@@ -3,7 +3,7 @@ name: Deploy VPS
 on:
   workflow_run:
     workflows:
-      - Build & Push Docker Image
+      - Build & Push Docker Images
     types:
       - completed
 
