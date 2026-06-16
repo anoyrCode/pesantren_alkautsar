@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, Languages, Target, Monitor, ShieldCheck, Heart, School } from "lucide-react";
+import { BookOpen, Languages, Target, ShieldCheck, Heart, School } from "lucide-react";
 import { ARABIC_FONT, GILDA_FONT } from "../../utils/constants";
 import Reveal from "../common/Reveal";
 import useParallax from "../../hooks/useParallax";
@@ -8,7 +8,6 @@ const POINTS = [
   [BookOpen, "Aqidah Ahlussunnah — 48 jp/pekan, sistematis dan mendalam sejak dini"],
   [Languages, "Bahasa Arab aktif sebagai bahasa lingkungan dan pengantar ilmu agama"],
   [Target, "Discovery Task berbasis PISA untuk Diniyah dan pelajaran umum"],
-  [Monitor, "LMS Al Kautsar — penilaian real-time, absensi, dan poin karakter digital"],
   [ShieldCheck, "3 shift musyrif, 110 CCTV online & offline, rasio 1:10"],
   [Heart, "Libur 5 hari/bulan untuk berbakti dan melepas rindu kepada orang tua"],
 ];

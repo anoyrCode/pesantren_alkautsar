@@ -6,7 +6,6 @@ const MISI = [
   "Menyelenggarakan pendidikan aqidah Ahlussunnah yang kuat dan sistematis",
   "Membangun lingkungan berbahasa Arab aktif sebagai dasar memahami ilmu agama",
   "Mengintegrasikan Discovery Task dan bimbel intensif untuk akademik modern",
-  "Mengembangkan LMS digital untuk transparansi dan monitoring real-time",
   "Membentuk karakter mandiri, disiplin, dan 5R: Ringkas, Rapi, Resik, Rawat, Rajin",
 ];
 
