@@ -64,8 +64,8 @@ export default function HeroSection() {
             style={{ ...GILDA_FONT, fontSize: "clamp(36px,5.5vw,64px)" }}
           >
             Pesantren<br />
-            <span className="text-amber-300">Al Kautsar</span><br />
-            <span className="text-white/45 italic">Sidoarjo</span>
+            <span className="text-amber-300">Al Kautsar</span>
+            <span className="block text-amber-300/60 mt-1" style={{ fontSize: "clamp(14px,1.8vw,22px)", fontStyle: "normal", letterSpacing: "0.18em" }}>— SIDOARJO</span>
           </h1>
 
           <p className="text-[15px] leading-[1.85] font-light text-white/60 max-w-xl mb-8 animate-[fU_.7s_.16s_ease-out_both]">
