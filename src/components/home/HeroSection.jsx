@@ -65,11 +65,11 @@ export default function HeroSection() {
           >
             Pesantren<br />
             <span className="text-amber-300">Al Kautsar</span><br />
-            <span className="text-white/45 italic">Generasi Bertauhid</span>
+            <span className="text-white/45 italic">Sidoarjo</span>
           </h1>
 
-          <p className="text-[15px] leading-[1.85] font-light text-white/60 max-w-md mb-8 animate-[fU_.7s_.16s_ease-out_both]">
-            Lembaga pendidikan Islam terpadu di Sidoarjo, di bawah naungan Kemenag dan Kemdikbud, bermanhaj Ahlussunnah wal Jamaah — memadukan aqidah, bahasa, dan akademik dalam satu sistem kepesantrenan 6 tahun.
+          <p className="text-[15px] leading-[1.85] font-light text-white/60 max-w-xl mb-8 animate-[fU_.7s_.16s_ease-out_both]">
+            Lembaga pendidikan Islam bermanhaj Ahlussunnah wal Jama'ah di Sidoarjo, berizin resmi dari Pemerintah NKRI di bawah pembinaan Kementerian Agama Republik Indonesia dan Kementerian Pendidikan Dasar dan Menengah Republik Indonesia, terbingkai dalam sistem kepesantrenan selama 6 tahun, serta memiliki program Super Camp untuk bimbingan belajar intensif persiapan masuk perguruan tinggi nasional dan internasional.
           </p>
           <div className="flex flex-wrap gap-3 mb-12 animate-[fU_.7s_.24s_ease-out_both]">
             <button onClick={() => navigate("/ppdb")} className="inline-flex items-center gap-2 bg-linear-to-br from-amber-500 to-amber-600 text-white px-6 py-3 rounded-xl text-[13.5px] font-semibold shadow-xl shadow-amber-500/30 hover:shadow-2xl hover:-translate-y-0.5 transition-all hover:cursor-pointer">
