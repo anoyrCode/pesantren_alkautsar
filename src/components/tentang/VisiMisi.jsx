@@ -3,10 +3,10 @@ import SectionHeader from "../common/SectionHeader";
 import Reveal from "../common/Reveal";
 
 const MISI = [
-  "Menyelenggarakan pendidikan aqidah Ahlussunnah yang kuat dan sistematis",
-  "Membangun lingkungan berbahasa Arab aktif sebagai dasar memahami ilmu agama",
-  "Mengintegrasikan Discovery Task dan bimbel intensif untuk akademik modern",
-  "Membentuk karakter mandiri, disiplin, dan 5R: Ringkas, Rapi, Resik, Rawat, Rajin",
+  "Menyelenggarakan pendidikan aqidah Ahlussunnah yang kuat dan sistematis serta membangun lingkungan berbahasa Arab aktif sebagai dasar memahami ilmu agama",
+  "Bimbingan belajar intensif untuk perguruan tinggi nasional dan internasional melalui program Super Camp",
+  "Membentuk pribadi taat bernegara dan terhindar dari pemikiran terorisme dan radikalisme",
+  "Membentuk kebiasaan mulia",
 ];
 
 export default function VisiMisi() {
