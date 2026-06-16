@@ -23,7 +23,7 @@ export default function VisiMisi() {
                 <span className="w-4 h-[1.5px] rounded bg-amber-300" /> Visi
               </div>
               <h3 className="text-[22px] text-white mb-4 relative z-10" style={{ ...GILDA_FONT, lineHeight: "1.3" }}>
-                Generasi Muslim yang Lurus, Berilmu & Kompetitif
+                Mencetak Generasi Bermanhaj Ahlussunnah wal Jama'ah
               </h3>
               <p className="text-[13.5px] text-white/60 leading-[1.8] font-light relative z-10">
                 Menjadi lembaga pendidikan Islam terpadu diatas manhaj Ahlussunnah wal Jamaah yang melahirkan generasi muslim berakidah lurus, berilmu, berakhlak mulia, dan kompetitif di era global.
@@ -37,7 +37,7 @@ export default function VisiMisi() {
                 <span className="w-4 h-[1.5px] rounded bg-[#284061]" /> Misi
               </div>
               <h3 className="text-[22px] text-[#284061] mb-4" style={{ ...GILDA_FONT, lineHeight: "1.3" }}>
-                Lima Komitmen Kami
+                Empat Komitmen Kami
               </h3>
               <ul className="space-y-3 mt-4">
                 {MISI.map((t, i) => (
