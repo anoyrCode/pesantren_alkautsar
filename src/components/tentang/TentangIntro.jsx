@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, Languages, Target, ShieldCheck, Heart, School } from "lucide-react";
+import { BookOpen, Languages, Target, ShieldCheck, Heart, Users, School } from "lucide-react";
 import { ARABIC_FONT, GILDA_FONT } from "../../utils/constants";
 import Reveal from "../common/Reveal";
 import useParallax from "../../hooks/useParallax";
@@ -9,7 +9,8 @@ const POINTS = [
   [Languages, "Bahasa Arab aktif sebagai bahasa lingkungan dan pengantar ilmu agama"],
   [Target, "Discovery Task berbasis PISA untuk Diniyah dan pelajaran umum"],
   [ShieldCheck, "3 shift musyrif, 110 CCTV online & offline, rasio 1:10"],
-  [Heart, "Libur 5 hari/bulan untuk berbakti dan melepas rindu kepada orang tua"],
+  [Users, "15 tim keamanan penjaga luar ruang terbagi dalam 3 shift"],
+  [Heart, "Libur pulang 5 hari setiap bulan untuk berbakti kepada orang tua"],
 ];
 
 export default function TentangIntro() {
