@@ -5,12 +5,12 @@ import Reveal from "../common/Reveal";
 import useParallax from "../../hooks/useParallax";
 
 const POINTS = [
-  [BookOpen, "Aqidah Ahlussunnah — 48 jp/pekan, sistematis dan mendalam sejak dini"],
-  [Languages, "Bahasa Arab aktif sebagai bahasa lingkungan dan pengantar ilmu agama"],
-  [Target, "Discovery Task berbasis PISA untuk Diniyah dan pelajaran umum"],
-  [ShieldCheck, "3 shift musyrif, 110 CCTV online & offline, rasio 1:10"],
-  [Users, "15 tim keamanan penjaga luar ruang terbagi dalam 3 shift"],
-  [Heart, "Libur pulang 5 hari setiap bulan untuk berbakti kepada orang tua"],
+  [BookOpen, "Aqidah Ahlussunnah", "48 jp/pekan, sistematis dan mendalam sejak dini"],
+  [Languages, "Bahasa Arab Aktif", "Sebagai bahasa lingkungan dan pengantar ilmu agama"],
+  [Target, "Discovery Task", "Berbasis PISA untuk Diniyah dan pelajaran umum"],
+  [ShieldCheck, "3 Shift Musyrif", "110 CCTV online & offline, rasio 1:10"],
+  [Users, "15 Tim Keamanan", "Penjaga luar ruang terbagi dalam 3 shift"],
+  [Heart, "Libur 5 Hari/Bulan", "Untuk berbakti kepada orang tua"],
 ];
 
 export default function TentangIntro() {
@@ -72,18 +72,22 @@ export default function TentangIntro() {
             <p className="text-[14px] leading-[1.75] font-light text-slate-500 mb-7">
               Bukan sekadar tempat belajar — Al Kautsar adalah ekosistem pembentukan generasi yang benar-benar siap menghadapi kehidupan modern tanpa kehilangan identitas Islam.
             </p>
-            <ul className="space-y-2.5">
-              {POINTS.map(([Icon, tx]) => (
-                <li key={tx} className="group flex items-start gap-3 p-3.5 rounded-xl border border-slate-100 bg-slate-50 hover:bg-white hover:shadow-md hover:translate-x-1 transition-all">
-                  <div className="w-8 h-8 shrink-0 rounded-lg bg-linear-to-br from-[#284061] to-[#1a2d47] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                    <Icon size={14} />
+            <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+              {POINTS.map(([Icon, title, desc]) => (
+                <div key={title} className="flex gap-3 items-start">
+                  <div className="w-9 h-9 shrink-0 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 mt-0.5">
+                    <Icon size={16} />
                   </div>
-                  <span className="text-[13px] text-slate-700 leading-relaxed pt-1">{tx}</span>
-                </li>
+                  <div>
+                    <div className="text-[13px] font-semibold text-[#284061] leading-tight mb-1">{title}</div>
+                    <div className="text-[12px] text-slate-500 leading-relaxed font-light">{desc}</div>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </Reveal>
         </div>
+
       </div>
     </section>
   );
