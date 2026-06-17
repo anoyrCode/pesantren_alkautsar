@@ -48,8 +48,8 @@ export default function PPDBHero() {
             </Reveal>
             <Reveal delay={80}>
               <h1 className="text-white leading-[1.1] tracking-tight mb-5" style={{ ...GILDA_FONT, fontSize: "clamp(32px,5vw,54px)" }}>
-                Daftarkan Putra-Putri Anda di<br />
-                <em className="italic text-amber-300">Pesantren Al Kautsar</em>
+                Pendaftaran<br />
+                <em className="italic text-amber-300">Pesantren Al Kautsar</em> Sidoarjo
               </h1>
             </Reveal>
             <Reveal delay={140}>
