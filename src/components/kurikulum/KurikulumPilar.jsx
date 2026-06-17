@@ -5,9 +5,9 @@ import Reveal from "../common/Reveal";
 const PILARS = [
   { Icon: BookOpen, n: "48", u: "jp/pekan", t: "Aqidah & Ilmu Agama", d: "Aqidah, fiqh, hadits, tafsir, mutun tauhid, mutun hadits — semua dengan pengantar Bahasa Arab aktif." },
   { Icon: Languages, n: "48", u: "jp/pekan", t: "Bahasa Arab Intensif", d: "Bahasa pengantar dan bahasa lingkungan pesantren. Santri mampu mengakses langsung literatur ulama klasik." },
-  { Icon: FlaskConical, n: "42", u: "jp/pekan", t: "Matematika & Sains", d: "Pola bimbel terstruktur. Siap UTBK, SNBP, seleksi PTN dalam dan luar negeri sejak dini." },
+  { Icon: FlaskConical, n: "42", u: "jp/pekan", t: "Matematika & Sains", d: "Pola bimbel terstruktur. Siap UTBK dan seleksi PTN dalam dan luar negeri sejak dini." },
   { Icon: Globe2, n: "14", u: "jp/pekan", t: "Bahasa Inggris", d: "Diajarkan sebagai mata pelajaran pendukung untuk membekali santri dengan kemampuan dasar akademik internasional." },
-  { Icon: Rocket, n: "Super", u: "Camp", t: "Program Super Camp", d: "Bagi santri berprestasi: fokus UTBK, SNBP, seleksi PTN dalam & luar negeri, berpikir kritis tingkat lanjut." },
+  { Icon: Rocket, n: "Super", u: "Camp", t: "Program Super Camp", d: "Bagi santri berprestasi: fokus UTBK dan seleksi PTN dalam & luar negeri, berpikir kritis tingkat lanjut." },
   { Icon: Briefcase, n: "Karir", u: "& Kapasitas", t: "Jalur Karir & Wirausaha", d: "Magang, Agrobisnis, Manajemen Trainee, Grafika (Kl.12), Web Design bersama ITS Tekno (Kl.10-11)." },
 ];
 

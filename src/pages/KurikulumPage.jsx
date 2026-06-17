@@ -4,6 +4,7 @@ import KurikulumProgress from "../components/kurikulum/KurikulumProgress";
 import KurikulumPilar from "../components/kurikulum/KurikulumPilar";
 import MataPelajaran from "../components/kurikulum/MataPelajaran";
 import LMSSection from "../components/kurikulum/LMSSection";
+import SuperCampCard from "../components/kurikulum/SuperCampCard";
 import CTABlock from "../components/common/CTABlock";
 
 export default function KurikulumPage() {
@@ -18,6 +19,7 @@ export default function KurikulumPage() {
       <section className="pt-10 pb-20 lg:pt-12 lg:pb-24">
         <div className="w-[min(1180px,92vw)] mx-auto">
           <KurikulumProgress />
+          <SuperCampCard />
           <KurikulumPilar />
           <MataPelajaran />
           <LMSSection />
