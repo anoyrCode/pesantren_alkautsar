@@ -1,15 +1,20 @@
-import { UtensilsCrossed, Shirt, Wifi, Heart, Home, Wind, House, Monitor } from "lucide-react";
+import { UtensilsCrossed, Shirt, Wifi, Home, Wind, House, Monitor, Stethoscope, Dumbbell, Waves, BookMarked, Laptop, HeartHandshake } from "lucide-react";
 import { GILDA_FONT } from "../../utils/constants";
 import Reveal from "../common/Reveal";
 import SplitReveal from "../common/SplitReveal";
 
 const FASILITAS = [
-  [UtensilsCrossed, "Makan Bergizi 3x", "Menu bergizi 3 kali sehari untuk tumbuh kembang santri yang optimal"],
-  [Shirt, "Laundry Harian", "Fasilitas cuci tiap hari agar pakaian selalu bersih, rapi, dan siap pakai"],
+  [UtensilsCrossed, "Makanan Bergizi", "Menu makan 3 kali sehari yang bergizi dan sehat, di bawah pengawasan serta konsultasi rutin bersama Puskesmas Sukodono, Sidoarjo — insyaallah"],
+  [Shirt, "Laundry Pakaian", "Layanan cuci pakaian harian agar santri selalu tampil bersih, rapi, dan siap beraktivitas"],
   [Wifi, "110 CCTV Aktif", "Online & offline di seluruh area pesantren, anti-bullying dan anti-LGBT"],
-  [Heart, "Layanan Kesehatan", "Tenaga kesehatan siap memantau kondisi santri setiap saat"],
+  [Stethoscope, "Ruang Kesehatan", "Ditangani oleh 3 dokter dan 4 perawat yang siap memberikan pelayanan kesehatan terbaik bagi santri"],
   [Home, "Asrama Nyaman", "Kamar bersih, rapi, dengan pengecekan rutin sesuai budaya 5R"],
   [Wind, "Kelas Ber-AC", "Ruang belajar nyaman dengan pendingin udara agar santri fokus dan kondusif"],
+  [Dumbbell, "Lapangan Olahraga", "Tersedia lapangan futsal, basket, bulu tangkis, dan tenis meja untuk mendukung kebugaran santri"],
+  [Waves, "Kolam Renang", "Fasilitas kolam renang untuk memastikan seluruh santri menguasai kemampuan berenang — insyaallah"],
+  [BookMarked, "Perpustakaan", "Koleksi buku agama, sains, dan umum yang lengkap sebagai penunjang budaya baca dan keilmuan santri"],
+  [Laptop, "Lab Komputer", "Laboratorium komputer modern untuk mendukung pembelajaran teknologi dan program Web Design bersama ITS Tekno"],
+  [HeartHandshake, "Konsultasi BK", "Layanan bimbingan dan konseling oleh tenaga profesional, siap mendampingi perkembangan mental dan karakter santri"],
   [House, "Libur 5 Hari/Bulan", "Santri pulang 5 hari setiap bulan untuk berbakti kepada orang tua"],
   [Monitor, "LMS Digital", "Monitoring nilai, absensi & poin karakter secara real-time"],
 ];
@@ -29,7 +34,7 @@ export default function FasilitasGrid() {
         <SplitReveal delay={0.05} stagger={0.06}>Fasilitas</SplitReveal>
         {" "}
         <SplitReveal delay={0.35} stagger={0.045} as="em" className="italic text-amber-500">
-          Lengkap
+          Pesantren
         </SplitReveal>
       </h2>
 
