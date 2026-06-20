@@ -78,14 +78,14 @@ export default function GaleriPage() {
             </div>
           </Reveal>
 
-          {/* Masonry grid */}
-          <div className="columns-2 md:columns-3 lg:columns-4 gap-3">
+          {/* Grid seragam */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {filtered.map((photo, i) => (
               <div
                 key={`${filter}-${i}`}
                 role="button"
                 tabIndex={0}
-                className="break-inside-avoid mb-3 group relative rounded-2xl overflow-hidden cursor-pointer"
+                className="group relative rounded-2xl overflow-hidden cursor-pointer aspect-4/3"
                 style={{
                   animation: "galleryFadeUp 0.45s cubic-bezier(0.16,1,0.3,1) forwards",
                   animationDelay: `${Math.min(i * 0.055, 0.55)}s`,
@@ -97,7 +97,7 @@ export default function GaleriPage() {
                 <img
                   src={photo.src}
                   alt={photo.alt}
-                  className="w-full block transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover block transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
                 {/* Hover overlay */}
