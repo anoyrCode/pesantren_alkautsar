@@ -16,8 +16,6 @@ import imgDauroh2       from "../assets/fotogaleri/dauroh-2.JPG";
 import imgDauroh3       from "../assets/fotogaleri/dauroh-3.JPG";
 import imgCeramah       from "../assets/fotogaleri/ceramah-idul-adha.JPG";
 import imgCeramah2      from "../assets/fotogaleri/ceramah-idul-adha-2.JPG";
-import imgPenyembelihan1 from "../assets/fotogaleri/penyembelihan-1.JPG";
-import imgPenyembelihan2 from "../assets/fotogaleri/penyembelihan-2.JPG";
 import imgPenyembelihan3 from "../assets/fotogaleri/penyembelihan-3.JPG";
 import imgPenyembelihan4 from "../assets/fotogaleri/penyembelihan-4.JPG";
 import imgPenyembelihan5 from "../assets/fotogaleri/penyembelihan-5.JPG";
@@ -69,8 +67,6 @@ export const GALLERY_ITEMS = [
   { src: imgDauroh3,       alt: "Kegiatan Dauroh 3",              category: "kajian" },
   { src: imgCeramah,       alt: "Ceramah Idul Adha",              category: "kajian" },
   { src: imgCeramah2,      alt: "Ceramah Idul Adha 2",            category: "kajian" },
-  { src: imgPenyembelihan1, alt: "Penyembelihan Qurban 1",        category: "kegiatan" },
-  { src: imgPenyembelihan2, alt: "Penyembelihan Qurban 2",        category: "kegiatan" },
   { src: imgPenyembelihan3, alt: "Penyembelihan Qurban 3",        category: "kegiatan" },
   { src: imgPenyembelihan4, alt: "Penyembelihan Qurban 4",        category: "kegiatan" },
   { src: imgPenyembelihan5, alt: "Penyembelihan Qurban 5",        category: "kegiatan" },
