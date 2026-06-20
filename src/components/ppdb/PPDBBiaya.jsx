@@ -11,7 +11,7 @@ const FEES = [
 
 const FACILITIES = [
   [UtensilsCrossed, "Makan 3x"], [BedDouble, "Asrama"], [Shirt, "Laundry"],
-  [Monitor, "LMS Digital"], [BookOpen, "discovery task"], [Uniform, "Seragam"],
+  [Monitor, "SIPOS Digital"], [BookOpen, "discovery task"], [Uniform, "Seragam"],
 ];
 
 export default function PPDBBiaya() {
@@ -22,7 +22,7 @@ export default function PPDBBiaya() {
           tag="Informasi Biaya"
           title="Biaya"
           italic="Terjangkau"
-          description="Dengan biaya terjangkau, santri mendapatkan fasilitas lengkap: pendidikan, asrama, makan 3x sehari, laundry, hingga LMS digital"
+          description="Dengan biaya terjangkau, santri mendapatkan fasilitas lengkap: pendidikan, asrama, makan 3x sehari, laundry, hingga SIPOS digital"
         />
 
         <div className="grid lg:grid-cols-3 gap-5">

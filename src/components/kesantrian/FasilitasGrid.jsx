@@ -16,7 +16,7 @@ const FASILITAS = [
   [Laptop, "Lab Komputer", "Laboratorium komputer modern untuk mendukung pembelajaran teknologi dan program Web Design bersama ITS Tekno"],
   [HeartHandshake, "Konsultasi BK", "Layanan bimbingan dan konseling oleh tenaga profesional, siap mendampingi perkembangan mental dan karakter santri"],
   [House, "Libur 5 Hari/Bulan", "Santri pulang 5 hari setiap bulan untuk berbakti kepada orang tua"],
-  [Monitor, "LMS Digital", "Monitoring nilai, absensi & poin karakter secara real-time"],
+  [Monitor, "SIPOS Digital", "Rekap poin positif/negatif & rekam medis santri secara real-time"],
 ];
 
 export default function FasilitasGrid() {

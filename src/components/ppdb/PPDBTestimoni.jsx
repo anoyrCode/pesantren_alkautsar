@@ -20,8 +20,8 @@ const KEUNGGULAN = [
   },
   {
     icon: Wifi,
-    title: "LMS Digital Real-Time",
-    body: "Orang tua bisa pantau nilai, absensi, dan perkembangan santri kapan saja melalui dashboard LMS Al Kautsar.",
+    title: "SIPOS Digital Real-Time",
+    body: "Orang tua bisa pantau poin perilaku dan rekam medis santri kapan saja melalui dashboard SIPOS Al Kautsar.",
   },
   {
     icon: Clock,

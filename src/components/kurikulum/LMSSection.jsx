@@ -1,13 +1,12 @@
-﻿import { BarChart3, Smartphone, Users } from "lucide-react";
+﻿import { Award, Stethoscope, Users } from "lucide-react";
 import { GILDA_FONT } from "../../utils/constants";
 import Reveal from "../common/Reveal";
-import lms from "../../assets/lms.png";
-import lms2 from "../../assets/lms2.png"
+import isipos from "../../assets/isipos.png";
 
 const FEATURES = [
-  [BarChart3, "Penilaian Real-Time", "Nilai, absensi, dan poin karakter santri dapat dipantau langsung oleh guru, santri, dan orang tua setiap saat."],
-  [Smartphone, "Dashboard Digital", "Setiap capaian belajar tercatat otomatis, mendukung pembelajaran yang transparan, adaptif, dan berorientasi pada pertumbuhan santri."],
-  [Users, "Multi-Role: Musyrif, Guru & Admin", "Setiap peran memiliki akses dan fitur tersendiri — poin keseharian, nilai mapel, absensi, dan wali kelas tersentralisasi."],
+  [Award, "Poin Positif & Negatif", "Setiap prestasi dan pelanggaran santri tercatat sebagai poin, terekap rapi dan transparan sepanjang masa pembinaan."],
+  [Stethoscope, "Rekam Medis Santri", "Riwayat kesehatan dan penanganan santri tersimpan digital, memudahkan pemantauan kondisi santri setiap saat."],
+  [Users, "Akses Berbasis Peran", "Admin, staf, dan orang tua memiliki hak akses tersendiri — data terpusat, aman, dan dapat dipantau dari mana saja."],
 ];
 
 export default function LMSSection() {
@@ -16,7 +15,7 @@ export default function LMSSection() {
       <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
         <Reveal direction="left">
           <div className="rounded-2xl border-4 border-slate-500/50 overflow-hidden shadow-xl">
-            <img src={lms2} alt="LMS Dashboard" className="w-full"/>
+            <img src={isipos} alt="Dashboard SIPOS Al Kautsar" className="w-full"/>
           </div>
         </Reveal>
 
@@ -27,15 +26,15 @@ export default function LMSSection() {
             <span className="w-5 h-[1.5px] bg-amber-500 rounded" /> Teknologi Digital
           </div>
           <h2 className="mb-4" style={{ ...GILDA_FONT, fontSize: "clamp(26px,3.5vw,42px)", color: "#284061", lineHeight: "1.15" }}>
-            LMS <em className="italic text-amber-500">Al Kautsar</em>
+            SIPOS <em className="italic text-amber-500">Al Kautsar</em>
           </h2>
           <p className="text-[15px] leading-[1.82] font-light text-slate-600 mb-6">
-            Transformasi pendidikan pesantren berbasis digital — memudahkan proses belajar, kolaborasi guru-santri, dan pelibatan orang tua secara transparan.
+            Sistem Poin Santri berbasis web — merekap poin positif dan negatif perilaku santri sekaligus rekam medisnya, dengan akses berbasis peran untuk admin, staf, dan orang tua dalam satu dashboard.
           </p>
           <ul className="space-y-4">
             {FEATURES.map(([Icon, t, d]) => (
               <li key={t} className="flex gap-3.5 items-start">
-                <div className="w-9 h-9 flex-shrink-0 rounded-xl bg-linear-to-br from-[#284061] to-[#1a2d47] flex items-center justify-center text-white">
+                <div className="w-9 h-9 shrink-0 rounded-xl bg-linear-to-br from-[#284061] to-[#1a2d47] flex items-center justify-center text-white">
                   <Icon size={15} />
                 </div>
                 <div>

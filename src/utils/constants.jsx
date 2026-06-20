@@ -90,7 +90,7 @@ export const FAQS = [
 ];
 
 export const TESTIMONIALS = [
-  { name: "Bapak Hadi Susanto", role: "Wali Santri MTs Kelas 8", text: "Anak saya sangat berkembang sejak masuk Al Kautsar. Bahasa Arabnya lancar, hafalannya bertambah, dan yang paling penting adabnya semakin baik. Sistem LMS sangat membantu kami memantau perkembangannya dari rumah.", avatar: "👨" },
+  { name: "Bapak Hadi Susanto", role: "Wali Santri MTs Kelas 8", text: "Anak saya sangat berkembang sejak masuk Al Kautsar. Bahasa Arabnya lancar, hafalannya bertambah, dan yang paling penting adabnya semakin baik. Sistem SIPOS sangat membantu kami memantau perkembangannya dari rumah.", avatar: "👨" },
   { name: "Ibu Siti Rohmah", role: "Wali Santri SMA Kelas 11", text: "Saya percaya dengan manhaj Ahlussunnah yang diterapkan di sini. Putra saya tumbuh menjadi pribadi yang mandiri, disiplin, dan tetap menjaga ibadah dengan baik. Insya Allah siap menghadapi UTBK juga.", avatar: "👩" },
   { name: "Bapak Ahmad Fadli", role: "Alumni & Mahasiswa ITS", text: "6 tahun di Al Kautsar adalah pondasi terbaik. Discovery Task melatih kami berpikir kritis, Super Camp UTBK mengantarkan saya masuk PTN impian, dan yang lebih penting — bekal agama yang kokoh.", avatar: "🎓" },
 ];

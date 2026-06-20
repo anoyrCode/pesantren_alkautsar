@@ -204,7 +204,7 @@ export default function MainLayout() {
             <div>
               <div className="text-[11px] font-bold tracking-wider uppercase text-white/30 mb-4">Program</div>
               <ul className="space-y-2.5">
-                {["Aqidah Ahlussunnah", "Bahasa Arab Aktif", "Discovery Task PISA", "Super Camp UTBK", "LMS Al Kautsar", "ITS Tekno Web Design"].map((p) => (
+                {["Aqidah Ahlussunnah", "Bahasa Arab Aktif", "Discovery Task PISA", "Super Camp UTBK", "SIPOS Al Kautsar", "ITS Tekno Web Design"].map((p) => (
                   <li key={p}>
                     <a className="text-[13px] text-white/45 hover:text-amber-300 transition-colors cursor-pointer">{p}</a>
                   </li>

@@ -1,7 +1,7 @@
 export default function TickerSection() {
   const items = [
     "Aqidah Ahlussunnah wal Jamaah", "901 Santri Aktif", "Discovery Task Berbasis PISA",
-    "LMS Real-Time", "Kemenag + Kemdikbud", "Pengawasan 24 Jam 110 CCTV",
+    "SIPOS Real-Time", "Kemenag + Kemdikbud", "Pengawasan 24 Jam 110 CCTV",
     "Super Camp UTBK", "Sukodono, Sidoarjo 61258",
   ];
 
