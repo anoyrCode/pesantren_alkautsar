@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, LogOut, Download, Eye } from "lucide-react";
+import { Search, LogOut, Download, Eye, Plus, Pencil, Trash2 } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 
 function getToken() {
@@ -71,6 +71,26 @@ export default function AdminDashboard() {
     navigate("/admin/login");
   }
 
+  async function hapusData(id, nama) {
+    if (!window.confirm(`Hapus data pendaftar "${nama}"? Tindakan ini tidak dapat dibatalkan.`)) return;
+    try {
+      const res = await apiFetch(`/api/pendaftaran/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      if (res.status === 401) {
+        localStorage.removeItem("admin_token");
+        navigate("/admin/login");
+        return;
+      }
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Gagal menghapus data.");
+      setData((d) => d.filter((x) => x.id !== id));
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return data.filter((d) => {
@@ -138,6 +158,14 @@ export default function AdminDashboard() {
             <Download size={15} />
             Export CSV
           </button>
+
+          <button
+            onClick={() => navigate("/admin/santri/baru")}
+            className="flex items-center gap-2 bg-[#284061] hover:bg-[#1e3358] text-white text-sm font-medium px-4 py-2 rounded-lg transition"
+          >
+            <Plus size={15} />
+            Tambah Data
+          </button>
         </div>
 
         {/* Table */}
@@ -178,13 +206,29 @@ export default function AdminDashboard() {
                         {new Date(d.created_at).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}
                       </td>
                       <td className="px-4 py-3">
-                        <button
-                          onClick={() => navigate(`/admin/santri/${d.id}`)}
-                          className="flex items-center gap-1.5 text-xs text-green-700 hover:text-green-900 font-medium transition"
-                        >
-                          <Eye size={14} />
-                          Detail
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => navigate(`/admin/santri/${d.id}`)}
+                            className="flex items-center gap-1.5 text-xs text-green-700 hover:text-green-900 font-medium transition"
+                          >
+                            <Eye size={14} />
+                            Detail
+                          </button>
+                          <button
+                            onClick={() => navigate(`/admin/santri/${d.id}/edit`)}
+                            className="flex items-center gap-1.5 text-xs text-[#284061] hover:text-amber-600 font-medium transition"
+                          >
+                            <Pencil size={13} />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => hapusData(d.id, d.nama_lengkap)}
+                            className="flex items-center gap-1.5 text-xs text-red-600 hover:text-red-800 font-medium transition"
+                          >
+                            <Trash2 size={13} />
+                            Hapus
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

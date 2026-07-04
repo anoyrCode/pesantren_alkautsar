@@ -10,6 +10,7 @@ import KesantrianPage from "../pages/KesantrianPage";
 import AdminLogin from "../pages/admin/AdminLogin";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminDetail from "../pages/admin/AdminDetail";
+import AdminSantriForm from "../pages/admin/AdminSantriForm";
 import ProtectedRoute from "../components/admin/ProtectedRoute";
 
 export default function AppRoutes() {
@@ -31,8 +32,16 @@ export default function AppRoutes() {
         element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}
       />
       <Route
+        path="/admin/santri/baru"
+        element={<ProtectedRoute><AdminSantriForm /></ProtectedRoute>}
+      />
+      <Route
         path="/admin/santri/:id"
         element={<ProtectedRoute><AdminDetail /></ProtectedRoute>}
+      />
+      <Route
+        path="/admin/santri/:id/edit"
+        element={<ProtectedRoute><AdminSantriForm /></ProtectedRoute>}
       />
 
       <Route path="*" element={<Navigate to="/" replace />} />

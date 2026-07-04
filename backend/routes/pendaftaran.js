@@ -6,6 +6,13 @@ const supabase  = require("../supabase");
 const auth      = require("../middleware/auth");
 
 const BUCKET = "ppdb";
+const PLACEHOLDER_URL = "https://placehold.co/400x500/e2e8f0/64748b?text=Belum+Upload";
+
+function extractStoragePath(url) {
+  const marker = `/object/public/${BUCKET}/`;
+  const idx = url?.indexOf(marker) ?? -1;
+  return idx === -1 ? null : url.slice(idx + marker.length);
+}
 
 async function uploadToSupabase(file, folder) {
   const ext      = path.extname(file.originalname);
@@ -223,6 +230,102 @@ router.post(
 );
 
 
+router.post(
+  "/admin",
+  auth,
+  upload.fields([
+    { name: "foto_santri",     maxCount: 1 },
+    { name: "bukti_transfer",  maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const b = req.body;
+
+      const errors = validasiForm(b);
+      if (errors.length) {
+        return res.status(400).json({ error: errors[0], errors });
+      }
+
+      const uploadedPaths = [];
+      let urlFoto = PLACEHOLDER_URL;
+      let urlTransfer = PLACEHOLDER_URL;
+
+      try {
+        if (req.files?.foto_santri?.[0]) {
+          const foto = await uploadToSupabase(req.files.foto_santri[0], "foto_santri");
+          uploadedPaths.push(foto.path);
+          urlFoto = foto.url;
+        }
+        if (req.files?.bukti_transfer?.[0]) {
+          const transfer = await uploadToSupabase(req.files.bukti_transfer[0], "bukti_transfer");
+          uploadedPaths.push(transfer.path);
+          urlTransfer = transfer.url;
+        }
+      } catch (uploadErr) {
+        await hapusFileSupabase(uploadedPaths);
+        return res.status(500).json({ error: uploadErr.message });
+      }
+
+      const nomor = await generateNomor();
+      const trim = (v) => (v ? String(v).trim() : null);
+
+      const query = `
+        INSERT INTO pendaftaran (
+          nomor_pendaftaran,
+          nama_lengkap, nomor_hp_ortu, email_ortu, jenis_kelamin,
+          tempat_lahir, nik_santri, nomor_kk, nisn,
+          hobi, cita_cita, anak_ke, berat_badan, tinggi_badan,
+          golongan_darah, penyakit,
+          alamat_rumah, kelurahan, kecamatan, kabupaten, provinsi, status_rumah,
+          nama_ayah, nik_ayah, wa_ayah, pendidikan_ayah, pekerjaan_ayah, gaji_ayah, status_nikah_ayah,
+          nama_ibu, nik_ibu, wa_ibu, pendidikan_ibu, pekerjaan_ibu, gaji_ibu, status_nikah_ibu,
+          nama_wali, wa_wali,
+          sekolah_asal, npsn, alamat_sekolah,
+          url_foto_santri, url_bukti_transfer, status
+        ) VALUES (
+          $1,
+          $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,
+          $17,$18,$19,$20,$21,$22,
+          $23,$24,$25,$26,$27,$28,$29,
+          $30,$31,$32,$33,$34,$35,$36,
+          $37,$38,
+          $39,$40,$41,
+          $42,$43,$44
+        )
+        RETURNING id, nomor_pendaftaran, created_at
+      `;
+
+      const values = [
+        nomor,
+        trim(b.namaLengkap), trim(b.nomorOrtu), trim(b.emailOrtu) || null, trim(b.jenisKelamin),
+        trim(b.tempatLahir), trim(b.nikSantri), trim(b.nomorKK), trim(b.nisn),
+        trim(b.hobi)      || null, trim(b.citaCita) || null,
+        b.anakKe      ? parseInt(b.anakKe)        : null,
+        b.beratBadan  ? parseFloat(b.beratBadan)  : null,
+        b.tinggiBadan ? parseFloat(b.tinggiBadan) : null,
+        trim(b.golDarah)  || null, trim(b.penyakit) || null,
+        trim(b.alamatRumah), trim(b.kelurahan), trim(b.kecamatan), trim(b.kabupaten), trim(b.provinsi), trim(b.statusRumah),
+        trim(b.namaAyah), trim(b.nikAyah), trim(b.waAyah), trim(b.pendidikanAyah), trim(b.pekerjaanAyah), trim(b.gajiAyah), trim(b.statusNikahAyah),
+        trim(b.namaIbu), trim(b.nikIbu), trim(b.waIbu), trim(b.pendidikanIbu), trim(b.pekerjaanIbu), trim(b.gajiIbu), trim(b.statusNikahIbu),
+        trim(b.namaWali)  || null, trim(b.waWali) || null,
+        trim(b.sekolahAsal), trim(b.npsn), trim(b.alamatSekolah),
+        urlFoto, urlTransfer, trim(b.status) || "Menunggu",
+      ];
+
+      const { rows } = await pool.query(query, values);
+
+      res.status(201).json({
+        message: "Data pendaftar berhasil ditambahkan.",
+        data: rows[0],
+      });
+    } catch (err) {
+      console.error("Error tambah data admin:", err.message);
+      res.status(500).json({ error: "Terjadi kesalahan server. Silakan coba lagi." });
+    }
+  }
+);
+
+
 router.get("/", auth, async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -247,6 +350,112 @@ router.get("/:id", auth, async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ error: "Gagal mengambil data." });
+  }
+});
+
+
+router.put(
+  "/:id",
+  auth,
+  upload.fields([
+    { name: "foto_santri",     maxCount: 1 },
+    { name: "bukti_transfer",  maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const existing = await pool.query("SELECT * FROM pendaftaran WHERE id = $1", [req.params.id]);
+      if (!existing.rows.length) return res.status(404).json({ error: "Data tidak ditemukan." });
+      const old = existing.rows[0];
+
+      const b = req.body;
+      const errors = validasiForm(b);
+      if (errors.length) {
+        return res.status(400).json({ error: errors[0], errors });
+      }
+
+      let urlFoto     = old.url_foto_santri;
+      let urlTransfer = old.url_bukti_transfer;
+
+      try {
+        if (req.files?.foto_santri?.[0]) {
+          const foto = await uploadToSupabase(req.files.foto_santri[0], "foto_santri");
+          const oldPath = extractStoragePath(old.url_foto_santri);
+          if (oldPath) await hapusFileSupabase([oldPath]);
+          urlFoto = foto.url;
+        }
+        if (req.files?.bukti_transfer?.[0]) {
+          const transfer = await uploadToSupabase(req.files.bukti_transfer[0], "bukti_transfer");
+          const oldPath = extractStoragePath(old.url_bukti_transfer);
+          if (oldPath) await hapusFileSupabase([oldPath]);
+          urlTransfer = transfer.url;
+        }
+      } catch (uploadErr) {
+        return res.status(500).json({ error: uploadErr.message });
+      }
+
+      const trim = (v) => (v ? String(v).trim() : null);
+
+      const query = `
+        UPDATE pendaftaran SET
+          nama_lengkap = $1, nomor_hp_ortu = $2, email_ortu = $3, jenis_kelamin = $4,
+          tempat_lahir = $5, nik_santri = $6, nomor_kk = $7, nisn = $8,
+          hobi = $9, cita_cita = $10, anak_ke = $11, berat_badan = $12, tinggi_badan = $13,
+          golongan_darah = $14, penyakit = $15,
+          alamat_rumah = $16, kelurahan = $17, kecamatan = $18, kabupaten = $19, provinsi = $20, status_rumah = $21,
+          nama_ayah = $22, nik_ayah = $23, wa_ayah = $24, pendidikan_ayah = $25, pekerjaan_ayah = $26, gaji_ayah = $27, status_nikah_ayah = $28,
+          nama_ibu = $29, nik_ibu = $30, wa_ibu = $31, pendidikan_ibu = $32, pekerjaan_ibu = $33, gaji_ibu = $34, status_nikah_ibu = $35,
+          nama_wali = $36, wa_wali = $37,
+          sekolah_asal = $38, npsn = $39, alamat_sekolah = $40,
+          url_foto_santri = $41, url_bukti_transfer = $42, status = $43
+        WHERE id = $44
+        RETURNING id, nomor_pendaftaran
+      `;
+
+      const values = [
+        trim(b.namaLengkap), trim(b.nomorOrtu), trim(b.emailOrtu) || null, trim(b.jenisKelamin),
+        trim(b.tempatLahir), trim(b.nikSantri), trim(b.nomorKK), trim(b.nisn),
+        trim(b.hobi)      || null, trim(b.citaCita) || null,
+        b.anakKe      ? parseInt(b.anakKe)        : null,
+        b.beratBadan  ? parseFloat(b.beratBadan)  : null,
+        b.tinggiBadan ? parseFloat(b.tinggiBadan) : null,
+        trim(b.golDarah)  || null, trim(b.penyakit) || null,
+        trim(b.alamatRumah), trim(b.kelurahan), trim(b.kecamatan), trim(b.kabupaten), trim(b.provinsi), trim(b.statusRumah),
+        trim(b.namaAyah), trim(b.nikAyah), trim(b.waAyah), trim(b.pendidikanAyah), trim(b.pekerjaanAyah), trim(b.gajiAyah), trim(b.statusNikahAyah),
+        trim(b.namaIbu), trim(b.nikIbu), trim(b.waIbu), trim(b.pendidikanIbu), trim(b.pekerjaanIbu), trim(b.gajiIbu), trim(b.statusNikahIbu),
+        trim(b.namaWali)  || null, trim(b.waWali) || null,
+        trim(b.sekolahAsal), trim(b.npsn), trim(b.alamatSekolah),
+        urlFoto, urlTransfer, trim(b.status) || old.status || "Menunggu",
+        req.params.id,
+      ];
+
+      const { rows } = await pool.query(query, values);
+
+      res.json({ message: "Data pendaftar berhasil diperbarui.", data: rows[0] });
+    } catch (err) {
+      console.error("Error edit data admin:", err.message);
+      res.status(500).json({ error: "Terjadi kesalahan server. Silakan coba lagi." });
+    }
+  }
+);
+
+
+router.delete("/:id", auth, async (req, res) => {
+  try {
+    const { rows } = await pool.query("SELECT * FROM pendaftaran WHERE id = $1", [req.params.id]);
+    if (!rows.length) return res.status(404).json({ error: "Data tidak ditemukan." });
+
+    const paths = [
+      extractStoragePath(rows[0].url_foto_santri),
+      extractStoragePath(rows[0].url_bukti_transfer),
+    ].filter(Boolean);
+
+    await hapusFileSupabase(paths);
+    await pool.query("DELETE FROM pendaftaran WHERE id = $1", [req.params.id]);
+
+    res.json({ message: "Data pendaftar berhasil dihapus." });
+  } catch (err) {
+    console.error("Error hapus data admin:", err.message);
+    res.status(500).json({ error: "Gagal menghapus data." });
   }
 });
 

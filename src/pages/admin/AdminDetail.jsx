@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, ExternalLink, FileDown } from "lucide-react";
+import { ArrowLeft, ExternalLink, FileDown, Pencil } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 import jsPDF from "jspdf";
 import logoSrc from "../../assets/logoPolos.png";
@@ -364,8 +364,15 @@ export default function AdminDetail() {
           <div className="w-px h-4 bg-slate-200" />
           <span className="text-[11px] text-slate-400 font-mono tracking-wider">{d.nomor_pendaftaran}</span>
           <button
+            onClick={() => navigate(`/admin/santri/${id}/edit`)}
+            className="ml-auto flex items-center gap-2 text-[13px] font-semibold px-4 py-2 rounded-lg border border-slate-200 text-[#284061] hover:bg-slate-50 active:scale-95 transition-all"
+          >
+            <Pencil size={14} />
+            Edit
+          </button>
+          <button
             onClick={() => exportPDF(d).catch(console.error)}
-            className="ml-auto flex items-center gap-2 text-[13px] font-semibold px-4 py-2 rounded-lg bg-[#284061] text-white hover:bg-[#1e3358] active:scale-95 transition-all"
+            className="flex items-center gap-2 text-[13px] font-semibold px-4 py-2 rounded-lg bg-[#284061] text-white hover:bg-[#1e3358] active:scale-95 transition-all"
           >
             <FileDown size={14} />
             Export PDF
