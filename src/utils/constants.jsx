@@ -1,25 +1,3 @@
-import imgDiscovery1    from "../assets/fotogaleri/discovery-task-1.JPG";
-import imgDiscovery2    from "../assets/fotogaleri/discovery-task-2.JPG";
-import imgDiscovery3    from "../assets/fotogaleri/discovery-task-3.JPG";
-import imgDiscovery4    from "../assets/fotogaleri/discovery-task-4.JPG";
-import imgKantin1       from "../assets/fotogaleri/kantin-1.JPG";
-import imgKantin2       from "../assets/fotogaleri/kantin-2.JPG";
-import imgLapangan1     from "../assets/fotogaleri/lapangan-1.JPG";
-import imgLapangan2     from "../assets/fotogaleri/lapangan-2.JPG";
-import imgKolam1        from "../assets/fotogaleri/kolam-renang-1.JPG";
-import imgKolam2        from "../assets/fotogaleri/kolam-renang-2.JPG";
-import imgKolam3        from "../assets/fotogaleri/kolam-renang-3.JPG";
-import imgBasket        from "../assets/fotogaleri/basket.JPG";
-import imgFutsal        from "../assets/fotogaleri/futsal.JPG";
-import imgDauroh1       from "../assets/fotogaleri/dauroh-1.JPG";
-import imgDauroh2       from "../assets/fotogaleri/dauroh-2.JPG";
-import imgDauroh3       from "../assets/fotogaleri/dauroh-3.JPG";
-import imgCeramah       from "../assets/fotogaleri/ceramah-idul-adha.JPG";
-import imgCeramah2      from "../assets/fotogaleri/ceramah-idul-adha-2.JPG";
-import imgPenyembelihan3 from "../assets/fotogaleri/penyembelihan-3.JPG";
-import imgPenyembelihan4 from "../assets/fotogaleri/penyembelihan-4.JPG";
-import imgPenyembelihan5 from "../assets/fotogaleri/penyembelihan-5.JPG";
-
 export const ARABIC_FONT = { fontFamily: "'Noto Naskh Arabic', serif" };
 export const GILDA_FONT = { fontFamily: "'Gilda Display', serif" };
 
@@ -46,38 +24,6 @@ export const SMA_SUBJECTS = [
   ["Nahwu", 2], ["Shorof", 2], ["Ta'bir", 2], ["Kitabah", 2], ["Faroid", 2],
   ["Matematika Umum", 2], ["Matematika Peminatan", 2], ["Bahasa Inggris", 2],
   ["Fisika", 2], ["Kimia", 2], ["Biologi", 2], ["TIK", 2], ["PPKN", 2], ["Sejarah", 2],
-];
-
-export const GALLERY_ITEMS = [
-  { src: imgDiscovery1,    alt: "Pembelajaran Discovery Task 1",  category: "pembelajaran" },
-  { src: imgDiscovery2,    alt: "Pembelajaran Discovery Task 2",  category: "pembelajaran" },
-  { src: imgDiscovery3,    alt: "Pembelajaran Discovery Task 3",  category: "pembelajaran" },
-  { src: imgDiscovery4,    alt: "Pembelajaran Discovery Task 4",  category: "pembelajaran" },
-  { src: imgKantin1,       alt: "Kantin Pesantren 1",             category: "fasilitas" },
-  { src: imgKantin2,       alt: "Kantin Pesantren 2",             category: "fasilitas" },
-  { src: imgLapangan1,     alt: "Lapangan Olahraga 1",            category: "fasilitas" },
-  { src: imgLapangan2,     alt: "Lapangan Olahraga 2",            category: "fasilitas" },
-  { src: imgKolam1,        alt: "Kolam Renang 1",                 category: "fasilitas" },
-  { src: imgKolam2,        alt: "Kolam Renang 2",                 category: "fasilitas" },
-  { src: imgKolam3,        alt: "Kolam Renang 3",                 category: "fasilitas" },
-  { src: imgBasket,        alt: "Lapangan Basket",                category: "kegiatan" },
-  { src: imgFutsal,        alt: "Lapangan Futsal",                category: "kegiatan" },
-  { src: imgDauroh1,       alt: "Kegiatan Dauroh 1",              category: "kajian" },
-  { src: imgDauroh2,       alt: "Kegiatan Dauroh 2",              category: "kajian" },
-  { src: imgDauroh3,       alt: "Kegiatan Dauroh 3",              category: "kajian" },
-  { src: imgCeramah,       alt: "Ceramah Idul Adha",              category: "kajian" },
-  { src: imgCeramah2,      alt: "Ceramah Idul Adha 2",            category: "kajian" },
-  { src: imgPenyembelihan3, alt: "Penyembelihan Qurban 3",        category: "kegiatan" },
-  { src: imgPenyembelihan4, alt: "Penyembelihan Qurban 4",        category: "kegiatan" },
-  { src: imgPenyembelihan5, alt: "Penyembelihan Qurban 5",        category: "kegiatan" },
-];
-
-export const GALLERY_FILTERS = [
-  { id: "all",          label: "Semua" },
-  { id: "pembelajaran", label: "Pembelajaran" },
-  { id: "fasilitas",    label: "Fasilitas" },
-  { id: "kajian",       label: "Kajian" },
-  { id: "kegiatan",     label: "Kegiatan" },
 ];
 
 export const FAQS = [

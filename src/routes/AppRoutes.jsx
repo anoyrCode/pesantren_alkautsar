@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "../layouts/MainLayouts";
+import AdminLayout from "../layouts/AdminLayout";
 import HomePage from "../pages/HomePage";
 import TentangPage from "../pages/TentangPage";
 import KurikulumPage from "../pages/KurikulumPage";
@@ -11,6 +12,8 @@ import AdminLogin from "../pages/admin/AdminLogin";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminDetail from "../pages/admin/AdminDetail";
 import AdminSantriForm from "../pages/admin/AdminSantriForm";
+import AdminGaleri from "../pages/admin/AdminGaleri";
+import AdminStatistik from "../pages/admin/AdminStatistik";
 import ProtectedRoute from "../components/admin/ProtectedRoute";
 
 export default function AppRoutes() {
@@ -27,10 +30,13 @@ export default function AppRoutes() {
       </Route>
 
       <Route path="/admin/login" element={<AdminLogin />} />
-      <Route
-        path="/admin/dashboard"
-        element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}
-      />
+
+      <Route element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/galeri" element={<AdminGaleri />} />
+        <Route path="/admin/statistik" element={<AdminStatistik />} />
+      </Route>
+
       <Route
         path="/admin/santri/baru"
         element={<ProtectedRoute><AdminSantriForm /></ProtectedRoute>}
