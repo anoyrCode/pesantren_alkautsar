@@ -5,9 +5,15 @@ const helmet   = require("helmet");
 
 const pendaftaranRoute = require("./routes/pendaftaran");
 const adminRoute       = require("./routes/admin");
+const galeriRoute      = require("./routes/galeri");
+const statistikRoute   = require("./routes/statistik");
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
+
+// Baca IP asli client dari header X-Forwarded-For saat di belakang reverse proxy (Nginx),
+// supaya rate limiter login tidak keliru menganggap semua orang satu IP yang sama
+app.set("trust proxy", 1);
 
 // Security headers
 app.use(helmet());
@@ -27,6 +33,8 @@ app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
 app.use("/api/admin",       adminRoute);
 app.use("/api/pendaftaran", pendaftaranRoute);
+app.use("/api/galeri",      galeriRoute);
+app.use("/api/statistik",   statistikRoute);
 
 app.get("/", (req, res) => {
   res.json({ message: "API PPDB Pesantren Al Kautsar aktif." });
