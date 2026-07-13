@@ -1,11 +1,17 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, LogOut, Download, Eye, Plus, Pencil, Trash2 } from "lucide-react";
+import { Search, Download, Eye, Plus, Pencil, Trash2, AlertTriangle } from "lucide-react";
 import { apiFetch } from "../../utils/api";
 
 function getToken() {
   return localStorage.getItem("admin_token");
 }
+
+const STATUS_BADGE = {
+  Diterima: "bg-emerald-100 text-emerald-700",
+  Ditolak:  "bg-red-100 text-red-700",
+  Menunggu: "bg-amber-100 text-amber-700",
+};
 
 function exportCSV(data) {
   if (!data.length) return;
@@ -46,6 +52,9 @@ export default function AdminDashboard() {
   const [error, setError]     = useState("");
   const [search, setSearch]   = useState("");
   const [filterJk, setFilterJk] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     apiFetch("/api/pendaftaran", {
@@ -66,15 +75,11 @@ export default function AdminDashboard() {
       .finally(() => setLoading(false));
   }, [navigate]);
 
-  function logout() {
-    localStorage.removeItem("admin_token");
-    navigate("/admin/login");
-  }
-
-  async function hapusData(id, nama) {
-    if (!window.confirm(`Hapus data pendaftar "${nama}"? Tindakan ini tidak dapat dibatalkan.`)) return;
+  async function konfirmasiHapus() {
+    if (!confirmDelete) return;
+    setDeleting(true);
     try {
-      const res = await apiFetch(`/api/pendaftaran/${id}`, {
+      const res = await apiFetch(`/api/pendaftaran/${confirmDelete.id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${getToken()}` },
       });
@@ -85,8 +90,32 @@ export default function AdminDashboard() {
       }
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Gagal menghapus data.");
-      setData((d) => d.filter((x) => x.id !== id));
+      setData((d) => d.filter((x) => x.id !== confirmDelete.id));
+      setConfirmDelete(null);
     } catch (err) {
+      alert(err.message);
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function ubahStatus(id, status) {
+    const prev = data;
+    setData((d) => d.map((x) => (x.id === id ? { ...x, status } : x)));
+    try {
+      const res = await apiFetch(`/api/pendaftaran/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ status }),
+      });
+      if (res.status === 401) {
+        localStorage.removeItem("admin_token");
+        navigate("/admin/login");
+        return;
+      }
+      if (!res.ok) throw new Error((await res.json()).error || "Gagal memperbarui status.");
+    } catch (err) {
+      setData(prev);
       alert(err.message);
     }
   }
@@ -99,27 +128,13 @@ export default function AdminDashboard() {
         d.nama_lengkap?.toLowerCase().includes(q) ||
         d.nomor_pendaftaran?.toLowerCase().includes(q);
       const matchJk = !filterJk || d.jenis_kelamin?.trim() === filterJk;
-      return matchSearch && matchJk;
+      const matchStatus = !filterStatus || (d.status ?? "Menunggu") === filterStatus;
+      return matchSearch && matchJk && matchStatus;
     });
-  }, [data, search, filterJk]);
+  }, [data, search, filterJk, filterStatus]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-800">Dashboard Admin PPDB</h1>
-          <p className="text-xs text-gray-500 mt-0.5">Pesantren Al Kautsar</p>
-        </div>
-        <button
-          onClick={logout}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-red-600 transition"
-        >
-          <LogOut size={16} />
-          Keluar
-        </button>
-      </header>
-
+    <>
       <main className="px-6 py-6 max-w-7xl mx-auto">
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
@@ -149,6 +164,17 @@ export default function AdminDashboard() {
             <option value="">Semua Jenis Kelamin</option>
             <option value="Laki-laki">Laki-laki</option>
             <option value="Perempuan">Perempuan</option>
+          </select>
+
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">Semua Status</option>
+            <option value="Menunggu">Menunggu</option>
+            <option value="Diterima">Diterima</option>
+            <option value="Ditolak">Ditolak</option>
           </select>
 
           <button
@@ -186,6 +212,7 @@ export default function AdminDashboard() {
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Nama Lengkap</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">L/P</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">No. HP Ortu</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Tanggal Daftar</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Aksi</th>
                   </tr>
@@ -202,6 +229,19 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-gray-600">{d.nomor_hp_ortu}</td>
+                      <td className="px-4 py-3">
+                        <div className="relative inline-block">
+                          <select
+                            value={d.status ?? "Menunggu"}
+                            onChange={(e) => ubahStatus(d.id, e.target.value)}
+                            className={`appearance-none pl-2.5 pr-6 py-1 rounded-full text-xs font-medium cursor-pointer outline-none ${STATUS_BADGE[d.status ?? "Menunggu"]}`}
+                          >
+                            <option value="Menunggu">Menunggu</option>
+                            <option value="Diterima">Diterima</option>
+                            <option value="Ditolak">Ditolak</option>
+                          </select>
+                        </div>
+                      </td>
                       <td className="px-4 py-3 text-gray-500">
                         {new Date(d.created_at).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}
                       </td>
@@ -222,7 +262,7 @@ export default function AdminDashboard() {
                             Edit
                           </button>
                           <button
-                            onClick={() => hapusData(d.id, d.nama_lengkap)}
+                            onClick={() => setConfirmDelete({ id: d.id, nama: d.nama_lengkap })}
                             className="flex items-center gap-1.5 text-xs text-red-600 hover:text-red-800 font-medium transition"
                           >
                             <Trash2 size={13} />
@@ -242,7 +282,44 @@ export default function AdminDashboard() {
           Menampilkan {filtered.length} dari {data.length} pendaftar
         </p>
       </main>
-    </div>
+
+      {/* Modal konfirmasi hapus */}
+      {confirmDelete && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4"
+          onClick={() => !deleting && setConfirmDelete(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
+              <AlertTriangle size={22} className="text-red-600" />
+            </div>
+            <h3 className="text-[16px] font-bold text-gray-800 mb-1.5">Hapus data pendaftar?</h3>
+            <p className="text-[13.5px] text-gray-500 leading-relaxed mb-6">
+              Data <span className="font-semibold text-gray-700">"{confirmDelete.nama}"</span> akan dihapus permanen beserta file terkait. Tindakan ini tidak dapat dibatalkan.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-600 border border-gray-200 hover:bg-gray-50 transition disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                onClick={konfirmasiHapus}
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition disabled:opacity-60"
+              >
+                {deleting ? "Menghapus..." : "Ya, Hapus"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

@@ -354,6 +354,27 @@ router.get("/:id", auth, async (req, res) => {
 });
 
 
+const STATUS_OPTIONS = ["Menunggu", "Diterima", "Ditolak"];
+
+router.patch("/:id/status", auth, async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!STATUS_OPTIONS.includes(status)) {
+      return res.status(400).json({ error: "Status tidak valid." });
+    }
+    const { rows } = await pool.query(
+      "UPDATE pendaftaran SET status = $1 WHERE id = $2 RETURNING id, status",
+      [status, req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: "Data tidak ditemukan." });
+    res.json({ message: "Status berhasil diperbarui.", data: rows[0] });
+  } catch (err) {
+    console.error("Error update status:", err.message);
+    res.status(500).json({ error: "Gagal memperbarui status." });
+  }
+});
+
+
 router.put(
   "/:id",
   auth,

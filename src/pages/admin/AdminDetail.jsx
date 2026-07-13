@@ -9,6 +9,12 @@ function getToken() {
   return localStorage.getItem("admin_token");
 }
 
+const STATUS_BADGE = {
+  Diterima: "bg-emerald-500/20 text-emerald-300 border-emerald-400/30",
+  Ditolak:  "bg-red-500/20 text-red-300 border-red-400/30",
+  Menunggu: "bg-amber-500/20 text-amber-300 border-amber-400/30",
+};
+
 
 async function exportPDF(d) {
   const doc    = new jsPDF({ unit: "mm", format: "a4" });
@@ -327,6 +333,27 @@ export default function AdminDetail() {
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
+  async function ubahStatus(status) {
+    const prev = d.status;
+    setD((x) => ({ ...x, status }));
+    try {
+      const res = await apiFetch(`/api/pendaftaran/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ status }),
+      });
+      if (res.status === 401) {
+        localStorage.removeItem("admin_token");
+        navigate("/admin/login");
+        return;
+      }
+      if (!res.ok) throw new Error((await res.json()).error || "Gagal memperbarui status.");
+    } catch (err) {
+      setD((x) => ({ ...x, status: prev }));
+      alert(err.message);
+    }
+  }
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-[#F0F4FA]">
       <div className="flex flex-col items-center gap-3">
@@ -403,9 +430,20 @@ export default function AdminDetail() {
 
           {/* Identity */}
           <div className="flex-1 pb-1 min-w-0">
-            <p className="text-amber-400 text-[10.5px] font-mono tracking-[0.18em] mb-2 uppercase">
-              {d.nomor_pendaftaran}
-            </p>
+            <div className="flex items-center gap-3 mb-2">
+              <p className="text-amber-400 text-[10.5px] font-mono tracking-[0.18em] uppercase">
+                {d.nomor_pendaftaran}
+              </p>
+              <select
+                value={d.status ?? "Menunggu"}
+                onChange={(e) => ubahStatus(e.target.value)}
+                className={`appearance-none px-3 py-0.5 rounded-full text-[11px] font-semibold cursor-pointer outline-none border ${STATUS_BADGE[d.status ?? "Menunggu"]}`}
+              >
+                <option className="bg-[#1a2d47]" value="Menunggu">Menunggu</option>
+                <option className="bg-[#1a2d47]" value="Diterima">Diterima</option>
+                <option className="bg-[#1a2d47]" value="Ditolak">Ditolak</option>
+              </select>
+            </div>
             <h1 className="text-white mb-2 leading-tight truncate"
               style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(26px, 4vw, 42px)" }}>
               {d.nama_lengkap}
