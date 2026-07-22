@@ -118,7 +118,6 @@ async function generateNomor() {
 }
 
 const PPDB_START = new Date("2026-08-01T00:00:00+07:00");
-const PPDB_END   = new Date("2026-09-30T23:59:59+07:00");
 
 router.post(
   "/",
@@ -131,9 +130,6 @@ router.post(
       const now = new Date();
       if (now < PPDB_START) {
         return res.status(403).json({ error: "Pendaftaran belum dibuka. Formulir tersedia mulai 1 Agustus 2026." });
-      }
-      if (now > PPDB_END) {
-        return res.status(403).json({ error: "Periode pendaftaran telah ditutup." });
       }
 
       const b = req.body;
