@@ -5,6 +5,7 @@ import useCountdown from "../hooks/useCountdown";
 import { GILDA_FONT } from "../utils/constants";
 import SEO from "../components/common/SEO";
 import Reveal from "../components/common/Reveal";
+import RekeningInfo from "../components/common/RekeningInfo";
 import { GA } from "../utils/analytics";
 import { apiFetch } from "../utils/api";
 
@@ -363,6 +364,7 @@ export default function FormulirPage() {
               <h2 className="text-[16px] font-bold text-[#284061] mb-5 pb-3 border-b border-slate-100" style={GILDA_FONT}>
                 7. Upload Dokumen
               </h2>
+              <RekeningInfo />
               <div className="grid sm:grid-cols-2 gap-4">
                 <UploadField label="Foto Calon Santri" accept="image/*" hint="Format: JPG/PNG · Max 2MB · Rasio 3×4 (portrait), min. 300×400 px" required onChange={(f) => setFiles((p) => ({ ...p, foto_santri: f }))} />
                 <UploadField label="Foto Bukti Transfer Biaya Daftar" accept="image/*,.pdf" hint="Format: JPG/PNG/PDF · Max 5MB" required onChange={(f) => setFiles((p) => ({ ...p, bukti_transfer: f }))} />
