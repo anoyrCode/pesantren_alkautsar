@@ -5,8 +5,8 @@ import { GILDA_FONT } from "../../utils/constants";
 
 const STEPS = [
   { n: "01", t: "Pendaftaran Online", start: "2026-08-01", end: "2026-09-30", d: "1 Agustus – 30 Sep 2026", c: "Isi formulir pendaftaran & unggah dokumen. Biaya pendaftaran Rp 450.000." },
-  { n: "02", t: "Tes Seleksi", start: "2026-10-25", end: "2026-10-25", d: "25 Oktober 2026", c: "Tes potensi akademik, baca Al-Qur'an, dan wawancara orang tua & calon santri." },
-  { n: "03", t: "Pengumuman dan Daftar Ulang", start: "2026-11-01", end: "2026-11-01", d: "1 November 2026", c: "Hasil seleksi diumumkan, dilanjutkan daftar ulang dan pembayaran biaya awal masuk." },
+  { n: "02", t: "Tes Seleksi", start: "2026-10-03", end: "2026-10-11", d: "3–4 & 10–11 Oktober 2026", c: "Tes potensi akademik, baca Al-Qur'an, dan wawancara orang tua & calon santri dalam dua gelombang." },
+  { n: "03", t: "Pengumuman dan Daftar Ulang", start: "2026-10-15", end: "2026-11-15", d: "15 Oktober – 15 November 2026", c: "Hasil seleksi diumumkan 15 Oktober, dilanjutkan daftar ulang dan pembayaran biaya awal masuk." },
   { n: "04", t: "Awal Tahun Ajaran", start: "2027-06-01", end: "2027-06-30", d: "Juni 2027", c: "Santri mulai masuk pesantren dan mengikuti awal tahun ajaran baru 2027/2028." },
 ];
 

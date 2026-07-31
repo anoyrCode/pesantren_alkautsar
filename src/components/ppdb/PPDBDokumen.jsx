@@ -11,7 +11,7 @@ const STEPS = [
   { n: "1", t: "Daftar Online", d: "Isi formulir & unggah dokumen di website kami", time: "5 menit", done: true },
   { n: "2", t: "Verifikasi Admin", d: "Tim PPDB akan menghubungi Anda dalam 1×24 jam", time: "1 hari", done: true },
   { n: "3", t: "Tes & Wawancara", d: "Tes potensi, baca Al-Qur'an & wawancara orang tua", time: "1 hari", done: false },
-  { n: "4", t: "Pengumuman & Daftar Ulang", d: "Pengumuman hasil & pembayaran biaya awal masuk", time: "1 minggu", done: false },
+  { n: "4", t: "Pengumuman & Daftar Ulang", d: "Pengumuman hasil & pembayaran biaya awal masuk", time: "1 bulan", done: false },
 ];
 
 export default function PPDBDokumen() {
