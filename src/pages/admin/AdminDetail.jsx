@@ -46,38 +46,7 @@ async function exportPDF(d) {
     } catch { return null; }
   }
 
-  function roundCorners(b64, radiusFrac = 0.09) {
-    if (!b64) return Promise.resolve(null);
-    return new Promise((res) => {
-      const img = new Image();
-      img.onload = () => {
-        const w = img.width, h = img.height;
-        const c = document.createElement("canvas");
-        c.width = w; c.height = h;
-        const ctx = c.getContext("2d");
-        const r = Math.round(Math.min(w, h) * radiusFrac);
-        ctx.beginPath();
-        ctx.moveTo(r, 0);
-        ctx.lineTo(w - r, 0); ctx.arcTo(w, 0, w, r, r);
-        ctx.lineTo(w, h - r); ctx.arcTo(w, h, w - r, h, r);
-        ctx.lineTo(r, h);     ctx.arcTo(0, h, 0, h - r, r);
-        ctx.lineTo(0, r);     ctx.arcTo(0, 0, r, 0, r);
-        ctx.closePath();
-        ctx.clip();
-        ctx.drawImage(img, 0, 0);
-        res(c.toDataURL("image/png"));
-      };
-      img.onerror = () => res(b64);
-      img.src = b64;
-    });
-  }
-
-  const [fotoRaw, logoRaw] = await Promise.all([
-    toBase64(d.url_foto_santri),
-    toBase64(logoSrc),
-  ]);
-  const fotoB64 = await roundCorners(fotoRaw, 0.08);
-  const logoB64 = logoRaw;
+  const logoB64 = await toBase64(logoSrc);
 
   // ── HEADER ──────────────────────────────────────────────
   doc.setFillColor(...C_NAVY);
@@ -97,7 +66,6 @@ async function exportPDF(d) {
   doc.text("Jl. Besuk RT 11 RW 04, Sambungrejo, Sukodono, Sidoarjo 61258", textX, 24);
   doc.setTextColor(220, 170, 80);
   doc.text("Formulir Pendaftaran Peserta Didik Baru (PPDB) 2027/2028", textX, 31);
-  if (fotoB64) doc.addImage(fotoB64, "PNG", PAGE_W - M - 22, 10, 20, 26);
 
   // ── NAME STRIP ──────────────────────────────────────────
   doc.setFillColor(255, 255, 255);
@@ -412,22 +380,7 @@ export default function AdminDetail() {
         {/* Dot pattern overlay */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.04]"
           style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
-        <div className="relative max-w-6xl mx-auto px-6 py-10 flex flex-col sm:flex-row gap-7 items-start sm:items-end">
-          {/* Photo */}
-          {d.url_foto_santri ? (
-            <a href={d.url_foto_santri} target="_blank" rel="noreferrer" className="shrink-0 group">
-              <img
-                src={d.url_foto_santri}
-                alt={d.nama_lengkap}
-                className="w-28 h-36 object-cover rounded-xl border-2 border-white/20 shadow-2xl group-hover:border-amber-400/70 transition-all duration-300"
-              />
-            </a>
-          ) : (
-            <div className="w-28 h-36 rounded-xl bg-white/8 border border-white/15 flex items-center justify-center text-white/25 text-xs shrink-0">
-              Foto
-            </div>
-          )}
-
+        <div className="relative max-w-6xl mx-auto px-6 py-10 flex">
           {/* Identity */}
           <div className="flex-1 pb-1 min-w-0">
             <div className="flex items-center gap-3 mb-2">
@@ -468,7 +421,6 @@ export default function AdminDetail() {
 
         {/* Dokumen row */}
         <div className="grid sm:grid-cols-2 gap-4 mb-5">
-          <DocCard label="Foto Santri"    url={d.url_foto_santri} />
           <DocCard label="Bukti Transfer" url={d.url_bukti_transfer} />
         </div>
 

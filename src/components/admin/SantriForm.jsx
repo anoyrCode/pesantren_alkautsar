@@ -181,8 +181,7 @@ export default function SantriForm({ mode, form, setForm, onFile, currentUrls, o
         <h2 className="text-[16px] font-bold text-[#284061] mb-5 pb-3 border-b border-slate-100">8. Dokumen</h2>
         <p className="text-[12px] text-slate-400 mb-4">Opsional — kosongkan jika belum ada file, sistem akan memakai gambar placeholder sementara.</p>
         <RekeningInfo />
-        <div className="grid sm:grid-cols-2 gap-4">
-          <UploadField label="Foto Calon Santri" accept="image/*" hint="Format: JPG/PNG · Max 5MB" currentUrl={currentUrls?.foto} onChange={(f) => onFile("foto_santri", f)} />
+        <div className="grid gap-4">
           <UploadField label="Foto Bukti Transfer Biaya Daftar" accept="image/*,.pdf" hint="Format: JPG/PNG/PDF · Max 5MB" currentUrl={currentUrls?.bukti} onChange={(f) => onFile("bukti_transfer", f)} />
         </div>
       </div>

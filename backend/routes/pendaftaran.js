@@ -122,7 +122,6 @@ const PPDB_START = new Date("2026-08-01T00:00:00+07:00");
 router.post(
   "/",
   upload.fields([
-    { name: "foto_santri",     maxCount: 1 },
     { name: "bukti_transfer",  maxCount: 1 },
   ]),
   async (req, res) => {
@@ -134,8 +133,8 @@ router.post(
 
       const b = req.body;
 
-      if (!req.files?.foto_santri || !req.files?.bukti_transfer) {
-        return res.status(400).json({ error: "File foto santri dan bukti transfer wajib diupload." });
+      if (!req.files?.bukti_transfer) {
+        return res.status(400).json({ error: "File bukti transfer wajib diupload." });
       }
 
       const errors = validasiForm(b);
@@ -144,14 +143,11 @@ router.post(
       }
 
       const uploadedPaths = [];
-      let urlFoto, urlTransfer;
+      let urlTransfer;
 
       try {
-        const foto     = await uploadToSupabase(req.files.foto_santri[0],    "foto_santri");
-        uploadedPaths.push(foto.path);
         const transfer = await uploadToSupabase(req.files.bukti_transfer[0], "bukti_transfer");
         uploadedPaths.push(transfer.path);
-        urlFoto     = foto.url;
         urlTransfer = transfer.url;
       } catch (uploadErr) {
         await hapusFileSupabase(uploadedPaths);
@@ -179,7 +175,7 @@ router.post(
           -- Sekolah
           sekolah_asal, npsn, alamat_sekolah,
           -- Dokumen
-          url_foto_santri, url_bukti_transfer
+          url_bukti_transfer
         ) VALUES (
           $1,
           $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,
@@ -188,7 +184,7 @@ router.post(
           $30,$31,$32,$33,$34,$35,$36,
           $37,$38,
           $39,$40,$41,
-          $42,$43
+          $42
         )
         RETURNING id, nomor_pendaftaran, created_at
       `;
@@ -209,7 +205,7 @@ router.post(
         trim(b.namaIbu), trim(b.nikIbu), trim(b.waIbu), trim(b.pendidikanIbu), trim(b.pekerjaanIbu), trim(b.gajiIbu), trim(b.statusNikahIbu),
         trim(b.namaWali)  || null, trim(b.waWali) || null,
         trim(b.sekolahAsal), trim(b.npsn), trim(b.alamatSekolah),
-        urlFoto, urlTransfer,
+        urlTransfer,
       ];
 
       const { rows } = await pool.query(query, values);
@@ -230,7 +226,6 @@ router.post(
   "/admin",
   auth,
   upload.fields([
-    { name: "foto_santri",     maxCount: 1 },
     { name: "bukti_transfer",  maxCount: 1 },
   ]),
   async (req, res) => {
@@ -243,15 +238,9 @@ router.post(
       }
 
       const uploadedPaths = [];
-      let urlFoto = PLACEHOLDER_URL;
       let urlTransfer = PLACEHOLDER_URL;
 
       try {
-        if (req.files?.foto_santri?.[0]) {
-          const foto = await uploadToSupabase(req.files.foto_santri[0], "foto_santri");
-          uploadedPaths.push(foto.path);
-          urlFoto = foto.url;
-        }
         if (req.files?.bukti_transfer?.[0]) {
           const transfer = await uploadToSupabase(req.files.bukti_transfer[0], "bukti_transfer");
           uploadedPaths.push(transfer.path);
@@ -277,7 +266,7 @@ router.post(
           nama_ibu, nik_ibu, wa_ibu, pendidikan_ibu, pekerjaan_ibu, gaji_ibu, status_nikah_ibu,
           nama_wali, wa_wali,
           sekolah_asal, npsn, alamat_sekolah,
-          url_foto_santri, url_bukti_transfer, status
+          url_bukti_transfer, status
         ) VALUES (
           $1,
           $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,
@@ -286,7 +275,7 @@ router.post(
           $30,$31,$32,$33,$34,$35,$36,
           $37,$38,
           $39,$40,$41,
-          $42,$43,$44
+          $42,$43
         )
         RETURNING id, nomor_pendaftaran, created_at
       `;
@@ -305,7 +294,7 @@ router.post(
         trim(b.namaIbu), trim(b.nikIbu), trim(b.waIbu), trim(b.pendidikanIbu), trim(b.pekerjaanIbu), trim(b.gajiIbu), trim(b.statusNikahIbu),
         trim(b.namaWali)  || null, trim(b.waWali) || null,
         trim(b.sekolahAsal), trim(b.npsn), trim(b.alamatSekolah),
-        urlFoto, urlTransfer, trim(b.status) || "Menunggu",
+        urlTransfer, trim(b.status) || "Menunggu",
       ];
 
       const { rows } = await pool.query(query, values);
@@ -375,7 +364,6 @@ router.put(
   "/:id",
   auth,
   upload.fields([
-    { name: "foto_santri",     maxCount: 1 },
     { name: "bukti_transfer",  maxCount: 1 },
   ]),
   async (req, res) => {
@@ -390,16 +378,9 @@ router.put(
         return res.status(400).json({ error: errors[0], errors });
       }
 
-      let urlFoto     = old.url_foto_santri;
       let urlTransfer = old.url_bukti_transfer;
 
       try {
-        if (req.files?.foto_santri?.[0]) {
-          const foto = await uploadToSupabase(req.files.foto_santri[0], "foto_santri");
-          const oldPath = extractStoragePath(old.url_foto_santri);
-          if (oldPath) await hapusFileSupabase([oldPath]);
-          urlFoto = foto.url;
-        }
         if (req.files?.bukti_transfer?.[0]) {
           const transfer = await uploadToSupabase(req.files.bukti_transfer[0], "bukti_transfer");
           const oldPath = extractStoragePath(old.url_bukti_transfer);
@@ -423,8 +404,8 @@ router.put(
           nama_ibu = $29, nik_ibu = $30, wa_ibu = $31, pendidikan_ibu = $32, pekerjaan_ibu = $33, gaji_ibu = $34, status_nikah_ibu = $35,
           nama_wali = $36, wa_wali = $37,
           sekolah_asal = $38, npsn = $39, alamat_sekolah = $40,
-          url_foto_santri = $41, url_bukti_transfer = $42, status = $43
-        WHERE id = $44
+          url_bukti_transfer = $41, status = $42
+        WHERE id = $43
         RETURNING id, nomor_pendaftaran
       `;
 
@@ -441,7 +422,7 @@ router.put(
         trim(b.namaIbu), trim(b.nikIbu), trim(b.waIbu), trim(b.pendidikanIbu), trim(b.pekerjaanIbu), trim(b.gajiIbu), trim(b.statusNikahIbu),
         trim(b.namaWali)  || null, trim(b.waWali) || null,
         trim(b.sekolahAsal), trim(b.npsn), trim(b.alamatSekolah),
-        urlFoto, urlTransfer, trim(b.status) || old.status || "Menunggu",
+        urlTransfer, trim(b.status) || old.status || "Menunggu",
         req.params.id,
       ];
 
@@ -462,7 +443,6 @@ router.delete("/:id", auth, async (req, res) => {
     if (!rows.length) return res.status(404).json({ error: "Data tidak ditemukan." });
 
     const paths = [
-      extractStoragePath(rows[0].url_foto_santri),
       extractStoragePath(rows[0].url_bukti_transfer),
     ].filter(Boolean);
 

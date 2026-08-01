@@ -160,7 +160,7 @@ export default function FormulirPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [files, setFiles] = useState({ foto_santri: null, bukti_transfer: null });
+  const [files, setFiles] = useState({ bukti_transfer: null });
   const [hPos, setHPos] = useState({ x: 0, y: 0 });
   const [hPx, setHPx] = useState({ x: 0, y: 0 });
   const showClosedModal = new Date() < PPDB_OPEN;
@@ -194,8 +194,8 @@ export default function FormulirPage() {
     e.preventDefault();
     setErrorMsg("");
 
-    if (!files.foto_santri || !files.bukti_transfer) {
-      setErrorMsg("Foto santri dan bukti transfer wajib diupload.");
+    if (!files.bukti_transfer) {
+      setErrorMsg("Bukti transfer wajib diupload.");
       return;
     }
 
@@ -203,7 +203,6 @@ export default function FormulirPage() {
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => { if (k !== "setuju") fd.append(k, v); });
-      fd.append("foto_santri",    files.foto_santri);
       fd.append("bukti_transfer", files.bukti_transfer);
 
       const res = await apiFetch("/api/pendaftaran", {
@@ -365,8 +364,7 @@ export default function FormulirPage() {
                 7. Upload Dokumen
               </h2>
               <RekeningInfo />
-              <div className="grid sm:grid-cols-2 gap-4">
-                <UploadField label="Foto Calon Santri" accept="image/*" hint="Format: JPG/PNG · Max 2MB · Rasio 3×4 (portrait), min. 300×400 px" required onChange={(f) => setFiles((p) => ({ ...p, foto_santri: f }))} />
+              <div className="grid gap-4">
                 <UploadField label="Foto Bukti Transfer Biaya Daftar" accept="image/*,.pdf" hint="Format: JPG/PNG/PDF · Max 5MB" required onChange={(f) => setFiles((p) => ({ ...p, bukti_transfer: f }))} />
               </div>
             </div>

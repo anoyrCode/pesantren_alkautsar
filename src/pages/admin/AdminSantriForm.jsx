@@ -29,7 +29,7 @@ export default function AdminSantriForm() {
   const mode     = id ? "edit" : "add";
 
   const [form, setForm]         = useState(EMPTY_FORM);
-  const [files, setFiles]       = useState({ foto_santri: null, bukti_transfer: null });
+  const [files, setFiles]       = useState({ bukti_transfer: null });
   const [currentUrls, setCurrentUrls] = useState({});
   const [loading, setLoading]   = useState(mode === "edit");
   const [submitting, setSubmitting] = useState(false);
@@ -51,7 +51,7 @@ export default function AdminSantriForm() {
       .then((json) => {
         if (!json) return;
         setForm(mapDbToForm(json.data));
-        setCurrentUrls({ foto: json.data.url_foto_santri, bukti: json.data.url_bukti_transfer });
+        setCurrentUrls({ bukti: json.data.url_bukti_transfer });
       })
       .catch(() => setErrorMsg("Gagal memuat data."))
       .finally(() => setLoading(false));
@@ -68,7 +68,6 @@ export default function AdminSantriForm() {
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => fd.append(k, v ?? ""));
-      if (files.foto_santri)    fd.append("foto_santri", files.foto_santri);
       if (files.bukti_transfer) fd.append("bukti_transfer", files.bukti_transfer);
 
       const url    = mode === "edit" ? `/api/pendaftaran/${id}` : "/api/pendaftaran/admin";
