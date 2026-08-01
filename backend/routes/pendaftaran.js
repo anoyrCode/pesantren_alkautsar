@@ -41,13 +41,15 @@ const ENUM = {
   golDarah:      ["A", "B", "AB", "O", "Tidak Diketahui"],
   statusRumah:   ["Milik Pribadi", "Sewa", "Kontrak", "Milik Orang Tua"],
   pendidikan:    ["Tidak Sekolah", "SD/Sederajat", "SMP/Sederajat", "SMA/SMK/Sederajat", "D3", "S1", "S2", "S3"],
-  penghasilan:   ["< Rp 1.000.000", "Rp 1.000.000 – 3.000.000", "Rp 3.000.000 – 5.000.000", "Rp 5.000.000 – 10.000.000", "> Rp 10.000.000"],
+  // Harus sama persis dengan GAJI di src/utils/constants.jsx (pemisah rentang = en dash)
+  penghasilan:   ["Tidak Berpenghasilan", "< Rp 1.000.000", "Rp 1.000.000 – 3.000.000", "Rp 3.000.000 – 5.000.000", "Rp 5.000.000 – 10.000.000", "Rp 10.000.000 – 15.000.000", "Rp 15.000.000 – 30.000.000", "> Rp 30.000.000"],
   statusNikah:   ["Menikah", "Cerai Hidup", "Cerai Mati"],
 };
 
 function validasiForm(b) {
   const errors = [];
   const isDigit = (v, len) => new RegExp(`^\\d{${len}}$`).test(v);
+  const isAlnum = (v, len) => new RegExp(`^[A-Za-z0-9]{${len}}$`).test(v);
   const inEnum  = (v, key) => ENUM[key].includes(v);
 
  
@@ -86,7 +88,7 @@ function validasiForm(b) {
 
   
   if (!b.sekolahAsal?.trim())                        errors.push("Nama sekolah asal wajib diisi.");
-  if (!isDigit(b.npsn?.trim(), 8))                   errors.push("NPSN harus 8 digit angka.");
+  if (!isAlnum(b.npsn?.trim(), 8))                   errors.push("NPSN harus 8 karakter (huruf atau angka).");
   if (!b.alamatSekolah?.trim())                      errors.push("Alamat sekolah wajib diisi.");
 
   return errors;

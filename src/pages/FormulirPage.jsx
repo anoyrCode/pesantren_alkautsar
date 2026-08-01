@@ -2,19 +2,19 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Check, ChevronDown, Upload, Clock, CalendarX2 } from "lucide-react";
 import useCountdown from "../hooks/useCountdown";
-import { GILDA_FONT } from "../utils/constants";
+import { GILDA_FONT, GAJI } from "../utils/constants";
 import SEO from "../components/common/SEO";
 import Reveal from "../components/common/Reveal";
 import RekeningInfo from "../components/common/RekeningInfo";
 import { GA } from "../utils/analytics";
 import { apiFetch } from "../utils/api";
 
-function Field({ label, placeholder, type = "text", value, onChange, required, className = "", maxLength, minLength, pattern, title, inputMode }) {
+function Field({ label, placeholder, type = "text", value, onChange, required, className = "", maxLength, minLength, pattern, title, inputMode, satuan = "digit" }) {
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
       <label className="text-[12.5px] font-semibold text-[#284061]">
         {label}{required && <span className="text-red-400 ml-0.5">*</span>}
-        {maxLength && <span className="text-slate-400 font-normal ml-1">({maxLength} digit)</span>}
+        {maxLength && <span className="text-slate-400 font-normal ml-1">({maxLength} {satuan})</span>}
       </label>
       <input
         type={type}
@@ -100,7 +100,6 @@ function SectionCard({ title, children }) {
 }
 
 const PENDIDIKAN = ["Tidak Sekolah", "SD/Sederajat", "SMP/Sederajat", "SMA/SMK/Sederajat", "D3", "S1", "S2", "S3"];
-const GAJI = ["< Rp 1.000.000", "Rp 1.000.000 – 3.000.000", "Rp 3.000.000 – 5.000.000", "Rp 5.000.000 – 10.000.000", "> Rp 10.000.000"];
 const STATUS_NIKAH = ["Menikah", "Cerai Hidup", "Cerai Mati"];
 const STATUS_RUMAH = ["Milik Pribadi", "Sewa", "Kontrak", "Milik Orang Tua"];
 const GOL_DARAH = ["A", "B", "AB", "O", "Tidak Diketahui"];
@@ -353,7 +352,7 @@ export default function FormulirPage() {
           <Reveal>
             <SectionCard title="6. Data Sekolah Asal">
               <Field label="Nama Sekolah Asal" placeholder="Nama sekolah saat ini" value={form.sekolahAsal} onChange={set("sekolahAsal")} required />
-              <Field label="NPSN" placeholder="8 digit NPSN sekolah" value={form.npsn} onChange={set("npsn")} required maxLength={8} minLength={8} pattern="\d{8}" title="NPSN harus 8 digit angka" inputMode="numeric" />
+              <Field label="NPSN" placeholder="8 karakter NPSN sekolah" value={form.npsn} onChange={set("npsn")} required maxLength={8} minLength={8} pattern="[A-Za-z0-9]{8}" title="NPSN harus 8 karakter, boleh huruf atau angka" satuan="karakter" />
               <Field label="Alamat Sekolah" placeholder="Alamat lengkap sekolah" value={form.alamatSekolah} onChange={set("alamatSekolah")} required className="sm:col-span-2" />
             </SectionCard>
           </Reveal>

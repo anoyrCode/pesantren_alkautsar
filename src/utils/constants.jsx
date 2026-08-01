@@ -26,6 +26,20 @@ export const SMA_SUBJECTS = [
   ["Fisika", 2], ["Kimia", 2], ["Biologi", 2], ["TIK", 2], ["PPKN", 2], ["Sejarah", 2],
 ];
 
+// Dipakai formulir publik & form admin. Harus sama persis dengan ENUM.penghasilan
+// di backend/routes/pendaftaran.js — kalau berbeda, submit ditolak sebagai tidak valid.
+// Perhatikan pemisah rentang memakai en dash (–), bukan tanda hubung.
+export const GAJI = [
+  "Tidak Berpenghasilan",
+  "< Rp 1.000.000",
+  "Rp 1.000.000 – 3.000.000",
+  "Rp 3.000.000 – 5.000.000",
+  "Rp 5.000.000 – 10.000.000",
+  "Rp 10.000.000 – 15.000.000",
+  "Rp 15.000.000 – 30.000.000",
+  "> Rp 30.000.000",
+];
+
 export const FAQS = [
   { q: "Siapa saja yang bisa mendaftar di Pesantren Al Kautsar?", a: "Pendaftaran terbuka untuk siswa-siswi muslim yang akan masuk jenjang MTs (lulusan SD/MI) maupun SMA (lulusan SMP/MTs) dan bersedia mengikuti seluruh program kepesantrenan selama 6 tahun." },
   { q: "Apakah ada biaya pendaftaran?", a: "Biaya pendaftaran sebesar Rp 450.000. Calon santri mengisi formulir online, mengunggah dokumen yang diminta, dan melakukan pembayaran biaya pendaftaran." },
