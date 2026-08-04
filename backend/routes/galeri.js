@@ -7,6 +7,25 @@ const auth     = require("../middleware/auth");
 
 const BUCKET = "galeri";
 
+// Batas kolom di database. Divalidasi di sini supaya pengguna dapat pesan yang
+// jelas, bukan error Postgres 22001 yang membocorkan struktur tabel.
+const MAKS_CAPTION = 255;
+const MAKS_NAMA_KATEGORI = 50;
+
+// Menandai error yang pesannya aman & berguna untuk dikirim ke klien.
+// Selain yang ditandai, klien hanya menerima pesan generik.
+function errorPublik(pesan) {
+  const e = new Error(pesan);
+  e.publik = true;
+  return e;
+}
+
+const pesanUntukKlien = (err, cadangan) => (err.publik ? err.message : cadangan);
+
+// Parameter :id datang sebagai teks. Tanpa pemeriksaan ini, "/api/galeri/abc"
+// diteruskan mentah ke Postgres dan menghasilkan 500, bukan 404.
+const idValid = (v) => /^\d+$/.test(v);
+
 async function uploadFoto(file) {
   const compressed = await sharp(file.buffer)
     .resize({ width: 1600, withoutEnlargement: true })
@@ -20,7 +39,7 @@ async function uploadFoto(file) {
     .from(BUCKET)
     .upload(filePath, compressed, { contentType: "image/jpeg" });
 
-  if (error) throw new Error(`Gagal upload foto: ${error.message}`);
+  if (error) throw errorPublik(`Gagal upload foto: ${error.message}`);
 
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(filePath);
   return { url: data.publicUrl, path: filePath };
@@ -76,6 +95,12 @@ router.post("/", auth, upload.single("foto"), async (req, res) => {
   try {
     const { caption, kategoriId } = req.body;
     if (!caption?.trim()) return res.status(400).json({ error: "Caption wajib diisi." });
+    if (caption.trim().length > MAKS_CAPTION) {
+      return res.status(400).json({ error: `Caption terlalu panjang. Maksimal ${MAKS_CAPTION} karakter.` });
+    }
+    if (kategoriId && !idValid(kategoriId)) {
+      return res.status(400).json({ error: "Kategori tidak valid." });
+    }
     if (!req.file) return res.status(400).json({ error: "Foto wajib diupload." });
 
     const foto = await uploadFoto(req.file);
@@ -91,18 +116,26 @@ router.post("/", auth, upload.single("foto"), async (req, res) => {
     res.status(201).json({ message: "Foto berhasil ditambahkan.", data: rows[0] });
   } catch (err) {
     console.error("Error tambah foto galeri:", err.message);
-    res.status(500).json({ error: err.message || "Gagal menambahkan foto." });
+    res.status(500).json({ error: pesanUntukKlien(err, "Gagal menambahkan foto.") });
   }
 });
 
 router.put("/:id", auth, upload.single("foto"), async (req, res) => {
   try {
+    if (!idValid(req.params.id)) return res.status(404).json({ error: "Foto tidak ditemukan." });
+
     const existing = await pool.query("SELECT * FROM galeri WHERE id = $1", [req.params.id]);
     if (!existing.rows.length) return res.status(404).json({ error: "Foto tidak ditemukan." });
     const old = existing.rows[0];
 
     const { caption, kategoriId } = req.body;
     if (!caption?.trim()) return res.status(400).json({ error: "Caption wajib diisi." });
+    if (caption.trim().length > MAKS_CAPTION) {
+      return res.status(400).json({ error: `Caption terlalu panjang. Maksimal ${MAKS_CAPTION} karakter.` });
+    }
+    if (kategoriId && !idValid(kategoriId)) {
+      return res.status(400).json({ error: "Kategori tidak valid." });
+    }
 
     let url = old.url;
     let storagePath = old.storage_path;
@@ -122,12 +155,14 @@ router.put("/:id", auth, upload.single("foto"), async (req, res) => {
     res.json({ message: "Foto berhasil diperbarui.", data: rows[0] });
   } catch (err) {
     console.error("Error edit foto galeri:", err.message);
-    res.status(500).json({ error: err.message || "Gagal memperbarui foto." });
+    res.status(500).json({ error: pesanUntukKlien(err, "Gagal memperbarui foto.") });
   }
 });
 
 router.delete("/:id", auth, async (req, res) => {
   try {
+    if (!idValid(req.params.id)) return res.status(404).json({ error: "Foto tidak ditemukan." });
+
     const { rows } = await pool.query("SELECT * FROM galeri WHERE id = $1", [req.params.id]);
     if (!rows.length) return res.status(404).json({ error: "Foto tidak ditemukan." });
 
@@ -147,12 +182,25 @@ router.patch("/reorder", auth, async (req, res) => {
     if (!Array.isArray(order) || !order.length) {
       return res.status(400).json({ error: "Data urutan tidak valid." });
     }
+    if (!order.every((o) => idValid(String(o?.id)) && Number.isInteger(o?.urutan))) {
+      return res.status(400).json({ error: "Data urutan tidak valid." });
+    }
 
-    await Promise.all(
-      order.map(({ id, urutan }) =>
-        pool.query("UPDATE galeri SET urutan = $1 WHERE id = $2", [urutan, id])
-      )
-    );
+    // Dalam satu transaksi: kalau ada satu UPDATE gagal, seluruhnya dibatalkan.
+    // Tanpa ini urutan bisa tersimpan separuh dan tampilan galeri jadi kacau.
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      for (const { id, urutan } of order) {
+        await client.query("UPDATE galeri SET urutan = $1 WHERE id = $2", [urutan, id]);
+      }
+      await client.query("COMMIT");
+    } catch (e) {
+      await client.query("ROLLBACK");
+      throw e;
+    } finally {
+      client.release();
+    }
 
     res.json({ message: "Urutan berhasil disimpan." });
   } catch (err) {
@@ -167,6 +215,9 @@ router.post("/kategori", auth, async (req, res) => {
   try {
     const nama = req.body.nama?.trim();
     if (!nama) return res.status(400).json({ error: "Nama kategori wajib diisi." });
+    if (nama.length > MAKS_NAMA_KATEGORI) {
+      return res.status(400).json({ error: `Nama kategori terlalu panjang. Maksimal ${MAKS_NAMA_KATEGORI} karakter.` });
+    }
 
     const { rows } = await pool.query(
       "INSERT INTO galeri_kategori (nama) VALUES ($1) RETURNING id, nama",
@@ -184,8 +235,13 @@ router.post("/kategori", auth, async (req, res) => {
 
 router.put("/kategori/:id", auth, async (req, res) => {
   try {
+    if (!idValid(req.params.id)) return res.status(404).json({ error: "Kategori tidak ditemukan." });
+
     const nama = req.body.nama?.trim();
     if (!nama) return res.status(400).json({ error: "Nama kategori wajib diisi." });
+    if (nama.length > MAKS_NAMA_KATEGORI) {
+      return res.status(400).json({ error: `Nama kategori terlalu panjang. Maksimal ${MAKS_NAMA_KATEGORI} karakter.` });
+    }
 
     const { rows } = await pool.query(
       "UPDATE galeri_kategori SET nama = $1 WHERE id = $2 RETURNING id, nama",
@@ -205,6 +261,8 @@ router.put("/kategori/:id", auth, async (req, res) => {
 
 router.delete("/kategori/:id", auth, async (req, res) => {
   try {
+    if (!idValid(req.params.id)) return res.status(404).json({ error: "Kategori tidak ditemukan." });
+
     const { rowCount } = await pool.query("DELETE FROM galeri_kategori WHERE id = $1", [req.params.id]);
     if (!rowCount) return res.status(404).json({ error: "Kategori tidak ditemukan." });
 

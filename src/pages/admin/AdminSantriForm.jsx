@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { apiFetch } from "../../utils/api";
+import { apiFetch, bacaJson, errorRamah, pesanError } from "../../utils/api";
+import kompresGambar from "../../utils/kompresGambar";
 import SantriForm, { EMPTY_FORM } from "../../components/admin/SantriForm";
 
 function getToken() {
@@ -68,7 +69,7 @@ export default function AdminSantriForm() {
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => fd.append(k, v ?? ""));
-      if (files.bukti_transfer) fd.append("bukti_transfer", files.bukti_transfer);
+      if (files.bukti_transfer) fd.append("bukti_transfer", await kompresGambar(files.bukti_transfer));
 
       const url    = mode === "edit" ? `/api/pendaftaran/${id}` : "/api/pendaftaran/admin";
       const method = mode === "edit" ? "PUT" : "POST";
@@ -85,12 +86,12 @@ export default function AdminSantriForm() {
         return;
       }
 
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Gagal menyimpan data.");
+      const json = await bacaJson(res);
+      if (!res.ok) throw errorRamah(json.error || "Gagal menyimpan data.");
 
       navigate(mode === "edit" ? `/admin/santri/${id}` : "/admin/dashboard");
     } catch (err) {
-      setErrorMsg(err.message);
+      setErrorMsg(pesanError(err));
     } finally {
       setSubmitting(false);
     }

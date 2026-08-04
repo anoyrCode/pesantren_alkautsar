@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiFetch } from "../../utils/api";
+import { apiFetch, bacaJson, errorRamah, pesanError } from "../../utils/api";
 import { ShieldCheck, Mail, Lock, User, ArrowRight, RefreshCw } from "lucide-react";
 
 const OTP_EXPIRE_SEC = 5 * 60; // 5 menit
@@ -71,12 +71,12 @@ export default function AdminLogin() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || `Error ${res.status}`);
+      const json = await bacaJson(res);
+      if (!res.ok) throw errorRamah(json.error || `Error ${res.status}`);
       setUsername(form.username);
       setStep("otp");
     } catch (err) {
-      setError(err.message);
+      setError(pesanError(err));
     } finally {
       setLoading(false);
     }
@@ -96,12 +96,12 @@ export default function AdminLogin() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, otp: otpCode }),
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || `Error ${res.status}`);
+      const json = await bacaJson(res);
+      if (!res.ok) throw errorRamah(json.error || `Error ${res.status}`);
       localStorage.setItem("admin_token", json.token);
       navigate("/admin/dashboard");
     } catch (err) {
-      setError(err.message);
+      setError(pesanError(err));
       setOtp(["", "", "", "", "", ""]);
       otpRefs.current[0]?.focus();
     } finally {

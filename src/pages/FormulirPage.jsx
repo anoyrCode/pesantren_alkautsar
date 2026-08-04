@@ -7,7 +7,8 @@ import SEO from "../components/common/SEO";
 import Reveal from "../components/common/Reveal";
 import RekeningInfo from "../components/common/RekeningInfo";
 import { GA } from "../utils/analytics";
-import { apiFetch } from "../utils/api";
+import { apiFetch, bacaJson, errorRamah, pesanError } from "../utils/api";
+import kompresGambar from "../utils/kompresGambar";
 
 function Field({ label, placeholder, type = "text", value, onChange, required, className = "", maxLength, minLength, pattern, title, inputMode, satuan = "digit" }) {
   return (
@@ -202,20 +203,20 @@ export default function FormulirPage() {
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => { if (k !== "setuju") fd.append(k, v); });
-      fd.append("bukti_transfer", files.bukti_transfer);
+      fd.append("bukti_transfer", await kompresGambar(files.bukti_transfer));
 
       const res = await apiFetch("/api/pendaftaran", {
         method: "POST",
         body: fd,
       });
 
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Gagal mengirim pendaftaran.");
+      const json = await bacaJson(res);
+      if (!res.ok) throw errorRamah(json.error || "Gagal mengirim pendaftaran.");
 
       GA.formSubmit(json.data?.nomor_pendaftaran);
       setSubmitted(true);
     } catch (err) {
-      setErrorMsg(err.message);
+      setErrorMsg(pesanError(err));
     } finally {
       setSubmitting(false);
     }

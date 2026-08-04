@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Download, Eye, Plus, Pencil, Trash2, AlertTriangle } from "lucide-react";
-import { apiFetch } from "../../utils/api";
+import { apiFetch, bacaJson, errorRamah, pesanError } from "../../utils/api";
 
 function getToken() {
   return localStorage.getItem("admin_token");
@@ -88,12 +88,12 @@ export default function AdminDashboard() {
         navigate("/admin/login");
         return;
       }
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Gagal menghapus data.");
+      const json = await bacaJson(res);
+      if (!res.ok) throw errorRamah(json.error || "Gagal menghapus data.");
       setData((d) => d.filter((x) => x.id !== confirmDelete.id));
       setConfirmDelete(null);
     } catch (err) {
-      alert(err.message);
+      alert(pesanError(err));
     } finally {
       setDeleting(false);
     }
@@ -113,10 +113,10 @@ export default function AdminDashboard() {
         navigate("/admin/login");
         return;
       }
-      if (!res.ok) throw new Error((await res.json()).error || "Gagal memperbarui status.");
+      if (!res.ok) throw errorRamah((await bacaJson(res)).error || "Gagal memperbarui status.");
     } catch (err) {
       setData(prev);
-      alert(err.message);
+      alert(pesanError(err));
     }
   }
 

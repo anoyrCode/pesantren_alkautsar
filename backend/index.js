@@ -52,6 +52,21 @@ app.use((err, req, res, next) => {
   res.status(400).json({ error: "Terjadi kesalahan. Silakan coba lagi." });
 });
 
+// Jaring pengaman: tanpa ini, promise yang ditolak tanpa catch atau error yang
+// lolos dari semua handler menghentikan proses tanpa meninggalkan jejak apa pun
+// di log — sulit sekali didiagnosis saat terjadi di server.
+process.on("unhandledRejection", (reason) => {
+  console.error("Promise ditolak tanpa penanganan:", reason?.message || reason);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("Error tak tertangani, proses dihentikan:", err.message);
+  console.error(err.stack);
+  // Keadaan proses sudah tidak bisa dipercaya — keluar dan biarkan Docker
+  // menghidupkan ulang container.
+  process.exit(1);
+});
+
 app.listen(PORT, () => {
   console.log(`Server berjalan di http://localhost:${PORT}`);
 });

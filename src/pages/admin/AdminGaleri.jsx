@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Pencil, Trash2, Tag, X, GripVertical, AlertTriangle, ImagePlus } from "lucide-react";
-import { apiFetch } from "../../utils/api";
+import { apiFetch, bacaJson, errorRamah, pesanError } from "../../utils/api";
+import kompresGambar from "../../utils/kompresGambar";
 
 function getToken() {
   return localStorage.getItem("admin_token");
@@ -89,12 +90,12 @@ export default function AdminGaleri() {
         headers: authHeaders(),
       });
       if (checkAuth(res)) return;
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Gagal menghapus foto.");
+      const json = await bacaJson(res);
+      if (!res.ok) throw errorRamah(json.error || "Gagal menghapus foto.");
       setPhotos((p) => p.filter((x) => x.id !== confirmDelete.id));
       setConfirmDelete(null);
     } catch (err) {
-      alert(err.message);
+      alert(pesanError(err));
     } finally {
       setDeleting(false);
     }
@@ -254,19 +255,19 @@ function FotoFormModal({ photo, kategori, onClose, onSaved, checkAuth }) {
       const fd = new FormData();
       fd.append("caption", caption.trim());
       fd.append("kategoriId", kategoriId || "");
-      if (file) fd.append("foto", file);
+      if (file) fd.append("foto", await kompresGambar(file));
 
       const url    = isNew ? "/api/galeri" : `/api/galeri/${photo.id}`;
       const method = isNew ? "POST" : "PUT";
 
       const res = await apiFetch(url, { method, headers: authHeaders(), body: fd });
       if (checkAuth(res)) return;
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Gagal menyimpan foto.");
+      const json = await bacaJson(res);
+      if (!res.ok) throw errorRamah(json.error || "Gagal menyimpan foto.");
 
       onSaved(json.data, isNew);
     } catch (err) {
-      setErrorMsg(err.message);
+      setErrorMsg(pesanError(err));
     } finally {
       setSaving(false);
     }
@@ -359,12 +360,12 @@ function KategoriModal({ kategori, onClose, onChange, checkAuth }) {
         body: JSON.stringify({ nama: nama.trim() }),
       });
       if (checkAuth(res)) return;
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Gagal menambah kategori.");
+      const json = await bacaJson(res);
+      if (!res.ok) throw errorRamah(json.error || "Gagal menambah kategori.");
       onChange((k) => [...k, json.data]);
       setNama("");
     } catch (err) {
-      setErrorMsg(err.message);
+      setErrorMsg(pesanError(err));
     }
   }
 
@@ -378,12 +379,12 @@ function KategoriModal({ kategori, onClose, onChange, checkAuth }) {
         body: JSON.stringify({ nama: editNama.trim() }),
       });
       if (checkAuth(res)) return;
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Gagal memperbarui kategori.");
+      const json = await bacaJson(res);
+      if (!res.ok) throw errorRamah(json.error || "Gagal memperbarui kategori.");
       onChange((k) => k.map((x) => (x.id === id ? json.data : x)));
       setEditId(null);
     } catch (err) {
-      setErrorMsg(err.message);
+      setErrorMsg(pesanError(err));
     }
   }
 
@@ -395,11 +396,11 @@ function KategoriModal({ kategori, onClose, onChange, checkAuth }) {
         headers: authHeaders(),
       });
       if (checkAuth(res)) return;
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Gagal menghapus kategori.");
+      const json = await bacaJson(res);
+      if (!res.ok) throw errorRamah(json.error || "Gagal menghapus kategori.");
       onChange((k) => k.filter((x) => x.id !== id));
     } catch (err) {
-      setErrorMsg(err.message);
+      setErrorMsg(pesanError(err));
     }
   }
 

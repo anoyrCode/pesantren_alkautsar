@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, ExternalLink, FileDown, Pencil } from "lucide-react";
-import { apiFetch } from "../../utils/api";
+import { apiFetch, bacaJson, errorRamah, pesanError } from "../../utils/api";
 import jsPDF from "jspdf";
 import logoSrc from "../../assets/logoPolos.png";
 
@@ -315,10 +315,10 @@ export default function AdminDetail() {
         navigate("/admin/login");
         return;
       }
-      if (!res.ok) throw new Error((await res.json()).error || "Gagal memperbarui status.");
+      if (!res.ok) throw errorRamah((await bacaJson(res)).error || "Gagal memperbarui status.");
     } catch (err) {
       setD((x) => ({ ...x, status: prev }));
-      alert(err.message);
+      alert(pesanError(err));
     }
   }
 

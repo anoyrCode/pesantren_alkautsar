@@ -105,6 +105,10 @@ const upload = multer({
 });
 
 
+// Parameter :id datang sebagai teks. Tanpa pemeriksaan ini, "/api/pendaftaran/abc"
+// diteruskan mentah ke Postgres dan menghasilkan 500, bukan 404.
+const idValid = (v) => /^\d+$/.test(v);
+
 async function generateNomor() {
   const tahun = 2027;
   const { rows } = await pool.query(
@@ -117,6 +121,28 @@ async function generateNomor() {
     urutan = parseInt(bagian[2]) + 1;
   }
   return `PPDB-${tahun}-${String(urutan).padStart(5, "0")}`;
+}
+
+// generateNomor() membaca nomor terakhir lalu menambah satu, jadi dua pendaftar
+// yang mengirim nyaris bersamaan bisa mendapat nomor sama dan salah satunya kena
+// constraint UNIQUE. Di sini bentrok itu ditangani dengan mengambil nomor baru
+// dan mencoba lagi, bukan menggagalkan pendaftaran orangnya.
+const KODE_BENTROK = "23505";
+const MAKS_PERCOBAAN = 5;
+
+async function insertDenganNomor(query, susunValues) {
+  for (let percobaan = 1; ; percobaan++) {
+    const nomor = await generateNomor();
+    try {
+      const { rows } = await pool.query(query, susunValues(nomor));
+      return rows;
+    } catch (err) {
+      const bentrokNomor =
+        err.code === KODE_BENTROK && String(err.constraint || "").includes("nomor_pendaftaran");
+      if (!bentrokNomor || percobaan >= MAKS_PERCOBAAN) throw err;
+      console.warn(`Nomor ${nomor} bentrok, mencoba nomor berikutnya (percobaan ${percobaan}).`);
+    }
+  }
 }
 
 const PPDB_START = new Date("2026-08-01T00:00:00+07:00");
@@ -156,8 +182,6 @@ router.post(
         return res.status(500).json({ error: uploadErr.message });
       }
 
-      const nomor = await generateNomor();
-
       const query = `
         INSERT INTO pendaftaran (
           nomor_pendaftaran,
@@ -193,7 +217,7 @@ router.post(
 
       const trim = (v) => (v ? String(v).trim() : null);
 
-      const values = [
+      const rows = await insertDenganNomor(query, (nomor) => [
         nomor,
         trim(b.namaLengkap), trim(b.nomorOrtu), trim(b.emailOrtu) || null, trim(b.jenisKelamin),
         trim(b.tempatLahir), trim(b.nikSantri), trim(b.nomorKK), trim(b.nisn),
@@ -208,9 +232,7 @@ router.post(
         trim(b.namaWali)  || null, trim(b.waWali) || null,
         trim(b.sekolahAsal), trim(b.npsn), trim(b.alamatSekolah),
         urlTransfer,
-      ];
-
-      const { rows } = await pool.query(query, values);
+      ]);
 
       res.status(201).json({
         message: "Pendaftaran berhasil dikirim.",
@@ -253,7 +275,6 @@ router.post(
         return res.status(500).json({ error: uploadErr.message });
       }
 
-      const nomor = await generateNomor();
       const trim = (v) => (v ? String(v).trim() : null);
 
       const query = `
@@ -282,7 +303,7 @@ router.post(
         RETURNING id, nomor_pendaftaran, created_at
       `;
 
-      const values = [
+      const rows = await insertDenganNomor(query, (nomor) => [
         nomor,
         trim(b.namaLengkap), trim(b.nomorOrtu), trim(b.emailOrtu) || null, trim(b.jenisKelamin),
         trim(b.tempatLahir), trim(b.nikSantri), trim(b.nomorKK), trim(b.nisn),
@@ -297,9 +318,7 @@ router.post(
         trim(b.namaWali)  || null, trim(b.waWali) || null,
         trim(b.sekolahAsal), trim(b.npsn), trim(b.alamatSekolah),
         urlTransfer, trim(b.status) || "Menunggu",
-      ];
-
-      const { rows } = await pool.query(query, values);
+      ]);
 
       res.status(201).json({
         message: "Data pendaftar berhasil ditambahkan.",
@@ -328,6 +347,8 @@ router.get("/", auth, async (req, res) => {
 
 router.get("/:id", auth, async (req, res) => {
   try {
+    if (!idValid(req.params.id)) return res.status(404).json({ error: "Data tidak ditemukan." });
+
     const { rows } = await pool.query(
       "SELECT * FROM pendaftaran WHERE id = $1",
       [req.params.id]
@@ -345,6 +366,8 @@ const STATUS_OPTIONS = ["Menunggu", "Diterima", "Ditolak"];
 
 router.patch("/:id/status", auth, async (req, res) => {
   try {
+    if (!idValid(req.params.id)) return res.status(404).json({ error: "Data tidak ditemukan." });
+
     const { status } = req.body;
     if (!STATUS_OPTIONS.includes(status)) {
       return res.status(400).json({ error: "Status tidak valid." });
@@ -370,6 +393,8 @@ router.put(
   ]),
   async (req, res) => {
     try {
+      if (!idValid(req.params.id)) return res.status(404).json({ error: "Data tidak ditemukan." });
+
       const existing = await pool.query("SELECT * FROM pendaftaran WHERE id = $1", [req.params.id]);
       if (!existing.rows.length) return res.status(404).json({ error: "Data tidak ditemukan." });
       const old = existing.rows[0];
@@ -441,6 +466,8 @@ router.put(
 
 router.delete("/:id", auth, async (req, res) => {
   try {
+    if (!idValid(req.params.id)) return res.status(404).json({ error: "Data tidak ditemukan." });
+
     const { rows } = await pool.query("SELECT * FROM pendaftaran WHERE id = $1", [req.params.id]);
     if (!rows.length) return res.status(404).json({ error: "Data tidak ditemukan." });
 

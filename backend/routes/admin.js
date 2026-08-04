@@ -11,14 +11,34 @@ const otpStore = new Map();
 // In-memory rate limiter: ip -> { count, resetAt }
 const rateLimitStore = new Map();
 
-function checkRateLimit(ip) {
+const JENDELA_MS = 15 * 60 * 1000;
+const MAKS_PERCOBAAN = 5;
+
+// Membuang entri kedaluwarsa. Tanpa ini kedua Map tumbuh terus selama proses
+// hidup — tiap IP baru menambah satu entri yang tidak pernah dibuang.
+function bersihkanKedaluwarsa(now) {
+  for (const [kunci, entry] of rateLimitStore) {
+    if (now > entry.resetAt) rateLimitStore.delete(kunci);
+  }
+  for (const [kunci, entry] of otpStore) {
+    if (now > entry.expiresAt) otpStore.delete(kunci);
+  }
+}
+
+// `aksi` memisahkan kuota login dari kuota verifikasi OTP. Sebelumnya keduanya
+// berbagi satu penghitung, sehingga percobaan login sendiri sudah memakan satu
+// jatah dan admin bisa terkunci sebelum sempat memakai lima percobaan OTP-nya.
+function checkRateLimit(ip, aksi) {
   const now = Date.now();
-  const entry = rateLimitStore.get(ip);
+  bersihkanKedaluwarsa(now);
+
+  const kunci = `${aksi}:${ip}`;
+  const entry = rateLimitStore.get(kunci);
   if (!entry || now > entry.resetAt) {
-    rateLimitStore.set(ip, { count: 1, resetAt: now + 15 * 60 * 1000 });
+    rateLimitStore.set(kunci, { count: 1, resetAt: now + JENDELA_MS });
     return true;
   }
-  if (entry.count >= 5) return false;
+  if (entry.count >= MAKS_PERCOBAAN) return false;
   entry.count++;
   return true;
 }
@@ -57,7 +77,7 @@ async function sendOTPEmail(otp) {
 router.post("/login", async (req, res) => {
   const ip = req.ip || req.connection?.remoteAddress || "unknown";
 
-  if (!checkRateLimit(ip)) {
+  if (!checkRateLimit(ip, "login")) {
     return res.status(429).json({ error: "Terlalu banyak percobaan login. Coba lagi dalam 15 menit." });
   }
 
@@ -86,7 +106,7 @@ router.post("/login", async (req, res) => {
 // Step 2: Validasi OTP → keluarkan JWT
 router.post("/verify-otp", (req, res) => {
   const ip = req.ip || req.connection?.remoteAddress || "unknown";
-  if (!checkRateLimit(ip)) {
+  if (!checkRateLimit(ip, "otp")) {
     return res.status(429).json({ error: "Terlalu banyak percobaan. Coba lagi dalam 15 menit." });
   }
 
