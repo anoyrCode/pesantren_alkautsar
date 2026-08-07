@@ -5,6 +5,7 @@ import { GILDA_FONT } from "../../utils/constants";
 import Reveal from "../common/Reveal";
 import useCountdown from "../../hooks/useCountdown";
 import useParallax from "../../hooks/useParallax";
+import gedung2 from "../../assets/konten/gedung2.png";
 
 const PPDB_START = "2026-08-01T00:00:00+07:00";
 const PPDB_END   = "2026-09-30T23:59:59+07:00";
@@ -32,6 +33,25 @@ export default function PPDBHero() {
 
   return (
     <section ref={sectionRef} className="relative overflow-hidden bg-linear-to-br from-[#1a2d47] via-[#284061] to-[#3a5a8c]" onMouseMove={onMove}>
+      {/* Foto gedung — tampil di seluruh banner tanpa mask, sama seperti beranda */}
+      <div
+        className="absolute inset-0 opacity-[0.45]"
+        style={{
+          backgroundImage: `url(${gedung2})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center 42%",
+          filter: "grayscale(1) contrast(1.05)",
+          transform: `translateY(${pY * 0.08}px)`,
+        }}
+      />
+      {/* Scrim gelap yang memudar kiri→kanan — menjaga teks terbaca tanpa
+          memotong foto (lihat komentar sama di HeroSection.jsx) */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: "linear-gradient(100deg, #16273d 0%, rgba(22,39,61,.92) 34%, rgba(24,42,66,.55) 58%, rgba(26,45,71,.12) 82%, transparent 100%)",
+        }}
+      />
       <div
         className="absolute inset-0 opacity-60"
         style={{

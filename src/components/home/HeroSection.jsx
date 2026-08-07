@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, MapPin, BookOpen, ShieldCheck, GraduationCap, Globe2 } from "lucide-react";
 import { ARABIC_FONT, GILDA_FONT } from "../../utils/constants";
 import useParallax from "../../hooks/useParallax";
+import gedung from "../../assets/konten/gedung.jpeg";
 
 export default function HeroSection() {
   const navigate = useNavigate();
@@ -20,6 +21,27 @@ export default function HeroSection() {
     <section ref={sectionRef} className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden bg-[#1a2d47]" onMouseMove={onMove}>
       {/* Backgrounds */}
       <div className="absolute inset-0 bg-linear-to-br from-[#1a2d47] via-[#284061] to-[#3a5a8c]" />
+      {/* Foto gedung — tampil di seluruh banner tanpa mask apa pun, supaya
+          tidak ada bentuk geometris yang kelihatan */}
+      <div
+        className="absolute inset-0 opacity-[0.45]"
+        style={{
+          backgroundImage: `url(${gedung})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center 38%",
+          filter: "grayscale(1) contrast(1.05)",
+          transform: `translateY(${pY * 0.08}px)`,
+        }}
+      />
+      {/* Scrim: lapisan gelap yang memudar kiri→kanan. Menjaga teks tetap
+          terbaca tanpa memotong fotonya — jauh lebih halus daripada mask,
+          karena yang memudar warnanya, bukan bentuk fotonya. */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: "linear-gradient(100deg, #16273d 0%, rgba(22,39,61,.92) 34%, rgba(24,42,66,.55) 58%, rgba(26,45,71,.12) 82%, transparent 100%)",
+        }}
+      />
       <div
         className="absolute inset-0 opacity-50"
         style={{
