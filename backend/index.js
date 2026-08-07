@@ -43,10 +43,18 @@ app.get("/", (req, res) => {
 // Jangan bocorkan detail error internal ke client
 app.use((err, req, res, next) => {
   if (err.code === "LIMIT_FILE_SIZE") {
-    return res.status(400).json({ error: "Ukuran file melebihi batas 5MB." });
+    // Dipakai bersama beberapa route dengan batas berbeda (lihat masing-masing
+    // multer di routes/), jadi pesannya sengaja tidak menyebut angka spesifik.
+    return res.status(400).json({ error: "Ukuran file melebihi batas maksimal yang diizinkan." });
   }
   if (err.type === "entity.too.large") {
     return res.status(400).json({ error: "Ukuran request terlalu besar." });
+  }
+  // Error yang sengaja ditandai `publik` (mis. penolakan format berkas oleh
+  // multer) pesannya memang ditujukan untuk dibaca pengguna — diteruskan apa
+  // adanya, bukan ditelan jadi pesan generik yang tidak menjelaskan apa pun.
+  if (err.publik) {
+    return res.status(400).json({ error: err.message });
   }
   console.error("Unhandled error:", err.message);
   res.status(400).json({ error: "Terjadi kesalahan. Silakan coba lagi." });

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Check, ChevronDown, Upload, Clock, CalendarX2 } from "lucide-react";
 import useCountdown from "../hooks/useCountdown";
@@ -6,11 +6,12 @@ import { GILDA_FONT, GAJI } from "../utils/constants";
 import SEO from "../components/common/SEO";
 import Reveal from "../components/common/Reveal";
 import RekeningInfo from "../components/common/RekeningInfo";
+import WhatsAppHelp from "../components/common/WhatsAppHelp";
 import { GA } from "../utils/analytics";
 import { apiFetch, bacaJson, errorRamah, pesanError } from "../utils/api";
 import kompresGambar from "../utils/kompresGambar";
 
-function Field({ label, placeholder, type = "text", value, onChange, required, className = "", maxLength, minLength, pattern, title, inputMode, satuan = "digit" }) {
+function Field({ label, placeholder, type = "text", value, onChange, required, className = "", maxLength, minLength, pattern, title, inputMode, satuan = "digit", min, max, step }) {
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
       <label className="text-[12.5px] font-semibold text-[#284061]">
@@ -28,6 +29,9 @@ function Field({ label, placeholder, type = "text", value, onChange, required, c
         pattern={pattern}
         title={title}
         inputMode={inputMode}
+        min={min}
+        max={max}
+        step={step}
         className="px-4 py-3 rounded-xl border-[1.5px] border-slate-200 text-[13px] bg-slate-50 focus:bg-white focus:border-[#284061] focus:ring-2 focus:ring-[#284061]/15 outline-none transition-all placeholder:text-slate-400"
       />
     </div>
@@ -107,6 +111,12 @@ const GOL_DARAH = ["A", "B", "AB", "O", "Tidak Diketahui"];
 
 const PPDB_OPEN = new Date("2026-08-01T00:00:00");
 
+// Proxy di depan backend membatasi ukuran request sekitar 1MB. Batas ini
+// diselaraskan dengan backend/routes/pendaftaran.js (MAKS_UKURAN_BUKTI) supaya
+// file yang terlalu besar ditolak di sini dengan pesan jelas, bukan lolos dan
+// baru gagal setelah menunggu jaringan lalu dibalas HTML error dari proxy.
+const MAKS_UKURAN_BUKTI = 1_000_000; // ~977 KiB
+
 function PpdbClosedModal() {
   const countdown = useCountdown("2026-08-01");
   const navigate = useNavigate();
@@ -184,6 +194,33 @@ export default function FormulirPage() {
   const set = (k) => (e) =>
     setForm((f) => ({ ...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
 
+  // Formulir ini panjang (30+ isian). Kehilangan semuanya karena salah tekan
+  // tombol kembali itu kerugian nyata bagi orang tua, jadi ditahan dulu.
+  const adaIsi =
+    Object.entries(form).some(([k, v]) => k !== "setuju" && String(v).trim() !== "") ||
+    Boolean(files.bukti_transfer);
+
+  useEffect(() => {
+    if (!adaIsi || submitted) return;
+    const cegah = (e) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", cegah);
+    return () => window.removeEventListener("beforeunload", cegah);
+  }, [adaIsi, submitted]);
+
+  function keluarKePpdb() {
+    if (adaIsi && !window.confirm("Data yang sudah Anda isi akan hilang. Yakin ingin keluar dari formulir?")) return;
+    navigate("/ppdb");
+  }
+
+  // Pesan error muncul di dekat tombol kirim, sementara isian yang bermasalah
+  // bisa jauh di atas. Minimal pastikan pesannya sendiri terlihat.
+  const errorRef = useRef(null);
+  useEffect(() => {
+    if (errorMsg && errorRef.current) {
+      errorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [errorMsg]);
+
   function onHeaderMove(e) {
     const r = e.currentTarget.getBoundingClientRect();
     setHPos({ x: (e.clientX - r.left - r.width / 2) / r.width, y: (e.clientY - r.top - r.height / 2) / r.height });
@@ -201,9 +238,19 @@ export default function FormulirPage() {
 
     setSubmitting(true);
     try {
+      const buktiTransfer = await kompresGambar(files.bukti_transfer);
+      if (buktiTransfer.size > MAKS_UKURAN_BUKTI) {
+        // Dicek sesudah kompresi: untuk foto ini nilai akhir setelah diperkecil,
+        // untuk PDF ini ukuran aslinya (kompresi cuma berlaku untuk gambar).
+        throw errorRamah(
+          `Ukuran bukti transfer masih ${(buktiTransfer.size / 1_000_000).toFixed(1)} MB, melebihi batas 1 MB. ` +
+          "Coba screenshot ulang dengan area yang lebih kecil, atau potong (crop) gambarnya."
+        );
+      }
+
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => { if (k !== "setuju") fd.append(k, v); });
-      fd.append("bukti_transfer", await kompresGambar(files.bukti_transfer));
+      fd.append("bukti_transfer", buktiTransfer);
 
       const res = await apiFetch("/api/pendaftaran", {
         method: "POST",
@@ -247,6 +294,7 @@ export default function FormulirPage() {
   return (
     <>
     {showClosedModal && <PpdbClosedModal />}
+    <WhatsAppHelp />
     <SEO
       title="Formulir Pendaftaran PPDB"
       description="Isi formulir pendaftaran online Pesantren Al Kautsar. Lengkapi data diri santri, data orang tua/wali, asal sekolah, dan upload dokumen persyaratan secara mudah."
@@ -266,7 +314,7 @@ export default function FormulirPage() {
         <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle 300px at ${hPx.x}px ${hPx.y}px, rgba(212,140,26,.07), transparent 65%)` }} />
         <div className="relative z-10 w-[min(1180px,92vw)] mx-auto">
           <button
-            onClick={() => navigate("/ppdb")}
+            onClick={keluarKePpdb}
             className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-[12.5px] font-medium mb-6 transition-colors animate-[fU_.5s_ease-out_both]"
           >
             <ArrowLeft size={14} /> Kembali ke PPDB
@@ -300,9 +348,9 @@ export default function FormulirPage() {
               <Field label="NISN" placeholder="10 digit NISN" value={form.nisn} onChange={set("nisn")} required maxLength={10} minLength={10} pattern="\d{10}" title="NISN harus 10 digit angka" inputMode="numeric" />
               <Field label="Hobi" placeholder="Hobi santri" value={form.hobi} onChange={set("hobi")} />
               <Field label="Cita-cita" placeholder="Cita-cita santri" value={form.citaCita} onChange={set("citaCita")} />
-              <Field label="Anak Ke-" type="number" placeholder="Contoh: 2" value={form.anakKe} onChange={set("anakKe")} />
-              <Field label="Berat Badan (kg)" type="number" placeholder="Contoh: 45" value={form.beratBadan} onChange={set("beratBadan")} />
-              <Field label="Tinggi Badan (cm)" type="number" placeholder="Contoh: 155" value={form.tinggiBadan} onChange={set("tinggiBadan")} />
+              <Field label="Anak Ke-" type="number" placeholder="Contoh: 2" value={form.anakKe} onChange={set("anakKe")} min={1} max={20} title="Isi antara 1 sampai 20" />
+              <Field label="Berat Badan (kg)" type="number" placeholder="Contoh: 45" value={form.beratBadan} onChange={set("beratBadan")} min={10} max={250} step="0.1" title="Isi dalam kilogram, antara 10 sampai 250" />
+              <Field label="Tinggi Badan (cm)" type="number" placeholder="Contoh: 155" value={form.tinggiBadan} onChange={set("tinggiBadan")} min={50} max={250} step="0.1" title="Isi dalam sentimeter, antara 50 sampai 250" />
               <SelectField label="Golongan Darah" value={form.golDarah} onChange={set("golDarah")} options={GOL_DARAH} />
               <Field label="Penyakit yang Diderita" placeholder="Tulis jika ada, atau tulis 'Tidak Ada'" value={form.penyakit} onChange={set("penyakit")} className="sm:col-span-2" />
             </SectionCard>
@@ -365,7 +413,7 @@ export default function FormulirPage() {
               </h2>
               <RekeningInfo />
               <div className="grid gap-4">
-                <UploadField label="Foto Bukti Transfer Biaya Daftar" accept="image/*,.pdf" hint="Format: JPG/PNG/PDF · Max 5MB" required onChange={(f) => setFiles((p) => ({ ...p, bukti_transfer: f }))} />
+                <UploadField label="Foto Bukti Transfer Biaya Daftar" accept="image/*,.pdf" hint="Format: JPG/PNG/PDF · Max 1MB" required onChange={(f) => setFiles((p) => ({ ...p, bukti_transfer: f }))} />
               </div>
             </div>
           </Reveal>
@@ -385,7 +433,7 @@ export default function FormulirPage() {
                 </span>
               </label>
               {errorMsg && (
-                <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-[13px] text-red-600">
+                <div ref={errorRef} role="alert" className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-[13px] text-red-600">
                   {errorMsg}
                 </div>
               )}
@@ -399,7 +447,7 @@ export default function FormulirPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => navigate("/ppdb")}
+                  onClick={keluarKePpdb}
                   className="inline-flex items-center gap-2 text-slate-500 px-6 py-3.5 border border-slate-200 rounded-xl text-[13.5px] font-semibold hover:bg-slate-50 transition-all"
                 >
                   Batal

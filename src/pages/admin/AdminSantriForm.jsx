@@ -9,6 +9,10 @@ function getToken() {
   return localStorage.getItem("admin_token");
 }
 
+// Sama seperti di FormulirPage.jsx — diselaraskan dengan MAKS_UKURAN_BUKTI di
+// backend/routes/pendaftaran.js, mengikuti batas proxy di depan backend.
+const MAKS_UKURAN_BUKTI = 1_000_000; // ~977 KiB
+
 function mapDbToForm(d) {
   return {
     namaLengkap: d.nama_lengkap || "", nomorOrtu: d.nomor_hp_ortu || "", emailOrtu: d.email_ortu || "", jenisKelamin: d.jenis_kelamin?.trim() || "",
@@ -67,9 +71,20 @@ export default function AdminSantriForm() {
     setErrorMsg("");
     setSubmitting(true);
     try {
+      let buktiTransfer = null;
+      if (files.bukti_transfer) {
+        buktiTransfer = await kompresGambar(files.bukti_transfer);
+        if (buktiTransfer.size > MAKS_UKURAN_BUKTI) {
+          throw errorRamah(
+            `Ukuran bukti transfer masih ${(buktiTransfer.size / 1_000_000).toFixed(1)} MB, melebihi batas 1 MB. ` +
+            "Coba screenshot ulang dengan area yang lebih kecil, atau potong (crop) gambarnya."
+          );
+        }
+      }
+
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => fd.append(k, v ?? ""));
-      if (files.bukti_transfer) fd.append("bukti_transfer", await kompresGambar(files.bukti_transfer));
+      if (buktiTransfer) fd.append("bukti_transfer", buktiTransfer);
 
       const url    = mode === "edit" ? `/api/pendaftaran/${id}` : "/api/pendaftaran/admin";
       const method = mode === "edit" ? "PUT" : "POST";

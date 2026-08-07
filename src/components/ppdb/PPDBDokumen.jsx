@@ -26,7 +26,7 @@ export default function PPDBDokumen() {
               Dokumen yang <em className="italic text-amber-500">Disiapkan</em>
             </h2>
             <p className="text-[14px] text-slate-500 mb-7 leading-relaxed font-light">
-              Siapkan dokumen-dokumen berikut sebelum mengisi formulir pendaftaran. Format file: JPG, PNG, atau PDF dengan ukuran maksimal 5MB.
+              Siapkan dokumen-dokumen berikut sebelum mengisi formulir pendaftaran. Format file: JPG, PNG, atau PDF dengan ukuran maksimal 1MB.
             </p>
             <div className="space-y-3">
               {DOCS.map((d, i) => (

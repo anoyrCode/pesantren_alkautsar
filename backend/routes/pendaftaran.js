@@ -91,16 +91,45 @@ function validasiForm(b) {
   if (!isAlnum(b.npsn?.trim(), 8))                   errors.push("NPSN harus 8 karakter (huruf atau angka).");
   if (!b.alamatSekolah?.trim())                      errors.push("Alamat sekolah wajib diisi.");
 
+  // Kolom angka punya batas di database: anak_ke smallint (maks 32.767),
+  // berat/tinggi numeric(5,2) (maks 999,99). Tanpa penjaga ini, isian seperti
+  // tinggi badan dalam milimeter (1750) menembus batas dan Postgres menolak
+  // dengan error 22003 — yang sampai ke pendaftar sebagai "Terjadi kesalahan
+  // server" tanpa petunjuk apa pun.
+  const rentang = (v, min, max) => {
+    const n = Number(v);
+    return Number.isFinite(n) && n >= min && n <= max;
+  };
+  if (b.anakKe      && !rentang(b.anakKe, 1, 20))        errors.push("Anak ke- harus antara 1 sampai 20.");
+  if (b.beratBadan  && !rentang(b.beratBadan, 10, 250))  errors.push("Berat badan harus antara 10 sampai 250 kg.");
+  if (b.tinggiBadan && !rentang(b.tinggiBadan, 50, 250)) errors.push("Tinggi badan harus antara 50 sampai 250 cm (isi dalam sentimeter, bukan milimeter).");
+
   return errors;
 }
 
+// Proxy Nginx di depan backend membatasi ukuran request sekitar 1MB (bukan
+// dikonfigurasi oleh proyek ini). Batas di sini sengaja diselaraskan supaya
+// backend menolak dengan pesan jelas, bukan Nginx menolak duluan dengan
+// halaman error HTML yang membingungkan.
+const MAKS_UKURAN_BUKTI = 1_000_000; // ~977 KiB, beri ruang untuk overhead multipart
+
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: MAKS_UKURAN_BUKTI },
   fileFilter: (req, file, cb) => {
     const allowed = ["image/jpeg", "image/png", "application/pdf"];
     if (allowed.includes(file.mimetype)) return cb(null, true);
-    cb(new Error("Format file tidak didukung. Gunakan JPG, PNG, atau PDF."));
+
+    // Dicatat lengkap supaya kalau ada pendaftar gagal, formatnya langsung
+    // ketahuan dari log tanpa perlu menebak.
+    console.warn(`Format ditolak: ${file.originalname} (${file.mimetype})`);
+
+    // Ditandai `publik` supaya penangan error global meneruskan pesan ini apa
+    // adanya. Tanpa tanda itu, pendaftar cuma melihat "Terjadi kesalahan" dan
+    // tidak pernah tahu bahwa masalahnya sekadar format berkas.
+    const err = new Error("Format file tidak didukung. Gunakan JPG, PNG, atau PDF.");
+    err.publik = true;
+    cb(err);
   },
 });
 
