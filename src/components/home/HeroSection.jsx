@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, MapPin, BookOpen, ShieldCheck, GraduationCap, Globe2 } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { ARABIC_FONT, GILDA_FONT } from "../../utils/constants";
 import useParallax from "../../hooks/useParallax";
 import gedung from "../../assets/konten/gedung.jpeg";
@@ -147,78 +147,55 @@ export default function HeroSection() {
         </div>
 
         {/* ── RIGHT: visual panel ── */}
-        <div className="hidden lg:flex flex-col gap-3.5 animate-[fL_.75s_.22s_ease-out_both] w-[400px] shrink-0 lg:self-start lg:mt-8">
+        <div className="hidden lg:flex flex-col animate-[fL_.75s_.22s_ease-out_both] w-100 shrink-0 lg:self-start lg:mt-8">
 
-          {/* Top: Kurikulum stats card */}
-          <div className="bg-linear-to-br from-[#33507a]/85 to-[#22395c]/80 border border-white/18 ring-1 ring-inset ring-white/8 rounded-3xl p-6 backdrop-blur-xl shadow-2xl shadow-[#0a1426]/50 relative overflow-hidden">
-            {/* Top edge highlight */}
-            <div className="absolute top-0 inset-x-6 h-px bg-linear-to-r from-transparent via-white/30 to-transparent" />
-            {/* Decorative amber glow */}
-            <div
-              className="absolute -top-12 -right-12 w-48 h-48 rounded-full pointer-events-none"
-              style={{ background: "radial-gradient(circle, rgba(212,140,26,.28) 0%, transparent 65%)" }}
-            />
-
-            {/* Header */}
-            <div className="flex items-start justify-between mb-5 relative z-10">
-              <div>
-                <div className="text-[10px] font-bold tracking-widest uppercase text-amber-300/80 mb-1.5">Kurikulum Terpadu</div>
-                <div className="text-[19px] font-bold text-white leading-tight" style={GILDA_FONT}>Program Akademik</div>
-              </div>
-              <div className="flex gap-1 mt-1.5">
-                <div className="w-2 h-2 rounded-full bg-amber-400" />
-                <div className="w-2 h-2 rounded-full bg-amber-400/45" />
-                <div className="w-2 h-2 rounded-full bg-white/20" />
-              </div>
+          {/* Pelat utama — Kurikulum. Isian solid tanpa blur/border/bayangan:
+              kedalaman panel ini datang dari tumpang-tindih pelat, bukan efek kaca.
+              pb-6.5 sengaja lebih besar dari -mt-5 di bawah, supaya baris total
+              tidak tertutup pelat kecil. */}
+          <div className="rounded-lg bg-[#152638]/92 px-4.5 pt-4 pb-6.5">
+            <div className="text-[9px] font-extrabold tracking-[0.16em] uppercase text-amber-300/75 mb-1.5">
+              Kurikulum Terpadu
             </div>
+            <div className="text-[17px] text-white leading-tight" style={GILDA_FONT}>Program Akademik</div>
 
-            {/* jp stats grid */}
-            <div className="grid grid-cols-3 gap-2.5 relative z-10 mb-5">
+            <div className="flex items-end gap-3.5 mt-4">
               {[
-                { n: "48jp", l: "Diniyah\n& Agama", Icon: BookOpen },
-                { n: "42jp", l: "Sains\n& UTBK", Icon: GraduationCap },
-                { n: "14jp", l: "Bahasa\nInggris", Icon: Globe2 },
-              ].map(({ n, l, Icon }) => (
-                <div
-                  key={n}
-                  className="group bg-[#1a2d47]/55 border border-white/12 rounded-2xl p-3.5 text-center hover:bg-amber-500/15 hover:border-amber-400/30 transition-all duration-300"
-                >
-                  <Icon size={14} className="text-amber-300/70 mx-auto mb-2 group-hover:text-amber-300 transition-colors" />
-                  <div className="text-amber-300 text-[18px] leading-none mb-1.5" style={GILDA_FONT}>{n}</div>
-                  <div className="text-[9.5px] text-white/45 leading-tight whitespace-pre-line">{l}</div>
+                ["48", "Diniyah & Agama"],
+                ["42", "Sains & UTBK"],
+                ["14", "Bahasa Inggris"],
+              ].map(([n, l]) => (
+                <div key={n} className="flex-1">
+                  <div className="text-[28px] text-white leading-[0.9]" style={GILDA_FONT}>
+                    {n}<span className="text-[11px] font-medium text-white/45">jp</span>
+                  </div>
+                  <div className="text-[9.5px] text-white/55 leading-tight mt-1.75">{l}</div>
                 </div>
               ))}
             </div>
 
-            {/* Progress bar */}
-            <div className="relative z-10 flex items-center gap-3">
-              <div className="flex-1 h-1.5 rounded-full bg-[#1a2d47]/70 overflow-hidden">
-                <div className="h-full w-[68%] rounded-full bg-linear-to-r from-amber-600 to-amber-300" />
-              </div>
-              <span className="text-[10.5px] font-medium text-white/55 shrink-0">152 jp / pekan</span>
+            <div className="flex items-baseline justify-between mt-3.25 pt-2.5 border-t border-white/8">
+              <span className="text-[9.5px] text-white/55">Total beban belajar</span>
+              <span className="text-[11px] font-semibold text-white/75">152 jp / pekan</span>
             </div>
           </div>
 
-          {/* Bottom: 2 feature cards */}
-          <div className="grid grid-cols-2 gap-3.5">
-            <div className="group bg-linear-to-br from-[#33507a]/85 to-[#22395c]/80 border border-white/18 ring-1 ring-inset ring-white/8 rounded-2xl p-4 backdrop-blur-xl shadow-xl shadow-[#0a1426]/40 hover:-translate-y-0.5 hover:border-amber-400/30 transition-all duration-300 relative overflow-hidden">
-              <div className="absolute top-0 inset-x-4 h-px bg-linear-to-r from-transparent via-white/25 to-transparent" />
-              <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300 mb-3 group-hover:bg-amber-500/30 transition-colors">
-                <ShieldCheck size={16} />
+          {/* Dua pelat kecil menindih tepi bawah pelat utama. -mt-5 yang bikin
+              tumpang-tindih (wrapper sengaja tanpa gap), relative supaya pelat ini
+              terlukis di atas pelat utama. */}
+          <div className="grid grid-cols-2 gap-2 -mt-5 ml-8">
+            {[
+              ["Keamanan", "3 Shift Musyrif", "110 CCTV · Rasio 1:10"],
+              ["Super Camp", "UTBK & PTN", "Nasional & Internasional"],
+            ].map(([tag, title, sub]) => (
+              <div key={tag} className="relative rounded-lg bg-[#203552]/94 p-3.5">
+                {/* bibir tipis di tepi atas — penanda tumpukan, pengganti bayangan */}
+                <div className="absolute inset-x-0 top-0 h-px bg-white/12 rounded-t-lg" />
+                <div className="text-[9px] font-extrabold tracking-[0.16em] uppercase text-white/40 mb-1.5">{tag}</div>
+                <div className="text-[13px] font-semibold text-white leading-tight">{title}</div>
+                <div className="text-[10px] font-light text-white/55 mt-0.75">{sub}</div>
               </div>
-              <div className="text-[10px] font-bold tracking-wider uppercase text-amber-300/65 mb-1.5">Keamanan</div>
-              <div className="text-[14px] font-semibold text-white mb-1 leading-tight">3 Shift Musyrif</div>
-              <div className="text-[11px] text-white/50 leading-relaxed font-light">110 CCTV · Rasio 1:10</div>
-            </div>
-            <div className="group bg-linear-to-br from-[#33507a]/85 to-[#22395c]/80 border border-white/18 ring-1 ring-inset ring-white/8 rounded-2xl p-4 backdrop-blur-xl shadow-xl shadow-[#0a1426]/40 hover:-translate-y-0.5 hover:border-amber-400/30 transition-all duration-300 relative overflow-hidden">
-              <div className="absolute top-0 inset-x-4 h-px bg-linear-to-r from-transparent via-white/25 to-transparent" />
-              <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300 mb-3 group-hover:bg-amber-500/30 transition-colors">
-                <GraduationCap size={16} />
-              </div>
-              <div className="text-[10px] font-bold tracking-wider uppercase text-amber-300/65 mb-1.5">Super Camp</div>
-              <div className="text-[14px] font-semibold text-white mb-1 leading-tight">UTBK & PTN</div>
-              <div className="text-[11px] text-white/50 leading-relaxed font-light">Nasional & Internasional</div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
