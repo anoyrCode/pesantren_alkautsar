@@ -11,12 +11,14 @@ import { GA } from "../utils/analytics";
 import { apiFetch, bacaJson, errorRamah, pesanError } from "../utils/api";
 import kompresGambar from "../utils/kompresGambar";
 
-function Field({ label, placeholder, type = "text", value, onChange, required, className = "", maxLength, minLength, pattern, title, inputMode, satuan = "digit", min, max, step }) {
+function Field({ label, placeholder, type = "text", value, onChange, required, className = "", maxLength, minLength, pattern, title, inputMode, satuan = "digit", hint, min, max, step }) {
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
       <label className="text-[12.5px] font-semibold text-[#284061]">
         {label}{required && <span className="text-red-400 ml-0.5">*</span>}
-        {maxLength && <span className="text-slate-400 font-normal ml-1">({maxLength} {satuan})</span>}
+        {/* `hint` untuk field yang panjangnya berupa rentang. Tanpa itu label cuma
+            menggemakan maxLength, dan terbaca sebagai panjang yang diwajibkan. */}
+        {(hint || maxLength) && <span className="text-slate-400 font-normal ml-1">({hint || `${maxLength} ${satuan}`})</span>}
       </label>
       <input
         type={type}
@@ -401,7 +403,7 @@ export default function FormulirPage() {
           <Reveal>
             <SectionCard title="6. Data Sekolah Asal">
               <Field label="Nama Sekolah Asal" placeholder="Nama sekolah saat ini" value={form.sekolahAsal} onChange={set("sekolahAsal")} required />
-              <Field label="NPSN" placeholder="NPSN sekolah (8–20 karakter)" value={form.npsn} onChange={set("npsn")} required maxLength={20} minLength={8} pattern="[A-Za-z0-9]{8,20}" title="NPSN 8–20 karakter, boleh huruf atau angka" satuan="karakter" />
+              <Field label="NPSN" placeholder="NPSN sekolah (8–20 karakter)" value={form.npsn} onChange={set("npsn")} required maxLength={20} minLength={8} pattern="[A-Za-z0-9]{8,20}" title="NPSN 8–20 karakter, boleh huruf atau angka" hint="8–20 karakter" />
               <Field label="Alamat Sekolah" placeholder="Alamat lengkap sekolah" value={form.alamatSekolah} onChange={set("alamatSekolah")} required className="sm:col-span-2" />
             </SectionCard>
           </Reveal>

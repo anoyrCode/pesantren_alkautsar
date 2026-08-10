@@ -48,8 +48,11 @@ const ENUM = {
 
 function validasiForm(b) {
   const errors = [];
-  const isDigit = (v, len) => new RegExp(`^\\d{${len}}$`).test(v);
-  const isAlnum = (v, min, max = min) => new RegExp(`^[A-Za-z0-9]{${min},${max}}$`).test(v);
+  // Cek `typeof v === "string"` wajib: RegExp.test() memaksa argumennya jadi string,
+  // sehingga field yang tidak dikirim (undefined) diuji sebagai kata "undefined" —
+  // 9 karakter alfanumerik, yang lolos pola rentang seperti {8,20}.
+  const isDigit = (v, len)      => typeof v === "string" && new RegExp(`^\\d{${len}}$`).test(v);
+  const isAlnum = (v, min, max) => typeof v === "string" && new RegExp(`^[A-Za-z0-9]{${min},${max}}$`).test(v);
   const inEnum  = (v, key) => ENUM[key].includes(v);
 
  
@@ -103,6 +106,41 @@ function validasiForm(b) {
   if (b.anakKe      && !rentang(b.anakKe, 1, 20))        errors.push("Anak ke- harus antara 1 sampai 20.");
   if (b.beratBadan  && !rentang(b.beratBadan, 10, 250))  errors.push("Berat badan harus antara 10 sampai 250 kg.");
   if (b.tinggiBadan && !rentang(b.tinggiBadan, 50, 250)) errors.push("Tinggi badan harus antara 50 sampai 250 cm (isi dalam sentimeter, bukan milimeter).");
+
+  // Tiap kolom teks punya batas keras di database. Tanpa penjaga ini, isian yang
+  // kepanjangan lolos validasi lalu ditolak Postgres dengan kode 22001, dan yang
+  // sampai ke pendaftar cuma "Terjadi kesalahan server" — tanpa petunjuk field
+  // mana yang bermasalah, sehingga diulang berapa kali pun tetap gagal.
+  // Angka di sini HARUS sama dengan lebar kolomnya di tabel `pendaftaran`.
+  // `alamat_rumah` & `alamat_sekolah` tidak didaftar: tipenya `text`, tanpa batas.
+  const BATAS_TEKS = [
+    ["namaLengkap",   255, "Nama lengkap"],
+    ["nomorOrtu",      40, "Nomor HP orang tua"],
+    ["emailOrtu",     255, "Email orang tua"],
+    ["tempatLahir",   100, "Tempat lahir"],
+    ["hobi",          255, "Hobi"],
+    ["citaCita",      255, "Cita-cita"],
+    ["golDarah",       20, "Golongan darah"],
+    ["kelurahan",     100, "Kelurahan"],
+    ["kecamatan",     100, "Kecamatan"],
+    ["kabupaten",     100, "Kabupaten"],
+    ["provinsi",      100, "Provinsi"],
+    ["namaAyah",      255, "Nama ayah"],
+    ["waAyah",         40, "No. WA ayah"],
+    ["pekerjaanAyah", 100, "Pekerjaan ayah"],
+    ["namaIbu",       255, "Nama ibu"],
+    ["waIbu",          40, "No. WA ibu"],
+    ["pekerjaanIbu",  100, "Pekerjaan ibu"],
+    ["namaWali",      255, "Nama wali"],
+    ["waWali",         40, "No. WA wali"],
+    ["sekolahAsal",   255, "Nama sekolah asal"],
+  ];
+  for (const [field, batas, label] of BATAS_TEKS) {
+    const v = b[field];
+    if (typeof v === "string" && v.trim().length > batas) {
+      errors.push(`${label} terlalu panjang (maksimal ${batas} karakter).`);
+    }
+  }
 
   return errors;
 }
@@ -182,6 +220,10 @@ router.post(
     { name: "bukti_transfer",  maxCount: 1 },
   ]),
   async (req, res) => {
+    // Dideklarasikan di luar try supaya catch terluar bisa ikut membersihkan.
+    // Upload ke Storage terjadi sebelum INSERT, jadi kalau INSERT gagal filenya
+    // sudah terlanjur ada di sana dan tanpa pembersihan jadi sampah permanen.
+    const uploadedPaths = [];
     try {
       const now = new Date();
       if (now < PPDB_START) {
@@ -199,7 +241,6 @@ router.post(
         return res.status(400).json({ error: errors[0], errors });
       }
 
-      const uploadedPaths = [];
       let urlTransfer;
 
       try {
@@ -269,6 +310,8 @@ router.post(
       });
     } catch (err) {
       console.error("Error pendaftaran:", err.message);
+      // Buang file yang sudah terunggah supaya kegagalan tidak meninggalkan sampah.
+      await hapusFileSupabase(uploadedPaths);
       res.status(500).json({ error: "Terjadi kesalahan server. Silakan coba lagi." });
     }
   }
@@ -282,6 +325,8 @@ router.post(
     { name: "bukti_transfer",  maxCount: 1 },
   ]),
   async (req, res) => {
+    // Di luar try — alasan sama seperti endpoint publik: upload mendahului INSERT.
+    const uploadedPaths = [];
     try {
       const b = req.body;
 
@@ -290,7 +335,6 @@ router.post(
         return res.status(400).json({ error: errors[0], errors });
       }
 
-      const uploadedPaths = [];
       let urlTransfer = PLACEHOLDER_URL;
 
       try {
@@ -355,6 +399,7 @@ router.post(
       });
     } catch (err) {
       console.error("Error tambah data admin:", err.message);
+      await hapusFileSupabase(uploadedPaths);
       res.status(500).json({ error: "Terjadi kesalahan server. Silakan coba lagi." });
     }
   }
@@ -421,6 +466,12 @@ router.put(
     { name: "bukti_transfer",  maxCount: 1 },
   ]),
   async (req, res) => {
+    // File lama TIDAK boleh dihapus sebelum UPDATE berhasil. Kalau dihapus duluan
+    // lalu UPDATE gagal, database masih menunjuk ke URL lama yang filenya sudah
+    // tidak ada — bukti transfer pendaftar hilang permanen. Jadi: file baru dibuang
+    // kalau UPDATE gagal, file lama dibuang hanya setelah UPDATE sukses.
+    let pathBaru = null;
+    let pathLama = null;
     try {
       if (!idValid(req.params.id)) return res.status(404).json({ error: "Data tidak ditemukan." });
 
@@ -439,8 +490,8 @@ router.put(
       try {
         if (req.files?.bukti_transfer?.[0]) {
           const transfer = await uploadToSupabase(req.files.bukti_transfer[0], "bukti_transfer");
-          const oldPath = extractStoragePath(old.url_bukti_transfer);
-          if (oldPath) await hapusFileSupabase([oldPath]);
+          pathBaru = transfer.path;
+          pathLama = extractStoragePath(old.url_bukti_transfer);
           urlTransfer = transfer.url;
         }
       } catch (uploadErr) {
@@ -484,9 +535,15 @@ router.put(
 
       const { rows } = await pool.query(query, values);
 
+      // Baru sekarang file lama aman dibuang — datanya sudah tersimpan.
+      if (pathLama) await hapusFileSupabase([pathLama]);
+
       res.json({ message: "Data pendaftar berhasil diperbarui.", data: rows[0] });
     } catch (err) {
       console.error("Error edit data admin:", err.message);
+      // UPDATE gagal: buang file baru, biarkan file lama utuh supaya data lama
+      // tetap bisa dibuka.
+      if (pathBaru) await hapusFileSupabase([pathBaru]);
       res.status(500).json({ error: "Terjadi kesalahan server. Silakan coba lagi." });
     }
   }
