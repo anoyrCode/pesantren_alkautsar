@@ -169,7 +169,7 @@ export default function SantriForm({ mode, form, setForm, onFile, currentUrls, o
 
       <SectionCard title="6. Data Sekolah Asal">
         <Field label="Nama Sekolah Asal" placeholder="Nama sekolah saat ini" value={form.sekolahAsal} onChange={set("sekolahAsal")} required />
-        <Field label="NPSN" placeholder="8 karakter NPSN sekolah" value={form.npsn} onChange={set("npsn")} required maxLength={8} minLength={8} pattern="[A-Za-z0-9]{8}" title="NPSN harus 8 karakter, boleh huruf atau angka" satuan="karakter" />
+        <Field label="NPSN" placeholder="NPSN sekolah (8–20 karakter)" value={form.npsn} onChange={set("npsn")} required maxLength={20} minLength={8} pattern="[A-Za-z0-9]{8,20}" title="NPSN 8–20 karakter, boleh huruf atau angka" satuan="karakter" />
         <Field label="Alamat Sekolah" placeholder="Alamat lengkap sekolah" value={form.alamatSekolah} onChange={set("alamatSekolah")} required className="sm:col-span-2" />
       </SectionCard>
 

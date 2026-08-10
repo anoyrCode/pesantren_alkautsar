@@ -49,7 +49,7 @@ const ENUM = {
 function validasiForm(b) {
   const errors = [];
   const isDigit = (v, len) => new RegExp(`^\\d{${len}}$`).test(v);
-  const isAlnum = (v, len) => new RegExp(`^[A-Za-z0-9]{${len}}$`).test(v);
+  const isAlnum = (v, min, max = min) => new RegExp(`^[A-Za-z0-9]{${min},${max}}$`).test(v);
   const inEnum  = (v, key) => ENUM[key].includes(v);
 
  
@@ -88,7 +88,7 @@ function validasiForm(b) {
 
   
   if (!b.sekolahAsal?.trim())                        errors.push("Nama sekolah asal wajib diisi.");
-  if (!isAlnum(b.npsn?.trim(), 8))                   errors.push("NPSN harus 8 karakter (huruf atau angka).");
+  if (!isAlnum(b.npsn?.trim(), 8, 20))               errors.push("NPSN harus 8–20 karakter (huruf atau angka).");
   if (!b.alamatSekolah?.trim())                      errors.push("Alamat sekolah wajib diisi.");
 
   // Kolom angka punya batas di database: anak_ke smallint (maks 32.767),
