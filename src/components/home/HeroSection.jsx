@@ -159,7 +159,9 @@ export default function HeroSection() {
             </div>
             <div className="text-[17px] text-white leading-tight" style={GILDA_FONT}>Program Akademik</div>
 
-            <div className="flex items-end gap-3.5 mt-4">
+            {/* items-start, bukan items-end: label panjangnya tidak sama, jadi kalau
+                salah satu membungkus dua baris, angkanya tetap sebaris. */}
+            <div className="flex items-start gap-3.5 mt-4">
               {[
                 ["48", "Diniyah & Agama"],
                 ["42", "Sains & UTBK"],
@@ -167,16 +169,18 @@ export default function HeroSection() {
               ].map(([n, l]) => (
                 <div key={n} className="flex-1">
                   <div className="text-[28px] text-white leading-[0.9]" style={GILDA_FONT}>
-                    {n}<span className="text-[11px] font-medium text-white/45">jp</span>
+                    {n}<span className="text-[11px] font-medium text-white/55">jp</span>
                   </div>
                   <div className="text-[9.5px] text-white/55 leading-tight mt-1.75">{l}</div>
                 </div>
               ))}
             </div>
 
+            {/* "104 dari 152", bukan "total 152": tiga angka di atas berjumlah 104.
+                Sisanya 48 jp Bahasa Arab Intensif, yang tidak ditampilkan di sini. */}
             <div className="flex items-baseline justify-between mt-3.25 pt-2.5 border-t border-white/8">
-              <span className="text-[9.5px] text-white/55">Total beban belajar</span>
-              <span className="text-[11px] font-semibold text-white/75">152 jp / pekan</span>
+              <span className="text-[9.5px] text-white/55">Beban belajar</span>
+              <span className="text-[11px] font-semibold text-white/75">104 dari 152 jp / pekan</span>
             </div>
           </div>
 
@@ -188,10 +192,12 @@ export default function HeroSection() {
               ["Keamanan", "3 Shift Musyrif", "110 CCTV · Rasio 1:10"],
               ["Super Camp", "UTBK & PTN", "Nasional & Internasional"],
             ].map(([tag, title, sub]) => (
-              <div key={tag} className="relative rounded-lg bg-[#203552]/94 p-3.5">
+              // overflow-hidden wajib: garis bibir memakai inset-x-0, tanpa kliping
+              // ujungnya menjulur melewati sudut membulat pelat.
+              <div key={tag} className="relative overflow-hidden rounded-lg bg-[#203552]/94 p-3.5">
                 {/* bibir tipis di tepi atas — penanda tumpukan, pengganti bayangan */}
-                <div className="absolute inset-x-0 top-0 h-px bg-white/12 rounded-t-lg" />
-                <div className="text-[9px] font-extrabold tracking-[0.16em] uppercase text-white/40 mb-1.5">{tag}</div>
+                <div className="absolute inset-x-0 top-0 h-px bg-white/12" />
+                <div className="text-[9px] font-extrabold tracking-[0.16em] uppercase text-white/60 mb-1.5">{tag}</div>
                 <div className="text-[13px] font-semibold text-white leading-tight">{title}</div>
                 <div className="text-[10px] font-light text-white/55 mt-0.75">{sub}</div>
               </div>
