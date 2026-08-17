@@ -44,6 +44,10 @@ const ENUM = {
   // Harus sama persis dengan GAJI di src/utils/constants.jsx (pemisah rentang = en dash)
   penghasilan:   ["Tidak Berpenghasilan", "< Rp 1.000.000", "Rp 1.000.000 – 3.000.000", "Rp 3.000.000 – 5.000.000", "Rp 5.000.000 – 10.000.000", "Rp 10.000.000 – 15.000.000", "Rp 15.000.000 – 30.000.000", "> Rp 30.000.000"],
   statusNikah:   ["Menikah", "Cerai Hidup", "Cerai Mati"],
+  // Status seleksi. Dipakai PATCH /:id/status lewat STATUS_OPTIONS di bawah,
+  // dan divalidasi juga di validasiForm supaya form edit tidak bisa menulis
+  // nilai di luar daftar ini — badge & filter dashboard mengandalkannya.
+  status:        ["Menunggu", "Diterima", "Ditolak"],
 };
 
 function validasiForm(b) {
@@ -93,6 +97,12 @@ function validasiForm(b) {
   if (!b.sekolahAsal?.trim())                        errors.push("Nama sekolah asal wajib diisi.");
   if (!isAlnum(b.npsn?.trim(), 8, 20))               errors.push("NPSN harus 8–20 karakter (huruf atau angka).");
   if (!b.alamatSekolah?.trim())                      errors.push("Alamat sekolah wajib diisi.");
+
+  // Hanya form admin yang mengirim status; formulir publik tidak, dan backend
+  // mengisinya "Menunggu". Tanpa penjagaan ini, form edit bisa menulis status
+  // di luar daftar — badge dan filter dashboard tidak akan mengenalinya, dan
+  // nilai lebih dari 30 karakter menembus batas kolom lalu jadi 500 buntu.
+  if (b.status && !inEnum(b.status, "status"))       errors.push("Status tidak valid.");
 
   // Kolom angka punya batas di database: anak_ke smallint (maks 32.767),
   // berat/tinggi numeric(5,2) (maks 999,99). Tanpa penjaga ini, isian seperti
@@ -436,7 +446,7 @@ router.get("/:id", auth, async (req, res) => {
 });
 
 
-const STATUS_OPTIONS = ["Menunggu", "Diterima", "Ditolak"];
+const STATUS_OPTIONS = ENUM.status;
 
 router.patch("/:id/status", auth, async (req, res) => {
   try {
@@ -557,8 +567,12 @@ router.delete("/:id", auth, async (req, res) => {
     const { rows } = await pool.query("SELECT * FROM pendaftaran WHERE id = $1", [req.params.id]);
     if (!rows.length) return res.status(404).json({ error: "Data tidak ditemukan." });
 
+    // url_foto_santri ikut dibersihkan walau formulir tidak lagi mengunggah foto:
+    // seluruh baris lama masih menyimpannya, dan tanpa baris ini tiap penghapusan
+    // pendaftar meninggalkan satu foto menggantung di Storage selamanya.
     const paths = [
       extractStoragePath(rows[0].url_bukti_transfer),
+      extractStoragePath(rows[0].url_foto_santri),
     ].filter(Boolean);
 
     await hapusFileSupabase(paths);
