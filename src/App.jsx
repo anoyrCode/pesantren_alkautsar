@@ -10,7 +10,7 @@ const JSON_LD = {
   "name": "Pesantren Al Kautsar",
   "alternateName": ["Pondok Pesantren Al Kautsar Sidoarjo", "PP Al Kautsar"],
   "url": "https://pesantrenalkautsar.id",
-  "logo": "https://pesantrenalkautsar.id/favicon.png",
+  "logo": "https://pesantrenalkautsar.id/favicon-192x192.png",
   "image": "https://pesantrenalkautsar.id/og-image.png",
   "description": "Lembaga pendidikan Islam modern yang memadukan kurikulum pesantren, nasional, dan internasional untuk mencetak generasi muslim yang berilmu dan berakhlak mulia.",
   "telephone": "+62-822-4169-6699",
