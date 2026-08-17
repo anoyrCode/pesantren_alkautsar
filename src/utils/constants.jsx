@@ -44,7 +44,7 @@ export const FAQS = [
   { q: "Siapa saja yang bisa mendaftar di Pesantren Al Kautsar?", a: "Pendaftaran terbuka untuk siswa-siswi muslim yang akan masuk jenjang MTs (lulusan SD/MI) maupun SMA (lulusan SMP/MTs) dan bersedia mengikuti seluruh program kepesantrenan selama 6 tahun." },
   { q: "Apakah ada biaya pendaftaran?", a: "Biaya pendaftaran sebesar Rp 450.000. Calon santri mengisi formulir online, mengunggah dokumen yang diminta, dan melakukan pembayaran biaya pendaftaran." },
   { q: "Apa saja dokumen yang harus dipersiapkan?", a: "Bukti Transfer Registrasi, diunggah dalam format JPG, PNG, atau PDF." },
-  { q: "Bagaimana sistem pendidikan di Al Kautsar?", a: "Kami memadukan kurikulum Kemenag dan Kemdikbud dengan sistem kepesantrenan 6 tahun. Pembelajaran menggunakan metode Discovery Task berbasis PISA." },
+  { q: "Bagaimana sistem pendidikan di Al Kautsar?", a: "Kami memadukan kurikulum Kemenag dan Kemendikdasmen dengan sistem kepesantrenan 6 tahun. Pembelajaran menggunakan metode Discovery Task berbasis PISA." },
   { q: "Apakah santri bisa pulang ke rumah?", a: "Ya, santri mendapatkan libur 5 hari setiap bulan untuk berbakti kepada orang tua dan melepas rindu dengan keluarga." },
   { q: "Bagaimana sistem keamanan dan pengawasan santri?", a: "Kami menerapkan 3 shift musyrif 24 jam dengan rasio 1:10, didukung 110 CCTV online & offline. Lingkungan pesantren bebas bullying, anti-LGBT, dan dijaga ketat." },
 ];

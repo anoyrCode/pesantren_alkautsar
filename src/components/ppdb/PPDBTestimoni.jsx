@@ -11,7 +11,7 @@ const KEUNGGULAN = [
   {
     icon: BookOpen,
     title: "Kurikulum Terpadu",
-    body: "Memadukan kurikulum Kemenag & Kemdikbud dengan sistem kepesantrenan 6 tahun — Diniyah dan Umum berjalan seimbang.",
+    body: "Memadukan kurikulum Kemenag & Kemendikdasmen dengan sistem kepesantrenan 6 tahun — Diniyah dan Umum berjalan seimbang.",
   },
   {
     icon: Users,
