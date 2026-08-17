@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate, Link } from "react-router-dom";
-import { Menu, X, ArrowRight, MapPin, Phone, MessageCircle } from "lucide-react";
+import { Menu, X, ArrowRight, ChevronRight, MapPin, Phone, MessageCircle } from "lucide-react";
 
 const FacebookIcon = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -68,6 +68,15 @@ export default function MainLayout() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // Escape menutup menu — panel ini menutupi seluruh layar, jadi harus ada
+  // jalan keluar lewat papan ketik, bukan cuma tombol X.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e) => e.key === "Escape" && setMobileOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
+
   const isActive = (path) => location.pathname === path;
 
   const handleNav = (path) => {
@@ -85,7 +94,7 @@ export default function MainLayout() {
           sedangkan pil ini justru harus terasa melayang di atas isi halaman.
           Kedalamannya dari bayangan lembut, bukan garis. */}
       <nav
-        className={`fixed top-3 left-1/2 -translate-x-1/2 z-[1000] w-[min(1180px,94vw)] h-15 rounded-full flex items-center justify-between pl-5 pr-2.5 md:pl-6 transition-all duration-300 ${
+        className={`fixed top-3 left-1/2 -translate-x-1/2 z-1000 w-[min(1180px,94vw)] h-15 rounded-full flex items-center justify-between pl-5 pr-2.5 md:pl-6 transition-all duration-300 ${
           navSolid || mobileOpen
             ? "bg-white/90 backdrop-blur-xl shadow-[0_1px_2px_rgba(26,45,71,.05),0_14px_36px_-14px_rgba(26,45,71,.22)]"
             : "bg-white/78 backdrop-blur-xl shadow-[0_1px_2px_rgba(26,45,71,.04),0_12px_32px_-12px_rgba(26,45,71,.16)]"
@@ -118,37 +127,90 @@ export default function MainLayout() {
           >
             Daftar PPDB <ArrowRight size={14} />
           </button>
+          {/* Bulat, mengikuti bentuk pil. Kedua ikon dirender bersamaan lalu
+              disilangkan opacity + putaran — kalau ditukar dengan ternary,
+              pergantiannya patah karena tidak ada yang bisa ditransisikan. */}
           <button
-            className="md:hidden p-2.5 rounded-xl bg-slate-100"
+            className="md:hidden w-10 h-10 grid place-items-center rounded-full bg-[#1a2d47]/6 text-[#1a2d47] active:scale-90 transition-transform duration-200"
             onClick={() => setMobileOpen((o) => !o)}
-            aria-label="Menu"
+            aria-label={mobileOpen ? "Tutup menu" : "Buka menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="menu-mobile"
           >
-            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+            <Menu
+              size={18}
+              className={`col-start-1 row-start-1 transition-all duration-300 ${mobileOpen ? "opacity-0 rotate-90 scale-75" : "opacity-100 rotate-0 scale-100"}`}
+            />
+            <X
+              size={18}
+              className={`col-start-1 row-start-1 transition-all duration-300 ${mobileOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-75"}`}
+            />
           </button>
         </div>
       </nav>
 
 
-      {/* ─── MOBILE DRAWER ─── */}
+      {/* ─── MENU MOBILE ─── */}
+      {/* Latar gelap. Selain memberi tahu bahwa halaman sedang tidak aktif, ini
+          yang menutup celah 8px antara dasar pil (72px) dan pangkal panel —
+          versi lama membiarkan seiris isi halaman mengintip di sana. */}
       <div
-        className={`md:hidden fixed top-20 left-0 right-0 bottom-0 z-999 bg-white px-6 py-4 pb-8 flex flex-col gap-1 overflow-y-auto transition-transform duration-300 ${
-          mobileOpen ? "translate-x-0" : "translate-x-full"
+        className={`md:hidden fixed inset-0 z-998 bg-[#1a2d47]/35 backdrop-blur-xs transition-opacity duration-300 ${
+          mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setMobileOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Panel selebar dan sebentuk pil di atasnya, turun dari pangkalnya.
+          Lembar putih persegi selebar layar yang lama bertabrakan dengan pil
+          yang mengambang, dan tingginya selalu penuh — menyisakan ruang kosong
+          besar di bawah tombol terakhir. Panel ini memeluk isinya. */}
+      <div
+        id="menu-mobile"
+        inert={!mobileOpen}
+        aria-hidden={!mobileOpen}
+        // -translate-x-1/2 ada di daftar tetap, bukan di kedua cabang: sumbu X
+        // dan Y memakai custom property terpisah di Tailwind v4, jadi keduanya
+        // menyusun properti `translate` yang sama tanpa saling menimpa.
+        className={`md:hidden fixed top-19 left-1/2 -translate-x-1/2 z-999 w-[min(1180px,94vw)] max-h-[calc(100svh-6.5rem)] overflow-y-auto rounded-3xl bg-white/95 backdrop-blur-xl p-3 origin-top shadow-[0_2px_4px_rgba(26,45,71,.06),0_28px_64px_-24px_rgba(26,45,71,.4)] transition-[opacity,translate,scale] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          mobileOpen
+            ? "opacity-100 translate-y-0 scale-100"
+            : "opacity-0 -translate-y-2 scale-95 pointer-events-none"
         }`}
       >
-        {NAV_LINKS.map((l) => (
+        {NAV_LINKS.map((l, i) => (
           <button
             key={l.id}
             onClick={() => handleNav(l.path)}
-            className={`text-left px-4 py-3.5 rounded-2xl text-base font-medium transition-colors ${
-              isActive(l.path) ? "bg-[#284061] text-white" : "text-slate-900 hover:bg-slate-100"
+            // Muncul berurutan, bukan serempak — mata jadi punya arah baca.
+            // Jedanya nol saat menutup supaya panelnya tidak terasa berat.
+            style={{ transitionDelay: mobileOpen ? `${70 + i * 45}ms` : "0ms" }}
+            className={`group w-full flex items-center gap-3.5 text-left px-4 py-3.5 rounded-2xl transition-[opacity,translate,background-color] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              mobileOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-6"
+            } ${
+              isActive(l.path) ? "bg-[#284061] text-white" : "text-[#1a2d47] active:bg-[#1a2d47]/6"
             }`}
           >
-            {l.label}
+            <span className={`text-[11px] font-semibold tabular-nums tracking-wider ${isActive(l.path) ? "text-white/45" : "text-[#1a2d47]/30"}`}>
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span className="text-[15.5px] font-medium">{l.label}</span>
+            <ChevronRight
+              size={16}
+              className={`ml-auto transition-transform duration-200 group-active:translate-x-1 ${isActive(l.path) ? "text-white/55" : "text-[#1a2d47]/25"}`}
+            />
           </button>
         ))}
+
+        <div className="h-px bg-[#1a2d47]/8 mx-4 my-2.5" />
+
         <button
           onClick={() => handleNav("/ppdb")}
-          className="mt-3 bg-[#284061] text-white font-bold py-4 rounded-2xl text-center shadow-lg flex items-center justify-center gap-2"
+          style={{ transitionDelay: mobileOpen ? `${70 + NAV_LINKS.length * 45}ms` : "0ms" }}
+          className={`w-full bg-[#284061] active:bg-[#1a2d47] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-[0_10px_24px_-12px_rgba(40,64,97,.7)] transition-[opacity,translate,background-color] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+          }`}
         >
           Daftar PPDB <ArrowRight size={16} />
         </button>
