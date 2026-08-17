@@ -25,11 +25,7 @@ export default function KurikulumPage() {
           <LMSSection />
         </div>
       </section>
-      <section className="pb-16">
-        <div className="w-[min(1180px,92vw)] mx-auto">
-          <CTABlock title="Semua Kebutuhan" emTitle="Sudah Terintegrasi" sub="Tidak perlu bimbel tambahan. Semua kebutuhan akademik, bahasa, dan karakter ada di dalam kurikulum pesantren." onPrimary={() => navigate("/ppdb")} />
-        </div>
-      </section>
+      <CTABlock title="Semua Kebutuhan" emTitle="Sudah Terintegrasi" sub="Tidak perlu bimbel tambahan. Semua kebutuhan akademik, bahasa, dan karakter ada di dalam kurikulum pesantren." onPrimary={() => navigate("/ppdb")} />
     </>
   );
 }

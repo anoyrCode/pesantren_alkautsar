@@ -1,8 +1,6 @@
-import { useState } from "react";
-import { Clock, ArrowRight, ClipboardList, CheckCircle2, CalendarX2 } from "lucide-react";
+import { Clock, ArrowRight, CheckCircle2, CalendarX2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GILDA_FONT } from "../../utils/constants";
-import Reveal from "../common/Reveal";
 import useCountdown from "../../hooks/useCountdown";
 import useParallax from "../../hooks/useParallax";
 import gedung2 from "../../assets/konten/gedung2.png";
@@ -10,6 +8,8 @@ import gedung2 from "../../assets/konten/gedung2.png";
 const PPDB_START = "2026-08-01T00:00:00+07:00";
 const PPDB_END   = "2026-09-30T23:59:59+07:00";
 
+// Status dihitung dari tanggal hari ini, bukan disetel manual — supaya halaman
+// ini tidak perlu disunting tiap ganti periode.
 function getPpdbStatus() {
   const now = Date.now();
   if (now < new Date(PPDB_START).getTime()) return "belum";
@@ -17,175 +17,176 @@ function getPpdbStatus() {
   return "tutup";
 }
 
+// Latar terang mengikuti beranda. Nilai gradasinya sengaja sama persis supaya
+// kedua hero terasa satu bahasa; kalau salah satu diubah, ubah keduanya.
+const KREM = "#F6F2EA";
+const PUDAR_DESKTOP =
+  "linear-gradient(100deg, #F6F2EA 0%, #F6F2EA 20%, rgba(246,242,234,.985) 29%, rgba(246,242,234,.94) 37%, rgba(246,242,234,.85) 45%, rgba(246,242,234,.70) 53%, rgba(246,242,234,.50) 62%, rgba(246,242,234,.28) 72%, rgba(246,242,234,.10) 84%, rgba(246,242,234,0) 100%)";
+const PUDAR_MOBILE =
+  "linear-gradient(180deg, rgba(246,242,234,.97) 0%, rgba(246,242,234,.93) 38%, rgba(246,242,234,.82) 60%, rgba(246,242,234,.55) 78%, rgba(246,242,234,.28) 100%)";
+
+const LABEL_STATUS = {
+  belum:  "Segera Dibuka",
+  dibuka: "Pendaftaran Dibuka",
+  tutup:  "Pendaftaran Ditutup",
+};
+
 export default function PPDBHero() {
   const navigate = useNavigate();
   const status = getPpdbStatus();
   const countdown = useCountdown(status === "belum" ? PPDB_START : PPDB_END);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [px, setPx] = useState({ x: 0, y: 0 });
   const { ref: sectionRef, y: pY } = useParallax(1);
 
-  function onMove(e) {
-    const r = e.currentTarget.getBoundingClientRect();
-    setPos({ x: (e.clientX - r.left - r.width / 2) / r.width, y: (e.clientY - r.top - r.height / 2) / r.height });
-    setPx({ x: e.clientX - r.left, y: e.clientY - r.top });
-  }
+  // Warna status di latar terang: dipilih yang lolos kontras, bukan sekadar
+  // versi terang dari warna aslinya.
+  const warnaStatus =
+    status === "belum" ? "text-amber-700" : status === "dibuka" ? "text-emerald-700" : "text-slate-400";
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-linear-to-br from-[#1a2d47] via-[#284061] to-[#3a5a8c]" onMouseMove={onMove}>
-      {/* Foto gedung — tampil di seluruh banner tanpa mask, sama seperti beranda */}
+    // -mt-20 menetralkan pt-20 di <main> supaya latar hero menerus sampai tepi
+    // atas, di belakang navbar pil yang mengambang.
+    <section ref={sectionRef} className="relative -mt-20 overflow-hidden" style={{ backgroundColor: KREM }}>
       <div
-        className="absolute inset-0 opacity-[0.45]"
+        className="absolute -inset-y-8 inset-x-0"
         style={{
           backgroundImage: `url(${gedung2})`,
           backgroundSize: "cover",
           backgroundPosition: "center 42%",
-          filter: "grayscale(1) contrast(1.05)",
+          filter: "saturate(.88) contrast(1.02) brightness(1.05)",
           transform: `translateY(${pY * 0.08}px)`,
         }}
       />
-      {/* Scrim gelap yang memudar kiri→kanan — menjaga teks terbaca tanpa
-          memotong foto (lihat komentar sama di HeroSection.jsx) */}
+      <div className="absolute inset-0 hidden lg:block" style={{ background: PUDAR_DESKTOP }} />
+      <div className="absolute inset-0 lg:hidden" style={{ background: PUDAR_MOBILE }} />
       <div
         className="absolute inset-0"
-        style={{
-          background: "linear-gradient(100deg, #16273d 0%, rgba(22,39,61,.92) 34%, rgba(24,42,66,.55) 58%, rgba(26,45,71,.12) 82%, transparent 100%)",
-        }}
+        style={{ background: "linear-gradient(180deg, rgba(246,242,234,.55) 0%, rgba(246,242,234,0) 26%)" }}
       />
       <div
-        className="absolute inset-0 opacity-60"
-        style={{
-          background: "radial-gradient(ellipse 60% 70% at 70% 30%,rgba(192,155,90,.18) 0%,transparent 55%)",
-          transform: `translateY(${pY * 0.12}px)`,
-        }}
+        className="absolute inset-x-0 bottom-0 h-40 pointer-events-none"
+        style={{ background: "linear-gradient(180deg, rgba(246,242,234,0) 0%, rgba(246,242,234,.5) 50%, #F6F2EA 100%)" }}
       />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle 350px at ${px.x}px ${px.y}px, rgba(212,140,26,.07), transparent 65%)` }} />
 
-      {/* decorative circles — mouse parallax + scroll parallax combined */}
-      <div className="absolute -right-20 -top-20 pointer-events-none" style={{ transform: `translate3d(${pos.x * 22}px, ${pos.y * 16 + pY * -0.1}px, 0)`, transition: "transform 0.12s linear" }}>
-        <div className="w-96 h-96 rounded-full border border-white/5 animate-[spin_25s_linear_infinite]" />
-      </div>
-      <div className="absolute -left-16 -bottom-16 pointer-events-none" style={{ transform: `translate3d(${pos.x * -15}px, ${pos.y * -11 + pY * 0.08}px, 0)`, transition: "transform 0.18s linear" }}>
-        <div className="w-72 h-72 rounded-full border border-amber-500/10 animate-[spin_20s_linear_infinite_reverse]" />
-      </div>
+      <div className="relative z-10 w-[min(1180px,92vw)] mx-auto pt-32 pb-20 lg:pt-36 lg:pb-24">
+        <div className="grid lg:grid-cols-[1.35fr_1fr] gap-12 lg:gap-14 items-start">
 
-      <div className="relative z-10 w-[min(1180px,92vw)] mx-auto py-20 lg:py-24">
-        <div className="grid lg:grid-cols-[1.4fr_1fr] gap-12 items-center">
-          <div>
-            <Reveal>
-              <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/25 text-amber-300 text-[11px] font-bold tracking-wider uppercase px-4 py-1.5 rounded-full mb-6">
-                <ClipboardList size={12} />
-                PPDB 2027/2028 · {status === "belum" ? "Segera Dibuka" : status === "dibuka" ? "Pendaftaran Dibuka" : "Pendaftaran Ditutup"}
-              </div>
-            </Reveal>
-            <Reveal delay={80}>
-              <h1 className="text-white leading-[1.1] tracking-tight mb-5" style={{ ...GILDA_FONT, fontSize: "clamp(32px,5vw,54px)" }}>
-                Pendaftaran<br />
-                <em className="italic text-amber-300">Pesantren Al Kautsar</em> Sidoarjo
-              </h1>
-            </Reveal>
-            <Reveal delay={140}>
-              <p className="text-[15px] leading-[1.85] font-light text-white/65 max-w-xl mb-8">
-                {status === "tutup" ? (
-                  <>Periode pendaftaran jenjang MTs dan SMA tahun ajaran 2027/2028 telah berakhir pada <span className="text-amber-300 font-medium">30 September</span>. Nantikan informasi pendaftaran untuk periode berikutnya.</>
-                ) : (
-                  <>Pendaftaran jenjang MTs dan SMA tahun ajaran 2027/2028 {status === "dibuka" ? "kini dibuka" : "akan dibuka"} mulai <span className="text-amber-300 font-medium">1 Agustus</span> hingga <span className="text-amber-300 font-medium">30 September</span>. Kuota terbatas — segera daftarkan putra-putri Anda sebelum kehabisan tempat.</>
-                )}
-              </p>
-            </Reveal>
+          {/* ── KIRI ── */}
+          <div className="min-w-0">
+            <div className="text-[11.5px] font-semibold uppercase tracking-[0.42em] text-slate-500 animate-[fU_.7s_ease-out_both]">
+              PPDB 2027 / 2028
+            </div>
 
-            <Reveal delay={200}>
-              <div className="flex flex-wrap gap-3">
-                {status === "tutup" ? (
-                  <button disabled className="inline-flex items-center gap-2 bg-white/10 text-white/40 px-6 py-3 rounded-xl text-[13.5px] font-semibold cursor-not-allowed">
-                    Pendaftaran Ditutup
-                  </button>
-                ) : (
-                  <button onClick={() => navigate("/ppdb/formulir")} className="inline-flex items-center gap-2 bg-linear-to-br from-amber-500 to-amber-600 text-white px-6 py-3 rounded-xl text-[13.5px] font-semibold shadow-xl shadow-amber-500/30 hover:-translate-y-0.5 transition-all">
-                    Daftar Sekarang <ArrowRight size={15} />
-                  </button>
-                )}
-                <a href="#timeline-ppdb" className="inline-flex items-center gap-2 text-white px-6 py-3 border border-white/25 rounded-xl text-[13.5px] font-semibold hover:bg-white/10 transition-all">
-                  Lihat Timeline
-                </a>
-              </div>
-            </Reveal>
+            <h1
+              className="text-[#1a2d47] leading-[0.96] tracking-tight mt-3.5 animate-[fU_.7s_.08s_ease-out_both]"
+              style={{ ...GILDA_FONT, fontSize: "clamp(42px,6.5vw,76px)" }}
+            >
+              Pendaftaran
+            </h1>
+
+            <div className="flex items-center gap-3.75 mt-5 animate-[fU_.7s_.14s_ease-out_both]">
+              <span className="w-13 h-0.5 rounded-full bg-[#D48C1A]" />
+              <span className="text-[12px] font-semibold tracking-[0.26em] text-slate-500 uppercase">
+                Pesantren Al Kautsar · Sidoarjo
+              </span>
+            </div>
+
+            <p className="text-[15.5px] leading-[1.95] font-light text-slate-600 max-w-xl mt-7 animate-[fU_.7s_.2s_ease-out_both]">
+              {status === "tutup" ? (
+                <>
+                  Periode pendaftaran jenjang MTs dan SMA tahun ajaran 2027/2028 telah berakhir pada{" "}
+                  <b className="font-semibold text-[#1a2d47]">30 September</b>. Nantikan informasi
+                  pendaftaran untuk periode berikutnya.
+                </>
+              ) : (
+                <>
+                  Pendaftaran jenjang MTs dan SMA tahun ajaran 2027/2028{" "}
+                  {status === "dibuka" ? "kini dibuka" : "akan dibuka"} mulai{" "}
+                  <b className="font-semibold text-[#1a2d47]">1 Agustus</b> hingga{" "}
+                  <b className="font-semibold text-[#1a2d47]">30 September</b>. Terbuka untuk lulusan
+                  SD/MI dan SMP/MTs.
+                </>
+              )}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-6.5 mt-8.5 animate-[fU_.7s_.26s_ease-out_both]">
+              {status === "tutup" ? (
+                <button
+                  disabled
+                  className="inline-flex items-center gap-2 bg-[#1a2d47]/12 text-[#1a2d47]/45 px-7 py-3.75 rounded-xl text-[13.5px] font-semibold cursor-not-allowed"
+                >
+                  Pendaftaran Ditutup
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate("/ppdb/formulir")}
+                  className="inline-flex items-center gap-2.25 bg-[#1a2d47] text-white px-7 py-3.75 rounded-xl text-[13.5px] font-semibold shadow-[0_14px_30px_-14px_rgba(26,45,71,.7)] hover:-translate-y-0.5 transition-transform hover:cursor-pointer"
+                >
+                  Daftar Sekarang <ArrowRight size={15} />
+                </button>
+              )}
+              <a
+                href="#timeline-ppdb"
+                className="text-[13.5px] font-semibold text-[#1a2d47] border-b-[1.5px] border-[#1a2d47]/25 pb-0.75 hover:border-[#1a2d47]/60 transition-colors"
+              >
+                Lihat timeline
+              </a>
+            </div>
           </div>
 
-          <Reveal direction="right">
-            <div className="bg-white/7 border border-white/15 rounded-3xl p-7 backdrop-blur-xl relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-amber-400 to-transparent" />
-              <div className="text-center">
-                <div className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-wider uppercase text-amber-300 mb-2">
-                  {status === "belum" && <><Clock size={12} /> Pendaftaran Dibuka Dalam</>}
-                  {status === "dibuka" && <><CheckCircle2 size={12} /> Pendaftaran Ditutup Dalam</>}
-                  {status === "tutup" && <><CalendarX2 size={12} /> Periode Telah Berakhir</>}
-                </div>
-                <h3 className="text-white mb-5" style={{ ...GILDA_FONT, fontSize: "20px" }}>
-                  {status === "belum" && "Jangan Sampai Terlewat"}
-                  {status === "dibuka" && "Segera Daftarkan Sekarang"}
-                  {status === "tutup" && "Sampai Jumpa Tahun Depan"}
-                </h3>
-                {status === "tutup" ? (
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-5 text-white/50 text-[13px] leading-relaxed">
-                    Pendaftaran PPDB 2027/2028 sudah ditutup. Terima kasih atas antusiasme Anda.
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-4 gap-2">
-                    {[["Hari", countdown.days], ["Jam", countdown.hours], ["Menit", countdown.mins], ["Detik", countdown.secs]].map(([l, v]) => (
-                      <div key={l} className="bg-white/8 border border-white/12 rounded-xl p-3 hover:bg-amber-500/15 transition-all">
-                        <div className="text-white tabular-nums" style={{ ...GILDA_FONT, fontSize: "24px", lineHeight: 1 }}>
-                          {String(v).padStart(2, "0")}
-                        </div>
-                        <div className="text-[9.5px] text-white/50 mt-1 uppercase tracking-wider">{l}</div>
+          {/* ── KANAN: countdown ── */}
+          <div className="animate-[fL_.75s_.22s_ease-out_both]">
+            <div className="rounded-2xl bg-[#1a2d47] px-6.5 pt-6 pb-6 shadow-[0_30px_60px_-30px_rgba(26,45,71,.55),0_4px_12px_-6px_rgba(26,45,71,.18)] animate-[apung_7s_ease-in-out_infinite]">
+              <div className="flex items-center gap-1.75 text-[9.5px] font-extrabold uppercase tracking-[0.2em] text-amber-400/90">
+                {status === "belum"  && <><Clock size={12} /> Pendaftaran Dibuka Dalam</>}
+                {status === "dibuka" && <><CheckCircle2 size={12} /> Pendaftaran Ditutup Dalam</>}
+                {status === "tutup"  && <><CalendarX2 size={12} /> Periode Telah Berakhir</>}
+              </div>
+
+              <div className="text-[21px] text-white mt-2.25 mb-5" style={GILDA_FONT}>
+                {status === "belum"  && "Menuju Pembukaan"}
+                {status === "dibuka" && "Pendaftaran Berlangsung"}
+                {status === "tutup"  && "Sampai Jumpa Tahun Depan"}
+              </div>
+
+              {status === "tutup" ? (
+                <p className="text-[13px] leading-relaxed text-white/55">
+                  Pendaftaran PPDB 2027/2028 sudah ditutup. Terima kasih atas antusiasme Anda.
+                </p>
+              ) : (
+                <div className="grid grid-cols-4 gap-2.5">
+                  {[["Hari", countdown.days], ["Jam", countdown.hours], ["Menit", countdown.mins], ["Detik", countdown.secs]].map(([l, v]) => (
+                    <div key={l} className="rounded-xl bg-white/8 py-3 text-center">
+                      <div className="text-white tabular-nums" style={{ ...GILDA_FONT, fontSize: "24px", lineHeight: 1 }}>
+                        {String(v).padStart(2, "0")}
                       </div>
-                    ))}
-                  </div>
-                )}
-                <div className="mt-5 pt-4 border-t border-white/10">
-                  <div className="flex items-center justify-between text-[11.5px] text-white/60 mb-2">
-                    <span>Periode Pendaftaran</span>
-                    <span className="font-bold text-amber-300">1 Ags – 30 Sep</span>
-                  </div>
-                  <div className="flex items-center justify-between text-[11.5px] text-white/60 mb-3">
-                    <span>Status Pendaftaran</span>
-                    <span className={`font-bold ${status === "belum" ? "text-amber-400" : status === "dibuka" ? "text-emerald-400" : "text-white/40"}`}>
-                      {status === "belum" ? "Segera Dibuka" : status === "dibuka" ? "Sedang Berlangsung" : "Ditutup"}
-                    </span>
-                  </div>
-                  <div className={`flex items-center gap-2.5 rounded-xl px-4 py-2.5 border ${
-                    status === "belum" ? "bg-amber-500/10 border-amber-500/20" :
-                    status === "dibuka" ? "bg-emerald-500/10 border-emerald-500/20" :
-                    "bg-white/5 border-white/10"
-                  }`}>
-                    {status !== "tutup" && (
-                      <span className="relative flex h-2.5 w-2.5 shrink-0">
-                        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${status === "belum" ? "bg-amber-400" : "bg-emerald-400"}`} />
-                        <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${status === "belum" ? "bg-amber-400" : "bg-emerald-400"}`} />
-                      </span>
-                    )}
-                    <span className={`text-[12px] font-semibold ${status === "belum" ? "text-amber-300" : status === "dibuka" ? "text-emerald-300" : "text-white/40"}`}>
-                      {status === "belum" && "MTs & SMA · Dibuka 1 Agustus 2026"}
-                      {status === "dibuka" && "MTs & SMA · Pendaftaran Sedang Dibuka!"}
-                      {status === "tutup" && "MTs & SMA · Ditutup 30 September 2026"}
-                    </span>
-                  </div>
+                      <div className="text-[9.5px] text-white/50 mt-1.25 uppercase tracking-wider">{l}</div>
+                    </div>
+                  ))}
                 </div>
+              )}
+            </div>
+
+            {/* Pelat terang di bawah kartu — pola sama seperti panel beranda */}
+            <div className="rounded-xl bg-white/92 px-5 py-4.5 mt-3.75 shadow-[0_14px_34px_-20px_rgba(26,45,71,.38)] animate-[apungKecil_9s_ease-in-out_infinite] [animation-delay:.8s]">
+              <div className="flex items-center justify-between text-[11.5px] text-slate-500">
+                <span>Periode pendaftaran</span>
+                <span className="font-semibold text-[#1a2d47]">1 Ags – 30 Sep</span>
+              </div>
+              <div className="flex items-center justify-between text-[11.5px] text-slate-500 mt-2.25 pt-2.25 border-t border-[#1a2d47]/8">
+                <span>Status</span>
+                <span className={`font-semibold inline-flex items-center gap-2 ${warnaStatus}`}>
+                  {status !== "tutup" && (
+                    <span className="relative flex h-2 w-2 shrink-0">
+                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${status === "belum" ? "bg-amber-500" : "bg-emerald-500"}`} />
+                      <span className={`relative inline-flex h-2 w-2 rounded-full ${status === "belum" ? "bg-amber-500" : "bg-emerald-500"}`} />
+                    </span>
+                  )}
+                  {LABEL_STATUS[status]}
+                </span>
               </div>
             </div>
-          </Reveal>
-        </div>
-
-        <Reveal>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-12 pt-8 border-t border-white/10">
-            {[["Terakreditasi", "Lembaga Resmi"], ["2027/2028", "Tahun Ajaran"], ["Juli", "Mulai Belajar"], ["Rp 450rb", "Biaya Daftar"]].map(([n, l]) => (
-              <div key={l} className="text-center sm:text-left">
-                <div className="text-white mb-1" style={{ ...GILDA_FONT, fontSize: "24px", lineHeight: 1 }}>{n}</div>
-                <div className="text-[11.5px] text-white/45">{l}</div>
-              </div>
-            ))}
           </div>
-        </Reveal>
+        </div>
       </div>
     </section>
   );

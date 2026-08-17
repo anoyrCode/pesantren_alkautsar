@@ -4,3 +4,67 @@
   from { opacity: 0; transform: translateY(18px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0)    scale(1); }
 }
+
+/* Dipakai dua marquee: ticker beranda dan kalimat Arab di hero. Definisinya
+   dulu menumpang di dalam <style> milik HeroSection — begitu hero ditulis
+   ulang, ticker ikut berhenti berjalan tanpa error apa pun. Ditaruh global
+   supaya tidak lagi bergantung pada komponen mana pun. */
+@keyframes marq {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Animasi masuk hero. Sebelumnya juga menumpang di <style> HeroSection dan
+   ikut hilang saat hero ditulis ulang — sekarang global. */
+@keyframes fU {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fL {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Loading screen. Keyframes-nya dulu menumpang di <style> dalam Loader.jsx —
+   pola yang sama yang mematikan ticker dan animasi hero saat komponennya
+   ditulis ulang. */
+@keyframes ldMasuk {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+/* Tumbuh dari tengah ke luar. Durasinya sengaja dibuat sama persis dengan
+   lama loader tampil, jadi garis ini benar-benar menandai sisa waktu — bukan
+   animasi hias yang kebetulan berjalan seperti bar 68% yang lama. */
+@keyframes ldGaris {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* Kartu panel hero mengapung pelan. Desain ini sudah bersandar pada gagasan
+   kartu melayang — bayangan lembut, bukan garis tepi — jadi gerakan naik-turun
+   beberapa piksel memperkuat maksud yang sama. Kilau menyapu atau denyut justru
+   melawannya: keduanya menarik perhatian ke efeknya sendiri.
+   Amplitudo sengaja kecil; di atas 8px gerakannya mulai terasa gelisah. */
+@keyframes apung {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes apungKecil {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+/* Hormati pengguna yang mematikan animasi di setelan sistemnya. Marquee
+   dihentikan sepenuhnya — teks berjalan termasuk pemicu yang dihindari. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[fU_\.7s_ease-out_both\],
+  [class*="animate-[fU"],
+  [class*="animate-[fL"] {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  [class*="animate-[marq"],
+  [class*="animate-[ld"],
+  [class*="animate-[apung"] { animation: none !important; }
+}

@@ -306,7 +306,9 @@ export default function FormulirPage() {
       <style>{`@keyframes fU{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}`}</style>
 
       {/* Header */}
-      <div className="relative overflow-hidden bg-linear-to-br from-[#1a2d47] via-[#284061] to-[#3a5a8c] py-14 lg:py-18" onMouseMove={onHeaderMove}>
+      {/* -mt-20 + pt lebih besar: alasan sama seperti hero PPDB — navbar sudah
+          jadi pil mengambang, jadi celah pt-20 di <main> tidak lagi tertutup. */}
+      <div className="relative -mt-20 overflow-hidden bg-linear-to-br from-[#1a2d47] via-[#284061] to-[#3a5a8c] pt-32 pb-14 lg:pt-36 lg:pb-18" onMouseMove={onHeaderMove}>
         <div className="absolute -right-10 -top-10 pointer-events-none" style={{ transform: `translate3d(${hPos.x * 20}px, ${hPos.y * 15}px, 0)`, transition: "transform 0.12s linear" }}>
           <div className="w-72 h-72 rounded-full border border-white/5 animate-[spin_22s_linear_infinite]" />
         </div>

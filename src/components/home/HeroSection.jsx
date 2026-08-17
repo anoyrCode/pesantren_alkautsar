@@ -1,227 +1,242 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { ARABIC_FONT, GILDA_FONT } from "../../utils/constants";
 import useParallax from "../../hooks/useParallax";
 import gedung from "../../assets/konten/gedung.jpeg";
 
+// Warna dasar hero. Krem hangat dipilih supaya sedarah dengan warna dinding
+// gedung di foto — navy dingin di atas putih bersih membuat keduanya terasa
+// seperti dua bahan berbeda yang dipaksa berdampingan.
+const KREM = "#F6F2EA";
+
+// Pudaran foto memakai sembilan titik, bukan tiga-empat. Dengan sedikit titik,
+// perpindahannya terbaca mata sebagai sapuan bergaris; dengan sembilan, foto
+// benar-benar larut ke latar.
+const PUDAR_DESKTOP =
+  "linear-gradient(100deg, #F6F2EA 0%, #F6F2EA 20%, rgba(246,242,234,.985) 29%, rgba(246,242,234,.94) 37%, rgba(246,242,234,.85) 45%, rgba(246,242,234,.70) 53%, rgba(246,242,234,.50) 62%, rgba(246,242,234,.28) 72%, rgba(246,242,234,.10) 84%, rgba(246,242,234,0) 100%)";
+
+// Di layar sempit teks menumpuk di atas foto, bukan di sampingnya, sehingga
+// pudaran mendatar tidak menolong apa pun. Versi tegak ini yang menjaga
+// keterbacaan di ponsel.
+const PUDAR_MOBILE =
+  "linear-gradient(180deg, rgba(246,242,234,.97) 0%, rgba(246,242,234,.93) 38%, rgba(246,242,234,.82) 60%, rgba(246,242,234,.55) 78%, rgba(246,242,234,.28) 100%)";
+
+const KREDENSIAL = [
+  ["Kemenag RI", true],
+  ["Kemendikdasmen RI", true],
+  ["6 tahun sistem pesantren", false],
+];
+
+const JP = [
+  ["48", "Diniyah & Agama"],
+  ["42", "Sains & UTBK"],
+  ["14", "Bahasa Inggris"],
+];
+
+// Durasi dan jeda sengaja dibuat berbeda-beda (7s / 8.5s / 9.5s). Kalau sama,
+// ketiga kartu naik-turun serempak dan justru terlihat digerakkan satu tuas —
+// bukan mengapung. Ditulis penuh, bukan dirangkai, supaya terbaca pemindai
+// Tailwind saat build.
+const PELAT = [
+  ["Keamanan", "3 Shift Musyrif", "110 CCTV · Rasio 1:10", "animate-[apungKecil_8.5s_ease-in-out_infinite] [animation-delay:.6s]"],
+  ["Super Camp", "UTBK & PTN", "Nasional & Internasional", "animate-[apungKecil_9.5s_ease-in-out_infinite] [animation-delay:1.1s]"],
+];
+
 export default function HeroSection() {
   const navigate = useNavigate();
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [px, setPx] = useState({ x: 0, y: 0 });
+  // Parallax scroll pada foto saja. Cursor glow dan lingkaran berputar dari
+  // desain gelap sengaja tidak dikembalikan: keduanya mengandalkan cahaya di
+  // atas latar pekat, dan di atas krem hasilnya jadi noda keruh.
   const { ref: sectionRef, y: pY } = useParallax(1);
 
-  function onMove(e) {
-    const r = e.currentTarget.getBoundingClientRect();
-    setPos({ x: (e.clientX - r.left - r.width / 2) / r.width, y: (e.clientY - r.top - r.height / 2) / r.height });
-    setPx({ x: e.clientX - r.left, y: e.clientY - r.top });
-  }
-
   return (
-    <section ref={sectionRef} className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden bg-[#1a2d47]" onMouseMove={onMove}>
-      {/* Backgrounds */}
-      <div className="absolute inset-0 bg-linear-to-br from-[#1a2d47] via-[#284061] to-[#3a5a8c]" />
-      {/* Foto gedung — tampil di seluruh banner tanpa mask apa pun, supaya
-          tidak ada bentuk geometris yang kelihatan */}
+    // -mt-20 menarik hero ke belakang navbar yang fixed (main memberi pt-20),
+    // supaya latar kremnya menerus sampai tepi atas layar. Tanpa itu ada pita
+    // putih di atas hero.
+    <section
+      ref={sectionRef}
+      className="relative -mt-20 min-h-svh flex items-start overflow-hidden"
+      style={{ backgroundColor: KREM }}
+    >
+      {/* Foto: berwarna penuh, dihangatkan sedikit agar sedarah dengan krem.
+          Bergerak lebih lambat dari isi halaman saat digulir (parallax). */}
       <div
-        className="absolute inset-0 opacity-[0.45]"
+        className="absolute -inset-y-8 inset-x-0"
         style={{
           backgroundImage: `url(${gedung})`,
           backgroundSize: "cover",
-          backgroundPosition: "center 38%",
-          filter: "grayscale(1) contrast(1.05)",
+          backgroundPosition: "center 42%",
+          filter: "saturate(.88) contrast(1.02) brightness(1.05)",
           transform: `translateY(${pY * 0.08}px)`,
         }}
       />
-      {/* Scrim: lapisan gelap yang memudar kiri→kanan. Menjaga teks tetap
-          terbaca tanpa memotong fotonya — jauh lebih halus daripada mask,
-          karena yang memudar warnanya, bukan bentuk fotonya. */}
+      <div className="absolute inset-0 hidden lg:block" style={{ background: PUDAR_DESKTOP }} />
+      <div className="absolute inset-0 lg:hidden" style={{ background: PUDAR_MOBILE }} />
+      {/* Sapuan hangat di kepala hero: menyatukan langit foto dengan latar */}
       <div
         className="absolute inset-0"
-        style={{
-          background: "linear-gradient(100deg, #16273d 0%, rgba(22,39,61,.92) 34%, rgba(24,42,66,.55) 58%, rgba(26,45,71,.12) 82%, transparent 100%)",
-        }}
+        style={{ background: "linear-gradient(180deg, rgba(246,242,234,.55) 0%, rgba(246,242,234,0) 26%)" }}
       />
+      {/* Pudaran tepi bawah. Foto memakai background-size:cover, jadi bagian
+          yang tampil paling bawah adalah aspal halaman — kalau dibiarkan, hero
+          terpotong mentah menjadi pita gelap tepat di atas ticker. */}
       <div
-        className="absolute inset-0 opacity-50"
-        style={{
-          background: "radial-gradient(ellipse 70% 60% at 80% 20%,rgba(192,155,90,.18) 0%,transparent 55%)",
-          transform: `translateY(${pY * 0.12}px)`,
-        }}
-      />
-      <div
-        className="absolute inset-0 opacity-40"
-        style={{
-          backgroundImage: "linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px)",
-          backgroundSize: "72px 72px",
-          maskImage: "radial-gradient(ellipse 80% 70% at 50% 50%,black 30%,transparent 75%)",
-          transform: `translateY(${pY * 0.07}px)`,
-        }}
+        className="absolute inset-x-0 bottom-0 h-56 pointer-events-none"
+        style={{ background: "linear-gradient(180deg, rgba(246,242,234,0) 0%, rgba(246,242,234,.45) 46%, rgba(246,242,234,.85) 76%, #F6F2EA 100%)" }}
       />
 
-      {/* Cursor glow */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle 380px at ${px.x}px ${px.y}px, rgba(212,140,26,.08), transparent 65%)` }} />
+      {/* items-start, bukan items-center: dengan pemusatan, jarak ke navbar
+          ikut berubah mengikuti tinggi isi dan sulit disetel. Di sini pt yang
+          menentukan langsung. pb menyisakan ruang untuk marquee di dasar. */}
+      <div className="relative z-10 w-[min(1180px,92vw)] mx-auto pt-32 pb-28">
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-13 items-start">
 
-      {/* Decorative circles */}
-      <div className="absolute -right-20 -top-20 pointer-events-none" style={{ transform: `translate3d(${pos.x * 24}px, ${pos.y * 18 + pY * -0.1}px, 0)`, transition: "transform 0.12s linear" }}>
-        <div className="w-120 h-120 rounded-full border border-white/5 animate-[spin_20s_linear_infinite]" />
-      </div>
-      <div className="absolute -left-16 -bottom-16 pointer-events-none" style={{ transform: `translate3d(${pos.x * -16}px, ${pos.y * -12 + pY * 0.08}px, 0)`, transition: "transform 0.18s linear" }}>
-        <div className="w-90 h-90 rounded-full border border-amber-500/10 animate-[spin_28s_linear_infinite_reverse]" />
-      </div>
-
-      <div className="relative z-10 w-[min(1180px,92vw)] mx-auto flex flex-col lg:flex-row gap-12 lg:gap-16 items-center py-16 lg:py-12">
-
-        {/* ── LEFT: main content ── */}
-        <div className="flex-1">
-          {/* Location badge */}
-          <div className="inline-flex items-center gap-2.5 bg-white/8 border border-white/15 rounded-full pr-4 pl-2 py-1.5 mb-7 backdrop-blur-md animate-[fU_.7s_ease-out]">
-            <div className="w-5 h-5 rounded-full bg-amber-500/80 flex items-center justify-center">
-              <MapPin size={10} className="text-white" />
+          {/* ── KIRI ── */}
+          <div className="flex-1 min-w-0">
+            {/* "Pesantren" itu kata benda umum, "Al Kautsar" namanya. Menyamakan
+                ukurannya membuat keduanya sama-sama tumpul. */}
+            <div className="text-[11.5px] font-semibold uppercase tracking-[0.42em] text-slate-500 animate-[fU_.7s_ease-out_both]">
+              Pesantren
             </div>
-            <span className="text-[11px] font-semibold text-white/80 tracking-wider uppercase">
-              Sidoarjo · 901 Santri · MTs & SMA
-            </span>
-          </div>
-
-          {/* Title */}
-          <h1
-            className="text-white leading-[1.05] tracking-tight mb-5 animate-[fU_.7s_.08s_ease-out_both]"
-            style={{ ...GILDA_FONT, fontSize: "clamp(36px,5.5vw,64px)" }}
-          >
-            Pesantren<br />
-            <span className="text-amber-300">Al Kautsar</span>
-            <span className="block text-amber-300/60 mt-1" style={{ fontSize: "clamp(14px,1.8vw,22px)", fontStyle: "normal", letterSpacing: "0.18em" }}>— SIDOARJO</span>
-          </h1>
-
-          {/* Credential badges */}
-          <div className="flex flex-wrap gap-2 mb-6 animate-[fU_.7s_.12s_ease-out_both]">
-            {["Kemenag RI", "Kemendikbud RI", "6 Tahun Sistem Pesantren"].map((b) => (
-              <span key={b} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-400/25 bg-amber-500/10 text-amber-200/80 text-[11px] font-semibold tracking-wide">
-                <span className="w-1 h-1 rounded-full bg-amber-400/60 inline-block" />
-                {b}
-              </span>
-            ))}
-          </div>
-
-          {/* Tagline — ringkas */}
-          <p className="text-[15px] leading-[1.85] font-light text-white/60 max-w-md mb-8 animate-[fU_.7s_.18s_ease-out_both]">
-            Lembaga pendidikan Islam bermanhaj Ahlussunnah wal Jama'ah di Sidoarjo — terbingkai dalam sistem kepesantrenan 6 tahun, dengan program Super Camp untuk persiapan perguruan tinggi nasional dan internasional.
-          </p>
-
-          {/* CTA buttons */}
-          <div className="flex flex-wrap gap-3 mb-10 animate-[fU_.7s_.24s_ease-out_both]">
-            <button
-              onClick={() => navigate("/ppdb")}
-              className="inline-flex items-center gap-2 bg-linear-to-br from-amber-500 to-amber-600 text-white px-6 py-3 rounded-xl text-[13.5px] font-semibold shadow-xl shadow-amber-500/30 hover:shadow-2xl hover:-translate-y-0.5 transition-all hover:cursor-pointer"
+            <h1
+              className="text-[#1a2d47] leading-[0.94] tracking-tight mt-3.5 animate-[fU_.7s_.08s_ease-out_both]"
+              style={{ ...GILDA_FONT, fontSize: "clamp(46px,8vw,96px)" }}
             >
-              Daftar PPDB <ArrowRight size={15} />
-            </button>
-            <button
-              onClick={() => navigate("/tentang")}
-              className="inline-flex items-center gap-2 text-white px-6 py-3 border border-white/25 rounded-xl text-[13.5px] font-semibold hover:bg-white/10 hover:border-white/50 transition-all hover:cursor-pointer"
-            >
-              Tentang Kami
-            </button>
-          </div>
+              Al Kautsar
+            </h1>
 
-          {/* Stats row */}
-          <div className="flex border-t border-white/10 pt-7 animate-[fU_.7s_.32s_ease-out_both]">
-            {[
-              ["901", "+", "Santri Aktif"],
-              ["6", "th", "MTs – SMA"],
-              ["24", "h", "Pengawasan"],
-              ["110", "", "CCTV Aktif"],
-            ].map(([n, sup, l], i) => (
-              <div
-                key={i}
-                className={`flex-1 ${i > 0 ? "border-l border-white/10 pl-4 sm:pl-5" : ""} ${i < 3 ? "pr-4 sm:pr-5" : ""}`}
-              >
-                <div className="text-white leading-none mb-1" style={{ ...GILDA_FONT, fontSize: "26px" }}>
-                  {n}{sup && <span className="text-amber-300 text-[.55em] align-super">{sup}</span>}
-                </div>
-                <div className="text-[11px] text-white/40 leading-tight">{l}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── RIGHT: visual panel ── */}
-        <div className="hidden lg:flex flex-col animate-[fL_.75s_.22s_ease-out_both] w-100 shrink-0 lg:self-start lg:mt-8">
-
-          {/* Pelat utama — Kurikulum. Isian solid tanpa blur/border/bayangan:
-              kedalaman panel ini datang dari tumpang-tindih pelat, bukan efek kaca.
-              pb-6.5 sengaja lebih besar dari -mt-5 di bawah, supaya baris total
-              tidak tertutup pelat kecil. */}
-          <div className="rounded-lg bg-[#152638]/92 px-4.5 pt-4 pb-6.5">
-            <div className="text-[9px] font-extrabold tracking-[0.16em] uppercase text-amber-300/75 mb-1.5">
-              Kurikulum Terpadu
+            <div className="flex items-center gap-3.75 mt-5 animate-[fU_.7s_.14s_ease-out_both]">
+              <span className="w-13 h-0.5 rounded-full bg-[#D48C1A]" />
+              <span className="text-[12px] font-semibold tracking-[0.34em] text-slate-500">SIDOARJO</span>
             </div>
-            <div className="text-[17px] text-white leading-tight" style={GILDA_FONT}>Program Akademik</div>
 
-            {/* items-start, bukan items-end: label panjangnya tidak sama, jadi kalau
-                salah satu membungkus dua baris, angkanya tetap sebaris. */}
-            <div className="flex items-start gap-3.5 mt-4">
-              {[
-                ["48", "Diniyah & Agama"],
-                ["42", "Sains & UTBK"],
-                ["14", "Bahasa Inggris"],
-              ].map(([n, l]) => (
-                <div key={n} className="flex-1">
-                  <div className="text-[28px] text-white leading-[0.9]" style={GILDA_FONT}>
-                    {n}<span className="text-[11px] font-medium text-white/55">jp</span>
-                  </div>
-                  <div className="text-[9.5px] text-white/55 leading-tight mt-1.75">{l}</div>
-                </div>
+            {/* Satu baris tenang, bukan tiga pil beraksen. Amber tidak pernah
+                dipakai sebagai teks di atas krem — kontrasnya tidak lolos. */}
+            <div className="inline-block mt-7.5 pt-3.75 border-t border-[#1a2d47]/10 text-[12.5px] text-slate-600 animate-[fU_.7s_.2s_ease-out_both]">
+              {KREDENSIAL.map(([teks, tebal], i) => (
+                <span key={teks}>
+                  {i > 0 && <span className="mx-2.25 text-[#D48C1A]">·</span>}
+                  {tebal ? <b className="font-semibold text-[#1a2d47]">{teks}</b> : teks}
+                </span>
               ))}
             </div>
 
-            {/* "104 dari 152", bukan "total 152": tiga angka di atas berjumlah 104.
-                Sisanya 48 jp Bahasa Arab Intensif, yang tidak ditampilkan di sini. */}
-            <div className="flex items-baseline justify-between mt-3.25 pt-2.5 border-t border-white/8">
-              <span className="text-[9.5px] text-white/55">Beban belajar</span>
-              <span className="text-[11px] font-semibold text-white/75">104 dari 152 jp / pekan</span>
+            <p className="text-[15.5px] leading-[1.95] font-light text-slate-600 max-w-lg mt-5.5 animate-[fU_.7s_.26s_ease-out_both]">
+              Lembaga pendidikan Islam bermanhaj Ahlussunnah wal Jama'ah — sistem kepesantrenan enam
+              tahun, dengan Super Camp untuk persiapan perguruan tinggi nasional dan internasional.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-6.5 mt-8.5 animate-[fU_.7s_.32s_ease-out_both]">
+              <button
+                onClick={() => navigate("/ppdb")}
+                className="inline-flex items-center gap-2.25 bg-[#1a2d47] text-white px-7 py-3.75 rounded-xl text-[13.5px] font-semibold shadow-[0_14px_30px_-14px_rgba(26,45,71,.7)] hover:-translate-y-0.5 transition-transform hover:cursor-pointer"
+              >
+                Daftar PPDB <ArrowRight size={15} />
+              </button>
+              <button
+                onClick={() => navigate("/tentang")}
+                className="text-[13.5px] font-semibold text-[#1a2d47] border-b-[1.5px] border-[#1a2d47]/25 pb-0.75 hover:border-[#1a2d47]/60 transition-colors hover:cursor-pointer"
+              >
+                Tentang kami
+              </button>
             </div>
           </div>
 
-          {/* Dua pelat kecil menindih tepi bawah pelat utama. -mt-5 yang bikin
-              tumpang-tindih (wrapper sengaja tanpa gap), relative supaya pelat ini
-              terlukis di atas pelat utama. */}
-          <div className="grid grid-cols-2 gap-2 -mt-5 ml-8">
-            {[
-              ["Keamanan", "3 Shift Musyrif", "110 CCTV · Rasio 1:10"],
-              ["Super Camp", "UTBK & PTN", "Nasional & Internasional"],
-            ].map(([tag, title, sub]) => (
-              // overflow-hidden wajib: garis bibir memakai inset-x-0, tanpa kliping
-              // ujungnya menjulur melewati sudut membulat pelat.
-              <div key={tag} className="relative overflow-hidden rounded-lg bg-[#203552]/94 p-3.5">
-                {/* bibir tipis di tepi atas — penanda tumpukan, pengganti bayangan */}
-                <div className="absolute inset-x-0 top-0 h-px bg-white/12" />
-                <div className="text-[9px] font-extrabold tracking-[0.16em] uppercase text-white/60 mb-1.5">{tag}</div>
-                <div className="text-[13px] font-semibold text-white leading-tight">{title}</div>
-                <div className="text-[10px] font-light text-white/55 mt-0.75">{sub}</div>
+          {/* ── KANAN ── */}
+          <div className="hidden lg:block w-109 shrink-0 mt-2.5 animate-[fL_.75s_.22s_ease-out_both]">
+            {/* Tanpa garis tepi. Kedalaman datang dari bayangan lembut berjarak
+                jauh, yang berperilaku seperti cahaya — bukan outline 1px yang
+                membuat kartu terbaca seperti stiker tertempel. */}
+            <div className="rounded-2xl bg-[#1a2d47] px-6.5 pt-6 pb-5.25 shadow-[0_30px_60px_-30px_rgba(26,45,71,.55),0_4px_12px_-6px_rgba(26,45,71,.18)] animate-[apung_7s_ease-in-out_infinite]">
+              <div className="text-[9.5px] font-extrabold uppercase tracking-[0.2em] text-amber-400/90">
+                Kurikulum Terpadu
               </div>
-            ))}
+              <div className="text-[21px] text-white mt-2.25" style={GILDA_FONT}>Program Akademik</div>
+
+              <div className="flex items-start gap-4.5 mt-5.5">
+                {JP.map(([n, l]) => (
+                  <div key={n} className="flex-1">
+                    <div className="text-[34px] text-white leading-[0.88]" style={GILDA_FONT}>
+                      {n}<span className="ml-0.75 text-[11.5px] font-medium text-white/50">JP</span>
+                    </div>
+                    <div className="text-[11px] text-white/60 leading-snug mt-2.5">{l}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Tiga angka di atas berjumlah 104. Sisanya 48 JP Bahasa Arab
+                  Intensif, yang tidak ditampilkan di panel ini. */}
+              <div className="flex items-baseline justify-between mt-4.75 pt-3.75 border-t border-white/13">
+                <span className="text-[11.5px] text-white/55">Beban belajar</span>
+                <span className="text-[12.5px] font-semibold text-white">104 dari 152 JP / pekan</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3.75 mt-3.75">
+              {PELAT.map(([tag, judul, sub, anim]) => (
+                <div
+                  key={tag}
+                  className={`rounded-xl bg-white/92 px-4.75 py-4.25 shadow-[0_14px_34px_-20px_rgba(26,45,71,.38)] ${anim}`}
+                >
+                  <div className="text-[9.5px] font-extrabold uppercase tracking-[0.18em] text-slate-400">{tag}</div>
+                  <div className="text-[14.5px] font-bold text-[#1a2d47] mt-2.25">{judul}</div>
+                  <div className="text-[11.5px] text-slate-500 mt-1.25">{sub}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── AYAT ── panel menyempit & dipusatkan, bukan selebar halaman */}
+        <div className="max-w-4xl mx-auto mt-10 lg:mt-12 rounded-2xl bg-white/80 backdrop-blur-md px-6 py-5 sm:px-7 flex items-center gap-5.5 shadow-[0_1px_2px_rgba(26,45,71,.04),0_20px_46px_-28px_rgba(26,45,71,.32)] animate-[fU_.7s_.4s_ease-out_both]">
+          <svg
+            width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+            className="shrink-0 text-[#1a2d47]/50 hidden sm:block" aria-hidden="true"
+          >
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          </svg>
+
+          <div className="flex-1 min-w-0">
+            {/* Potongan QS. Az-Zumar ayat 9 — bukan ayat penuh. */}
+            <p
+              className="text-[19px] sm:text-[21px] leading-[1.95] text-[#1a2d47]"
+              style={{ ...ARABIC_FONT, direction: "rtl" }}
+              lang="ar"
+            >
+              قُلْ هَلْ يَسْتَوِي الَّذِينَ يَعْلَمُونَ وَالَّذِينَ لَا يَعْلَمُونَ
+            </p>
+            <p className="text-[12.5px] sm:text-[13px] leading-[1.75] text-slate-600 italic mt-2.5">
+              &ldquo;Katakanlah, apakah sama orang-orang yang berilmu dengan orang-orang yang
+              tidak berilmu?&rdquo;
+            </p>
+            <span className="block text-[12px] font-semibold text-[#1a2d47] mt-2">
+              — QS. Az-Zumar: 9
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Arabic marquee */}
-      <div className="absolute bottom-0 left-0 right-0 overflow-hidden py-3 border-t border-white/5">
+      {/* Marquee Arab di dasar hero. Di desain gelap dulu warnanya putih 7% —
+          praktis tidak terlihat siapa pun. Di sini navy 18% di atas krem:
+          tetap tenang, tapi benar-benar terbaca sebagai elemen. */}
+      <div
+        className="absolute bottom-0 inset-x-0 z-10 py-3.5 border-t border-[#1a2d47]/10 overflow-hidden pointer-events-none"
+        aria-hidden="true"
+      >
         <div className="flex whitespace-nowrap animate-[marq_26s_linear_infinite]">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="inline-flex items-center gap-5 px-6 text-base text-white/7 shrink-0" style={{ ...ARABIC_FONT, direction: "rtl" }}>
+            <div
+              key={i}
+              className="inline-flex items-center gap-5 px-6 text-base text-[#1a2d47]/18 shrink-0"
+              style={{ ...ARABIC_FONT, direction: "rtl" }}
+            >
               الكوثر — للعلم والإيمان — أهل السنة والجماعة — على منهج السلف الصالح
             </div>
           ))}
         </div>
       </div>
-
-      <style>{`
-        @keyframes fU{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
-        @keyframes fL{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}
-        @keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-      `}</style>
     </section>
   );
 }

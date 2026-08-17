@@ -49,19 +49,15 @@ export default function KesantrianPage() {
         </div>
       </section>
     
-      <section className="pb-16">
-        <div className="w-[min(1180px,92vw)] mx-auto">
-          <CTABlock
-            title="Pendaftaran Dibuka"
-            emTitle="Tahun Ajaran 2027/2028"
-            sub="Segera lengkapi formulir dan dokumen pendaftaran. Tempat terbatas — pastikan putra-putri Anda terdaftar tepat waktu."
-            onPrimary={() => navigate("/ppdb")}
-            onSecondary={() => window.open("https://wa.me/6282241696699", "_blank")}
-            primaryLabel="Daftar PPDB"
-            secondaryLabel="Hubungi Kami"
-          />
-        </div>
-      </section>
+      <CTABlock
+        title="Pendaftaran Dibuka"
+        emTitle="Tahun Ajaran 2027/2028"
+        sub="Lengkapi formulir dan unggah dokumen yang diminta. Pendaftaran dibuka 1 Agustus sampai 30 September 2026."
+        onPrimary={() => navigate("/ppdb")}
+        onSecondary={() => window.open("https://wa.me/6282241696699", "_blank")}
+        primaryLabel="Daftar PPDB"
+        secondaryLabel="Hubungi Kami"
+      />
     </>
   );
 }

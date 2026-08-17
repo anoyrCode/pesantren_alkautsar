@@ -1,20 +1,28 @@
-﻿import { GILDA_FONT } from "../../utils/constants";
+import { GILDA_FONT } from "../../utils/constants";
 
-export default function BentoCard({ dark, gold, span, tag, num, sub, title, body, emoji, chips, multiStats }) {
-  const base = "group relative overflow-hidden rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1";
-  let bgClass = "bg-white border border-slate-100 hover:border-slate-200 hover:shadow-xl";
-  if (dark) bgClass = "bg-linear-to-br from-[#284061] to-[#1a2d47] hover:from-[#1a2d47] hover:to-[#142844]";
-  if (gold) bgClass = "bg-linear-to-br from-amber-500 to-amber-600";
+// Dua material saja, dan aturannya tetap: navy untuk pilar utama, krem untuk
+// pendukung. Varian emas dihapus — dulu dipakai kartu SIPOS, yang membuatnya
+// jadi benda paling mencolok di halaman padahal SIPOS sistem pendukung, bukan
+// klaim utama. Bobot visual harus mengikuti kepentingan.
+export default function BentoCard({ dark, span, tag, num, sub, title, body, multiStats }) {
+  const base = "relative overflow-hidden rounded-3xl p-7 transition-all duration-300 hover:-translate-y-1";
 
-  const tagColor = dark ? "text-amber-300" : gold ? "text-white/70" : "text-amber-500";
-  const titleColor = dark || gold ? "text-white" : "text-[#284061]";
-  const bodyColor = dark ? "text-white/50" : gold ? "text-white/85" : "text-slate-500";
-  const numColor = dark || gold ? "text-white" : "text-[#284061]";
-  const subColor = dark ? "text-white/40" : "text-slate-400";
+  // Solid, bukan gradasi. Gradasi lama (#284061 → #1a2d47) hanya berbeda tipis
+  // dan terbaca sebagai "gradasi karena gradasi", bukan sebagai cahaya.
+  const bgClass = dark
+    ? "bg-[#1a2d47] shadow-[0_24px_50px_-28px_rgba(26,45,71,.5)]"
+    : "bg-[#FBF9F4] shadow-[0_14px_34px_-22px_rgba(26,45,71,.32)]";
+
+  const tagColor   = dark ? "text-amber-400/90" : "text-[#B5760F]";
+  const titleColor = dark ? "text-white" : "text-[#1a2d47]";
+  const bodyColor  = dark ? "text-white/55" : "text-slate-500";
+  const numColor   = dark ? "text-white" : "text-[#1a2d47]";
+  const subColor   = dark ? "text-white/40" : "text-slate-400";
 
   return (
     <div className={`${base} ${bgClass} ${span}`}>
       <span className={`text-[10px] font-bold tracking-wider uppercase mb-2 block ${tagColor}`}>{tag}</span>
+
       {multiStats ? (
         <>
           <div className="flex gap-5 flex-wrap mb-2">
@@ -43,18 +51,6 @@ export default function BentoCard({ dark, gold, span, tag, num, sub, title, body
           <div className={`text-[13px] ${bodyColor} leading-[1.6] font-light max-w-sm`}>{body}</div>
         </>
       )}
-
-      {chips && (
-        <div className="flex flex-wrap gap-1.5 mt-3">
-          {chips.map((c) => (
-            <span key={c} className={`px-2.5 rounded-full text-[11px] font-semibold ${dark || gold ? "bg-white/[.08] border border-white/[.12] text-white/65" : "bg-slate-100 border border-slate-200 text-[#3a5a8c]"}`}>
-              {c}
-            </span>
-          ))}
-        </div>
-      )}
-
-      <div className="absolute -bottom-4 -right-3 text-[84px] opacity-[.06] group-hover:opacity-[.1] group-hover:rotate-6 group-hover:scale-110 transition-all pointer-events-none">{emoji}</div>
     </div>
   );
 }

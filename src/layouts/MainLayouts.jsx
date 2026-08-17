@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate, Link } from "react-router-dom";
-import { Menu, X, ArrowRight, MapPin, Phone, Clock, MessageCircle } from "lucide-react";
+import { Menu, X, ArrowRight, MapPin, Phone, MessageCircle } from "lucide-react";
 
 const FacebookIcon = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -24,7 +24,7 @@ const YoutubeIcon = ({ size = 24 }) => (
 
 
 import { NAV_LINKS } from "../utils/constants";
-import Loader from "../components/common/Loader";
+import Loader, { DURASI_LOADER } from "../components/common/Loader";
 import logo from "../assets/logo.png";
 import logoPolos from "../assets/logoPolos.png";
 
@@ -37,7 +37,9 @@ export default function MainLayout() {
 
   // Loader biasa
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 1200);
+    // Angkanya diambil dari Loader supaya animasi garis di sana selesai tepat
+    // saat layar ini menghilang. Ubah di satu tempat, keduanya ikut.
+    const t = setTimeout(() => setLoading(false), DURASI_LOADER);
     return () => clearTimeout(t);
   }, []);
 
@@ -78,19 +80,17 @@ export default function MainLayout() {
       <Loader loading={loading} />
 
       {/* ─── NAVBAR ─── */}
+      {/* Pil mengambang. Tekstur dot grid dan garis bawah dihapus: keduanya
+          membuat navbar terbaca sebagai pita yang menempel di tepi layar,
+          sedangkan pil ini justru harus terasa melayang di atas isi halaman.
+          Kedalamannya dari bayangan lembut, bukan garis. */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-[1000] h-16 flex items-center justify-between transition-all duration-300 px-5 md:px-10 lg:px-16 border-b-2 border-black/10 overflow-hidden ${
-          navSolid || mobileOpen ? "bg-white/35 backdrop-blur-xl shadow-sm border-b border-slate-100" : "bg-white/70 backdrop-blur-sm"
+        className={`fixed top-3 left-1/2 -translate-x-1/2 z-[1000] w-[min(1180px,94vw)] h-15 rounded-full flex items-center justify-between pl-5 pr-2.5 md:pl-6 transition-all duration-300 ${
+          navSolid || mobileOpen
+            ? "bg-white/90 backdrop-blur-xl shadow-[0_1px_2px_rgba(26,45,71,.05),0_14px_36px_-14px_rgba(26,45,71,.22)]"
+            : "bg-white/78 backdrop-blur-xl shadow-[0_1px_2px_rgba(26,45,71,.04),0_12px_32px_-12px_rgba(26,45,71,.16)]"
         }`}
       >
-        {/* Subtle dot grid texture */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: "radial-gradient(circle, rgba(40,64,97,0.045) 1px, transparent 1px)",
-            backgroundSize: "22px 22px",
-          }}
-        />
 <Link to="/" className="flex items-center gap-3 cursor-pointer group shrink-0 relative z-10">
           <img src={logo} width={160} alt="Al Kautsar" />
         </Link>
@@ -131,7 +131,7 @@ export default function MainLayout() {
 
       {/* ─── MOBILE DRAWER ─── */}
       <div
-        className={`md:hidden fixed top-16 left-0 right-0 bottom-0 z-999 bg-white px-6 py-4 pb-8 flex flex-col gap-1 overflow-y-auto transition-transform duration-300 border-t border-slate-100 ${
+        className={`md:hidden fixed top-20 left-0 right-0 bottom-0 z-999 bg-white px-6 py-4 pb-8 flex flex-col gap-1 overflow-y-auto transition-transform duration-300 ${
           mobileOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -155,7 +155,10 @@ export default function MainLayout() {
       </div>
 
       {/* ─── PAGE OUTLET ─── */}
-      <main className="pt-16">
+      {/* pt-20 memberi ruang untuk pil yang mengambang (top-3 + tinggi 60px).
+          Hero beranda menariknya kembali dengan -mt-20 supaya latarnya menerus
+          sampai tepi atas layar. */}
+      <main className="pt-20">
         <Outlet />
       </main>
       {/* ─── FOOTER ─── */}
@@ -168,7 +171,7 @@ export default function MainLayout() {
                 <span className="text-sm font-bold text-white">Pesantren Al Kautsar</span>
               </div>
               <p className="text-[13px] text-white/40 leading-[1.75] max-w-xs mb-5 font-light">
-                Lembaga Pendidikan Islam di Sidoarjo — bermanhaj Ahlussunnah wal Jamaah, memadukan Kemenag dan Kemdikbud dalam sistem kepesantrenan 6 tahun.
+                Lembaga Pendidikan Islam di Sidoarjo — bermanhaj Ahlussunnah wal Jamaah, memadukan Kemenag dan Kemendikdasmen dalam sistem kepesantrenan 6 tahun.
               </p>
 
               <div className="flex gap-2">
