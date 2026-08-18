@@ -63,9 +63,11 @@ export default function TentangIntro() {
             <div className="inline-flex items-center gap-2 text-[11.5px] font-semibold tracking-wider uppercase text-[#284061] mb-4">
               <span className="w-5 h-[1.5px] bg-amber-500 rounded" /> Tentang Kami
             </div>
-            <h2 className="mb-5" style={{ ...GILDA_FONT, fontSize: "clamp(26px,3.5vw,42px)", color: "#284061", lineHeight: "1.15" }}>
+            {/* h1, bukan h2 — ini judul teratas halaman Tentang. Hanya nama
+                tag-nya yang berbeda; tampilannya tidak berubah sama sekali. */}
+            <h1 className="mb-5" style={{ ...GILDA_FONT, fontSize: "clamp(26px,3.5vw,42px)", color: "#284061", lineHeight: "1.15" }}>
               Tempat Tumbuh <em className="italic text-amber-500">Generasi Ahlus Sunnah</em>
-            </h2>
+            </h1>
             <p className="text-[15px] leading-[1.8] font-light text-slate-600 mb-3">
               Kami membina santri dalam lingkungan yang menjunjung prinsip dakwah Ahlussunnah wal Jama'ah, dengan pendekatan pola pembelajaran Discovery Task untuk memahami konsep secara mendalam.
             </p>

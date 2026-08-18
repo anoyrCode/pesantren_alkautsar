@@ -36,9 +36,11 @@ export default function KesantrianBanner() {
             <div className="inline-flex items-center gap-2 text-[11.5px] font-semibold tracking-wider uppercase text-white/55 mb-4">
               <span className="w-5 h-px bg-amber-400 rounded" /> Kehidupan Santri
             </div>
-            <h2 className="text-white mb-4" style={{ ...GILDA_FONT, fontSize: "clamp(26px,3.5vw,42px)", lineHeight: "1.15" }}>
+            {/* h1, bukan h2 — ini judul teratas halaman Kesantrian. Hanya nama
+                tag-nya yang berbeda; tampilannya tidak berubah sama sekali. */}
+            <h1 className="text-white mb-4" style={{ ...GILDA_FONT, fontSize: "clamp(26px,3.5vw,42px)", lineHeight: "1.15" }}>
               Disiplin, <em className="italic text-amber-300">Bersih</em>, Rapi & Terbimbing
-            </h2>
+            </h1>
             <p className="text-[14px] text-white/60 max-w-xl leading-[1.85] font-light">
               Santri Al Kautsar dibangun dalam satu budaya yang kuat: disiplin dalam waktu dan belajar, bersih dalam lingkungan dan karakter, rapi dalam menempatkan dan menjaga barang pribadi.
             </p>

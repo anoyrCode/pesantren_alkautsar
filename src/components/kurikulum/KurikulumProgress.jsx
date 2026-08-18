@@ -34,6 +34,7 @@ export default function KurikulumProgress() {
   return (
     <>
       <SectionHeader
+        as="h1"
         tag="Kurikulum Terpadu"
         title="Sistem Pembelajaran"
         italic="Terintegrasi"

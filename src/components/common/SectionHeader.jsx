@@ -2,7 +2,10 @@ import { GILDA_FONT } from "../../utils/constants";
 import Reveal from "./Reveal";
 import SplitReveal from "./SplitReveal";
 
-export default function SectionHeader({ tag, title, italic, description, align = "center", className = "" }) {
+// `as` hanya mengganti nama tag-nya, bukan tampilannya — font, ukuran, warna,
+// dan animasi per hurufnya tetap sama persis. Dipakai supaya judul teratas
+// sebuah halaman bisa jadi <h1> tanpa menambah elemen baru yang terlihat.
+export default function SectionHeader({ tag, title, italic, description, align = "center", as: Judul = "h2", className = "" }) {
   return (
     <div className={`${align === "center" ? "text-center mx-auto" : ""} mb-12 ${className}`}>
       <Reveal>
@@ -11,7 +14,7 @@ export default function SectionHeader({ tag, title, italic, description, align =
         </div>
       </Reveal>
 
-      <h2
+      <Judul
         className="mb-3.5"
         style={{ ...GILDA_FONT, fontSize: "clamp(26px,3.5vw,42px)", color: "#284061", lineHeight: "1.15" }}
       >
@@ -24,7 +27,7 @@ export default function SectionHeader({ tag, title, italic, description, align =
             </SplitReveal>
           </>
         )}
-      </h2>
+      </Judul>
 
       {description && (
         <Reveal delay={350}>

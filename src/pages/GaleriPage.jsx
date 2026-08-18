@@ -68,6 +68,7 @@ export default function GaleriPage() {
       <section className="pt-10 pb-20 lg:pt-10 lg:pb-24">
         <div className="w-[min(1180px,92vw)] mx-auto">
           <SectionHeader
+            as="h1"
             tag="Dokumentasi"
             title="Galeri"
             italic="Kehidupan Santri"

@@ -20,19 +20,28 @@
     <meta name="robots" content="index, follow" />
     <meta name="author" content="Pesantren Al Kautsar" />
 
-    <!-- Open Graph -->
+    <!-- Open Graph
+         URL gambar WAJIB mutlak, bukan "/og-image.png". WhatsApp, Facebook, dan
+         X tidak menjalankan JavaScript, jadi tag statis di berkas inilah
+         satu-satunya yang mereka baca — yang dihasilkan SEO.jsx per halaman
+         tidak pernah sampai ke mereka. Dengan jalur relatif, sebagian scraper
+         gagal memuat gambarnya dan pratinjaunya jadi teks polos. -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Pesantren Al Kautsar" />
+    <meta property="og:url" content="https://pesantrenalkautsar.id/" />
     <meta property="og:title" content="Pesantren Al Kautsar | Boarding School Islam Modern" />
     <meta property="og:description" content="Lembaga pendidikan Islam modern yang memadukan ilmu agama dan ilmu umum. Daftarkan putra-putri Anda sekarang." />
-    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image" content="https://pesantrenalkautsar.id/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Pesantren Al Kautsar — Sukodono, Sidoarjo" />
     <meta property="og:locale" content="id_ID" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Pesantren Al Kautsar | Boarding School Islam Modern" />
     <meta name="twitter:description" content="Lembaga pendidikan Islam modern yang memadukan ilmu agama dan ilmu umum." />
-    <meta name="twitter:image" content="/og-image.png" />
+    <meta name="twitter:image" content="https://pesantrenalkautsar.id/og-image.png" />
 
     <!-- Theme color -->
     <meta name="theme-color" content="#284061" />
