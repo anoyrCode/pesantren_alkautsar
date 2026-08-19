@@ -47,6 +47,23 @@ function generateOTP() {
   return crypto.randomInt(100000, 999999).toString();
 }
 
+/**
+ * Perbandingan yang waktunya tidak bergantung pada isi.
+ *
+ * `a !== b` berhenti di karakter pertama yang berbeda, jadi lamanya menjawab
+ * membocorkan berapa banyak karakter awal yang sudah benar. Di sini risikonya
+ * kecil — ada pembatas laju dan OTP ke email — tapi selisihnya nyata dan
+ * penutupannya murah.
+ *
+ * Di-hash dulu karena timingSafeEqual menolak buffer yang panjangnya berbeda;
+ * membandingkan panjangnya sendiri sudah membocorkan panjang kata sandi.
+ */
+function samaAman(a, b) {
+  const ha = crypto.createHash("sha256").update(String(a ?? "")).digest();
+  const hb = crypto.createHash("sha256").update(String(b ?? "")).digest();
+  return crypto.timingSafeEqual(ha, hb);
+}
+
 async function sendOTPEmail(otp) {
   const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -81,11 +98,21 @@ router.post("/login", async (req, res) => {
     return res.status(429).json({ error: "Terlalu banyak percobaan login. Coba lagi dalam 15 menit." });
   }
 
+  // Gagal ke arah yang aman kalau kredensial belum diatur di server. Tanpa ini,
+  // .env yang tidak termuat justru membuat login LOLOS: kiriman kosong dan
+  // process.env yang undefined sama-sama menjadi "" lalu dianggap cocok. Celah
+  // yang sama juga ada pada perbandingan `!==` sebelumnya (undefined !==
+  // undefined bernilai false), jadi ini bukan akibat penggantian di atas.
+  if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD || !process.env.JWT_SECRET) {
+    console.error("ADMIN_USERNAME / ADMIN_PASSWORD / JWT_SECRET belum diset — semua login ditolak.");
+    return res.status(500).json({ error: "Server belum dikonfigurasi. Hubungi administrator." });
+  }
+
   const { username, password } = req.body;
 
   if (
-    username !== process.env.ADMIN_USERNAME ||
-    password !== process.env.ADMIN_PASSWORD
+    !samaAman(username, process.env.ADMIN_USERNAME) ||
+    !samaAman(password, process.env.ADMIN_PASSWORD)
   ) {
     return res.status(401).json({ error: "Username atau password salah." });
   }
@@ -133,7 +160,7 @@ router.post("/verify-otp", (req, res) => {
     return res.status(400).json({ error: "Terlalu banyak percobaan OTP. Silakan login ulang." });
   }
 
-  if (otp !== stored.otp) {
+  if (!samaAman(otp, stored.otp)) {
     return res.status(400).json({ error: `Kode OTP salah. Sisa percobaan: ${5 - stored.attempts}` });
   }
 

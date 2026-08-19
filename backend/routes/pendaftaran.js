@@ -1,9 +1,9 @@
 const express   = require("express");
 const multer    = require("multer");
-const path      = require("path");
 const pool      = require("../db");
 const supabase  = require("../supabase");
 const auth      = require("../middleware/auth");
+const rateLimit = require("../middleware/rateLimit");
 
 const BUCKET = "ppdb";
 const PLACEHOLDER_URL = "https://placehold.co/400x500/e2e8f0/64748b?text=Belum+Upload";
@@ -14,8 +14,19 @@ function extractStoragePath(url) {
   return idx === -1 ? null : url.slice(idx + marker.length);
 }
 
+// Ekstensi diturunkan dari mimetype yang sudah lolos fileFilter, BUKAN dari
+// nama berkas kiriman. `file.originalname` sepenuhnya dikendalikan pengirim —
+// dengan path.extname(), nama seperti "bukti.html" ikut tersimpan apa adanya
+// di Storage. Daftar tetap ini membuat nama berkas hanya bisa berakhiran salah
+// satu dari tiga nilai di bawah, apa pun yang dikirim.
+const EKSTENSI = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "application/pdf": ".pdf",
+};
+
 async function uploadToSupabase(file, folder) {
-  const ext      = path.extname(file.originalname);
+  const ext      = EKSTENSI[file.mimetype] || ".bin";
   const nama     = `${Date.now()}-${Math.round(Math.random() * 1e6)}${ext}`;
   const filePath = `${folder}/${nama}`;
 
@@ -224,8 +235,22 @@ async function insertDenganNomor(query, susunValues) {
 
 const PPDB_START = new Date("2026-08-01T00:00:00+07:00");
 
+// 15 kiriman per IP per jam. Angkanya sengaja longgar: satu keluarga bisa
+// mengulang beberapa kali karena isian yang ditolak, dan beberapa keluarga bisa
+// berbagi satu IP (warnet, kantor desa, sekolah). Lima belas tidak akan
+// tersentuh pendaftar sungguhan, tapi mematahkan skrip yang mengirim ribuan.
+//
+// Ditaruh SEBELUM multer — kalau di belakangnya, berkas 1 MB tetap dibaca ke
+// memori dulu baru ditolak, dan justru itu yang dimanfaatkan penyerang.
+const batasPendaftaran = rateLimit({
+  jendelaMs: 60 * 60 * 1000,
+  maks: 15,
+  pesan: "Terlalu banyak percobaan pengiriman dari jaringan ini. Silakan coba lagi satu jam lagi, atau hubungi Humas lewat WhatsApp.",
+});
+
 router.post(
   "/",
+  batasPendaftaran,
   upload.fields([
     { name: "bukti_transfer",  maxCount: 1 },
   ]),
