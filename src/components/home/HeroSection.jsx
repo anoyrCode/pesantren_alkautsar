@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { ARABIC_FONT, GILDA_FONT } from "../../utils/constants";
 import useParallax from "../../hooks/useParallax";
-import gedung from "../../assets/konten/gedung.jpeg";
+import gedung from "../../assets/konten/gedung.webp";
 
 // Warna dasar hero. Krem hangat dipilih supaya sedarah dengan warna dinding
 // gedung di foto — navy dingin di atas putih bersih membuat keduanya terasa

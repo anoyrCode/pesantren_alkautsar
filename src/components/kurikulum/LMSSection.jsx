@@ -1,7 +1,7 @@
 ﻿import { Award, Stethoscope, Users } from "lucide-react";
 import { GILDA_FONT } from "../../utils/constants";
 import Reveal from "../common/Reveal";
-import isipos from "../../assets/isipos.png";
+import isipos from "../../assets/isipos.webp";
 
 const FEATURES = [
   [Award, "Poin Positif & Negatif", "Setiap prestasi dan pelanggaran santri tercatat sebagai poin, terekap rapi dan transparan sepanjang masa pembinaan."],

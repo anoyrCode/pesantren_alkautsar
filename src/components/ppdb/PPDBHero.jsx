@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { GILDA_FONT } from "../../utils/constants";
 import useCountdown from "../../hooks/useCountdown";
 import useParallax from "../../hooks/useParallax";
-import gedung2 from "../../assets/konten/gedung2.png";
+import gedung2 from "../../assets/konten/gedung2.webp";
 
 const PPDB_START = "2026-08-01T00:00:00+07:00";
 const PPDB_END   = "2026-09-30T23:59:59+07:00";

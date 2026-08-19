@@ -30,7 +30,7 @@ const AMBER = "#D48C1A";
  * yang dipakai hero: sedikit diturunkan kejenuhannya dan dinaikkan
  * kecerahannya, supaya tidak berebut perhatian dengan tulisan di sebelahnya.
  */
-const foto = await sharp(join(ROOT, "src/assets/konten/gedung.jpeg"))
+const foto = await sharp(join(ROOT, "src/assets/konten/gedung.webp"))
   .resize(760, TINGGI, { fit: "cover", position: "centre" })
   .modulate({ saturation: 0.88, brightness: 1.05 })
   .png()
