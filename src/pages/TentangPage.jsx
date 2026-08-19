@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import SEO from "../components/common/SEO";
 import TentangIntro from "../components/tentang/TentangIntro";
 import VisiMisi from "../components/tentang/VisiMisi";
@@ -6,7 +5,6 @@ import QualityAssurance from "../components/tentang/QualityAssurance";
 import CTABlock from "../components/common/CTABlock";
 
 function TentangPage() {
-  const navigate = useNavigate();
   return (
     <>
       <SEO
@@ -17,7 +15,7 @@ function TentangPage() {
       <TentangIntro />
       <VisiMisi />
       <QualityAssurance />
-      <CTABlock title="Menitipkan Amanah," emTitle="Merajut Masa Depan" sub="Di Pesantren Al Kautsar Sidoarjo, kami memahami bahwa pendidikan adalah perjalanan panjang. Mari berkolaborasi menyiapkan generasi yang kokoh akidahnya dan luas wawasannya." onPrimary={() => navigate("/ppdb")} />
+      <CTABlock title="Menitipkan Amanah," emTitle="Merajut Masa Depan" sub="Di Pesantren Al Kautsar Sidoarjo, kami memahami bahwa pendidikan adalah perjalanan panjang. Mari berkolaborasi menyiapkan generasi yang kokoh akidahnya dan luas wawasannya." to="/ppdb" />
     </>
   );
 }

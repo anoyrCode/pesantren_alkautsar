@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import SEO from "../components/common/SEO";
 import HeroSection from "../components/home/HeroSection";
 import TickerSection from "../components/home/TickerSection";
@@ -7,7 +6,6 @@ import ProgramSection from "../components/home/ProgramSection";
 import CTABlock from "../components/common/CTABlock";
 
 export default function HomePage() {
-  const navigate = useNavigate();
   return (
     <>
       <SEO
@@ -25,8 +23,8 @@ export default function HomePage() {
         title="Wujudkan Generasi"
         emTitle="Bertauhid & Kompetitif"
         sub="Bergabunglah dalam ekosistem pendidikan Islam terpadu di Pesantren Al Kautsar Sidoarjo"
-        onPrimary={() => navigate("/ppdb")}
-        onSecondary={() => navigate("/kurikulum")}
+        to="/ppdb"
+        secondaryTo="/kurikulum"
         secondaryLabel="Lihat Kurikulum"
       />
     </>

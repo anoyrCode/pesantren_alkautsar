@@ -1,5 +1,5 @@
 import { Clock, ArrowRight, CheckCircle2, CalendarX2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { GILDA_FONT } from "../../utils/constants";
 import useCountdown from "../../hooks/useCountdown";
 import useParallax from "../../hooks/useParallax";
@@ -32,7 +32,6 @@ const LABEL_STATUS = {
 };
 
 export default function PPDBHero() {
-  const navigate = useNavigate();
   const status = getPpdbStatus();
   const countdown = useCountdown(status === "belum" ? PPDB_START : PPDB_END);
   const { ref: sectionRef, y: pY } = useParallax(1);
@@ -117,12 +116,12 @@ export default function PPDBHero() {
                   Pendaftaran Ditutup
                 </button>
               ) : (
-                <button
-                  onClick={() => navigate("/ppdb/formulir")}
+                <Link
+                  to="/ppdb/formulir"
                   className="inline-flex items-center gap-2.25 bg-[#1a2d47] text-white px-7 py-3.75 rounded-xl text-[13.5px] font-semibold shadow-[0_14px_30px_-14px_rgba(26,45,71,.7)] hover:-translate-y-0.5 transition-transform hover:cursor-pointer"
                 >
                   Daftar Sekarang <ArrowRight size={15} />
-                </button>
+                </Link>
               )}
               <a
                 href="#timeline-ppdb"

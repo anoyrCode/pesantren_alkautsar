@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Check, ChevronDown, Upload, Clock, CalendarX2 } from "lucide-react";
 import useCountdown from "../hooks/useCountdown";
 import { GILDA_FONT, GAJI } from "../utils/constants";
@@ -121,7 +121,6 @@ const MAKS_UKURAN_BUKTI = 1_000_000; // ~977 KiB
 
 function PpdbClosedModal() {
   const countdown = useCountdown("2026-08-01");
-  const navigate = useNavigate();
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1a2d47]/80 backdrop-blur-sm px-4">
       <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden"
@@ -155,12 +154,12 @@ function PpdbClosedModal() {
         </div>
         {/* Actions */}
         <div className="px-8 pb-8 flex flex-col gap-3">
-          <button
-            onClick={() => navigate("/ppdb")}
+          <Link
+            to="/ppdb"
             className="w-full bg-linear-to-br from-[#284061] to-[#1a2d47] text-white py-3 rounded-xl text-[13.5px] font-semibold hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
           >
             Kembali ke Halaman PPDB <ArrowRight size={15} />
-          </button>
+          </Link>
         </div>
       </div>
     </div>
@@ -209,9 +208,19 @@ export default function FormulirPage() {
     return () => window.removeEventListener("beforeunload", cegah);
   }, [adaIsi, submitted]);
 
+  const PESAN_KELUAR = "Data yang sudah Anda isi akan hilang. Yakin ingin keluar dari formulir?";
+
+  // Tombol "Batal" di dalam form — itu aksi, bukan tautan, jadi tetap <button>.
   function keluarKePpdb() {
-    if (adaIsi && !window.confirm("Data yang sudah Anda isi akan hilang. Yakin ingin keluar dari formulir?")) return;
+    if (adaIsi && !window.confirm(PESAN_KELUAR)) return;
     navigate("/ppdb");
+  }
+
+  // Tautan "Kembali ke PPDB" di header. Dibiarkan sebagai <Link> supaya punya
+  // href yang bisa ditelusuri; penjaga kehilangan datanya cukup membatalkan
+  // navigasinya, sisanya diurus router.
+  function cegahKeluar(e) {
+    if (adaIsi && !window.confirm(PESAN_KELUAR)) e.preventDefault();
   }
 
   // Pesan error muncul di dekat tombol kirim, sementara isian yang bermasalah
@@ -282,12 +291,12 @@ export default function FormulirPage() {
           <p className="text-[14px] text-slate-500 leading-relaxed mb-8">
             Terima kasih telah mendaftar. Tim PPDB Pesantren Al Kautsar akan menghubungi Anda dalam 1×24 jam melalui nomor yang telah didaftarkan.
           </p>
-          <button
-            onClick={() => navigate("/ppdb")}
+          <Link
+            to="/ppdb"
             className="inline-flex items-center gap-2 bg-linear-to-br from-[#284061] to-[#1a2d47] text-white px-7 py-3 rounded-xl text-[13.5px] font-semibold hover:-translate-y-0.5 transition-all"
           >
             Kembali ke PPDB <ArrowRight size={15} />
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -317,12 +326,13 @@ export default function FormulirPage() {
         </div>
         <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle 300px at ${hPx.x}px ${hPx.y}px, rgba(212,140,26,.07), transparent 65%)` }} />
         <div className="relative z-10 w-[min(1180px,92vw)] mx-auto">
-          <button
-            onClick={keluarKePpdb}
+          <Link
+            to="/ppdb"
+            onClick={cegahKeluar}
             className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-[12.5px] font-medium mb-6 transition-colors animate-[fU_.5s_ease-out_both]"
           >
             <ArrowLeft size={14} /> Kembali ke PPDB
-          </button>
+          </Link>
           <h1
             className="text-white text-[clamp(28px,4vw,46px)] leading-tight animate-[fU_.6s_.1s_ease-out_both]"
             style={GILDA_FONT}

@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import SEO from "../components/common/SEO";
 import PPDBHero from "../components/ppdb/PPDBHero";
 import PPDBTimeline from "../components/ppdb/PPDBTimeline";
@@ -9,7 +8,6 @@ import PPDBFaq from "../components/ppdb/PPDBFaq";
 import CTABlock from "../components/common/CTABlock";
 
 export default function PPDBPage() {
-  const navigate = useNavigate();
 
   return (
     <>
@@ -28,8 +26,8 @@ export default function PPDBPage() {
         title="Pendaftaran Dibuka"
         emTitle="Tahun Ajaran 2027/2028"
         sub="Lengkapi formulir dan unggah dokumen yang diminta. Pendaftaran dibuka 1 Agustus sampai 30 September 2026."
-        onPrimary={() => navigate("/ppdb/formulir")}
-        onSecondary={() => window.open("https://wa.me/6282241696699", "_blank")}
+        to="/ppdb/formulir"
+        secondaryHref="https://wa.me/6282241696699"
         primaryLabel="Isi Formulir"
         secondaryLabel="Hubungi Admin"
       />

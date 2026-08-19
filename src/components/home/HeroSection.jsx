@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { ARABIC_FONT, GILDA_FONT } from "../../utils/constants";
 import useParallax from "../../hooks/useParallax";
@@ -43,7 +43,6 @@ const PELAT = [
 ];
 
 export default function HeroSection() {
-  const navigate = useNavigate();
   // Parallax scroll pada foto saja. Cursor glow dan lingkaran berputar dari
   // desain gelap sengaja tidak dikembalikan: keduanya mengandalkan cahaya di
   // atas latar pekat, dan di atas krem hasilnya jadi noda keruh.
@@ -127,18 +126,18 @@ export default function HeroSection() {
             </p>
 
             <div className="flex flex-wrap items-center gap-6.5 mt-8.5 animate-[fU_.7s_.32s_ease-out_both]">
-              <button
-                onClick={() => navigate("/ppdb")}
+              <Link
+                to="/ppdb"
                 className="inline-flex items-center gap-2.25 bg-[#1a2d47] text-white px-7 py-3.75 rounded-xl text-[13.5px] font-semibold shadow-[0_14px_30px_-14px_rgba(26,45,71,.7)] hover:-translate-y-0.5 transition-transform hover:cursor-pointer"
               >
                 Daftar PPDB <ArrowRight size={15} />
-              </button>
-              <button
-                onClick={() => navigate("/tentang")}
+              </Link>
+              <Link
+                to="/tentang"
                 className="text-[13.5px] font-semibold text-[#1a2d47] border-b-[1.5px] border-[#1a2d47]/25 pb-0.75 hover:border-[#1a2d47]/60 transition-colors hover:cursor-pointer"
               >
                 Tentang kami
-              </button>
+              </Link>
             </div>
           </div>
 

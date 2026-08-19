@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { GILDA_FONT } from "../../utils/constants";
 
@@ -12,8 +13,12 @@ import { GILDA_FONT } from "../../utils/constants";
 //
 // Merender <section> sendiri berikut jarak atas-bawahnya — halaman pemakai
 // tidak perlu membungkusnya lagi.
+// Tujuannya diberikan sebagai alamat (`to`/`secondaryTo`/`secondaryHref`),
+// bukan callback onPrimary/onSecondary. Callback merender <button onClick>, dan
+// tombol tidak punya href — padahal blok ini muncul di lima halaman dan tautan
+// dalam-konten seperti ini justru yang paling diperhitungkan mesin pencari.
 export default function CTABlock({
-  title, emTitle, sub, onPrimary, onSecondary,
+  title, emTitle, sub, to, secondaryTo, secondaryHref,
   primaryLabel = "Daftar PPDB", secondaryLabel,
 }) {
   return (
@@ -27,20 +32,29 @@ export default function CTABlock({
           <p className="text-[14.5px] leading-[1.85] text-white/60 font-light mt-4.5">{sub}</p>
 
           <div className="flex flex-wrap items-center gap-6 mt-8">
-            <button
-              onClick={onPrimary}
+            <Link
+              to={to}
               className="inline-flex items-center gap-2.25 bg-[#D48C1A] text-white px-6.5 py-3.5 rounded-xl text-[13.5px] font-semibold hover:bg-[#c07f16] transition-colors hover:cursor-pointer"
             >
               {primaryLabel} <ArrowRight size={15} />
-            </button>
-            {secondaryLabel && (
-              <button
-                onClick={onSecondary}
+            </Link>
+            {secondaryLabel && (secondaryTo ? (
+              <Link
+                to={secondaryTo}
                 className="text-[13.5px] font-semibold text-white border-b-[1.5px] border-white/30 pb-0.75 hover:border-white/70 transition-colors hover:cursor-pointer"
               >
                 {secondaryLabel}
-              </button>
-            )}
+              </Link>
+            ) : (
+              <a
+                href={secondaryHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[13.5px] font-semibold text-white border-b-[1.5px] border-white/30 pb-0.75 hover:border-white/70 transition-colors hover:cursor-pointer"
+              >
+                {secondaryLabel}
+              </a>
+            ))}
           </div>
         </div>
       </div>

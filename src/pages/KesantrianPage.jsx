@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { MapPin, Phone, Globe } from "lucide-react";
 import SEO from "../components/common/SEO";
 import KesantrianBanner from "../components/kesantrian/KesantrianBanner";
@@ -15,7 +14,6 @@ const CONTACTS = [
 ];
 
 export default function KesantrianPage() {
-  const navigate = useNavigate();
 
   return (
     <>
@@ -53,8 +51,8 @@ export default function KesantrianPage() {
         title="Pendaftaran Dibuka"
         emTitle="Tahun Ajaran 2027/2028"
         sub="Lengkapi formulir dan unggah dokumen yang diminta. Pendaftaran dibuka 1 Agustus sampai 30 September 2026."
-        onPrimary={() => navigate("/ppdb")}
-        onSecondary={() => window.open("https://wa.me/6282241696699", "_blank")}
+        to="/ppdb"
+        secondaryHref="https://wa.me/6282241696699"
         primaryLabel="Daftar PPDB"
         secondaryLabel="Hubungi Kami"
       />

@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import SEO from "../components/common/SEO";
 import KurikulumProgress from "../components/kurikulum/KurikulumProgress";
 import KurikulumPilar from "../components/kurikulum/KurikulumPilar";
@@ -8,7 +7,6 @@ import SuperCampCard from "../components/kurikulum/SuperCampCard";
 import CTABlock from "../components/common/CTABlock";
 
 export default function KurikulumPage() {
-  const navigate = useNavigate();
   return (
     <>
       <SEO
@@ -25,7 +23,7 @@ export default function KurikulumPage() {
           <LMSSection />
         </div>
       </section>
-      <CTABlock title="Semua Kebutuhan" emTitle="Sudah Terintegrasi" sub="Tidak perlu bimbel tambahan. Semua kebutuhan akademik, bahasa, dan karakter ada di dalam kurikulum pesantren." onPrimary={() => navigate("/ppdb")} />
+      <CTABlock title="Semua Kebutuhan" emTitle="Sudah Terintegrasi" sub="Tidak perlu bimbel tambahan. Semua kebutuhan akademik, bahasa, dan karakter ada di dalam kurikulum pesantren." to="/ppdb" />
     </>
   );
 }
