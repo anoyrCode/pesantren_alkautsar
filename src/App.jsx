@@ -4,9 +4,15 @@ import AppRoutes from "./routes/AppRoutes";
 import { initGA } from "./utils/analytics";
 import usePageTracking from "./hooks/usePageTracking";
 
-const JSON_LD = {
-  "@context": "https://schema.org",
+const ID_ORGANISASI = "https://pesantrenalkautsar.id/#organisasi";
+
+// Dua entitas dalam satu @graph: lembaganya, dan situsnya. Dipisah supaya
+// alternateName melekat pada nama situs — itu yang membantu Google mengenali
+// variasi penyebutan ("Ponpes Al Kautsar", "Boarding School Al Kautsar")
+// sebagai merek yang sama.
+const JSON_LD_ORGANISASI = {
   "@type": "EducationalOrganization",
+  "@id": ID_ORGANISASI,
   "name": "Pesantren Al Kautsar",
   "alternateName": ["Pondok Pesantren Al Kautsar Sidoarjo", "PP Al Kautsar"],
   "url": "https://pesantrenalkautsar.id",
@@ -49,6 +55,26 @@ const JSON_LD = {
     "https://www.instagram.com/pesantrenalkautsarsidoarjo",
     "https://m.youtube.com/@pesantrenalkautsarsidoarjo"
   ]
+};
+
+const JSON_LD_SITUS = {
+  "@type": "WebSite",
+  "@id": "https://pesantrenalkautsar.id/#situs",
+  "name": "Pesantren Al Kautsar",
+  "alternateName": [
+    "Pondok Pesantren Al Kautsar",
+    "Ponpes Al Kautsar Sidoarjo",
+    "Boarding School Al Kautsar",
+    "PP Al Kautsar Sukodono"
+  ],
+  "url": "https://pesantrenalkautsar.id",
+  "inLanguage": "id-ID",
+  "publisher": { "@id": ID_ORGANISASI }
+};
+
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [JSON_LD_ORGANISASI, JSON_LD_SITUS]
 };
 
 function AppContent() {
