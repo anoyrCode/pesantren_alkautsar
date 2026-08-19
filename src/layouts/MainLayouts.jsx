@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState } from "react";
-import { Outlet, useLocation, useNavigate, Link } from "react-router-dom";
+import { Outlet, useLocation, Link } from "react-router-dom";
 import { Menu, X, ArrowRight, ChevronRight, MapPin, Phone, MessageCircle } from "lucide-react";
 
 const FacebookIcon = ({ size = 24 }) => (
@@ -33,7 +33,6 @@ export default function MainLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
-  const navigate = useNavigate();
 
   // Loader biasa
   useEffect(() => {
@@ -79,11 +78,6 @@ export default function MainLayout() {
 
   const isActive = (path) => location.pathname === path;
 
-  const handleNav = (path) => {
-    navigate(path);
-    setMobileOpen(false);
-  };
-
   return (
     <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden antialiased" style={{ fontFamily: "'Outfit', sans-serif" }}>
       <Loader loading={loading} />
@@ -105,10 +99,15 @@ export default function MainLayout() {
         </Link>
 
         <div className="hidden md:flex items-center gap-1 bg-slate-100/60 border border-slate-200/80 rounded-full p-1 backdrop-blur-sm relative z-10">
+          {/* <Link>, bukan <button onClick={navigate}>. Tombol tidak punya href,
+              jadi crawler tidak melihatnya sebagai tautan sama sekali — seluruh
+              menu ini dulu tak terlihat oleh Google. Kelasnya sama persis, dan
+              sebagai anak flex tampilannya tidak berubah. */}
           {NAV_LINKS.map((l) => (
-            <button
+            <Link
               key={l.id}
-              onClick={() => handleNav(l.path)}
+              to={l.path}
+              aria-current={isActive(l.path) ? "page" : undefined}
               className={`px-4 lg:px-5 py-1.5 rounded-full text-[13px] font-medium transition-all duration-300 hover:cursor-pointer ${
                 isActive(l.path)
                   ? "bg-[#284061] text-white shadow-md shadow-[#284061]/25"
@@ -116,17 +115,17 @@ export default function MainLayout() {
               }`}
             >
               {l.label}
-            </button>
+            </Link>
           ))}
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0 relative z-10">
-          <button
-            onClick={() => handleNav("/ppdb")}
+          <Link
+            to="/ppdb"
             className="hidden md:inline-flex items-center gap-1.5 bg-[#284061] hover:bg-[#1a2d47] text-white px-5 py-2.5 rounded-xl text-[13px] font-semibold shadow-lg shadow-[#284061]/25 hover:-translate-y-0.5 transition-all"
           >
             Daftar PPDB <ArrowRight size={14} />
-          </button>
+          </Link>
           {/* Bulat, mengikuti bentuk pil. Kedua ikon dirender bersamaan lalu
               disilangkan opacity + putaran — kalau ditukar dengan ternary,
               pergantiannya patah karena tidak ada yang bisa ditransisikan. */}
@@ -180,9 +179,11 @@ export default function MainLayout() {
         }`}
       >
         {NAV_LINKS.map((l, i) => (
-          <button
+          <Link
             key={l.id}
-            onClick={() => handleNav(l.path)}
+            to={l.path}
+            onClick={() => setMobileOpen(false)}
+            aria-current={isActive(l.path) ? "page" : undefined}
             // Muncul berurutan, bukan serempak — mata jadi punya arah baca.
             // Jedanya nol saat menutup supaya panelnya tidak terasa berat.
             style={{ transitionDelay: mobileOpen ? `${70 + i * 45}ms` : "0ms" }}
@@ -200,20 +201,21 @@ export default function MainLayout() {
               size={16}
               className={`ml-auto transition-transform duration-200 group-active:translate-x-1 ${isActive(l.path) ? "text-white/55" : "text-[#1a2d47]/25"}`}
             />
-          </button>
+          </Link>
         ))}
 
         <div className="h-px bg-[#1a2d47]/8 mx-4 my-2.5" />
 
-        <button
-          onClick={() => handleNav("/ppdb")}
+        <Link
+          to="/ppdb"
+          onClick={() => setMobileOpen(false)}
           style={{ transitionDelay: mobileOpen ? `${70 + NAV_LINKS.length * 45}ms` : "0ms" }}
           className={`w-full bg-[#284061] active:bg-[#1a2d47] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-[0_10px_24px_-12px_rgba(40,64,97,.7)] transition-[opacity,translate,background-color] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
             mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
           }`}
         >
           Daftar PPDB <ArrowRight size={16} />
-        </button>
+        </Link>
       </div>
 
       {/* ─── PAGE OUTLET ─── */}
@@ -238,16 +240,16 @@ export default function MainLayout() {
 
               <div className="flex gap-2">
 
-                <a href="https://www.facebook.com/share/18pHZcpQzX/" className="w-9 h-9 rounded-lg bg-white/6 border border-white/8 flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
+                <a href="https://www.facebook.com/share/18pHZcpQzX/" target="_blank" rel="noopener noreferrer" aria-label="Facebook Pesantren Al Kautsar" className="w-9 h-9 rounded-lg bg-white/6 border border-white/8 flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
                     <FacebookIcon size={15} />
                 </a>
-                <a href="https://www.instagram.com/pesantrenalkautsarsidoarjo?igsh=bzNsYXNneTFyeXk3" className="w-9 h-9 rounded-lg bg-white/6 border border-white/8 flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
+                <a href="https://www.instagram.com/pesantrenalkautsarsidoarjo?igsh=bzNsYXNneTFyeXk3" target="_blank" rel="noopener noreferrer" aria-label="Instagram Pesantren Al Kautsar" className="w-9 h-9 rounded-lg bg-white/6 border border-white/8 flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
                     <InstagramIcon size={15} />
                 </a>
-                <a href="https://m.youtube.com/@pesantrenalkautsarsidoarjo" className="w-9 h-9 rounded-lg bg-white/6 border border-white/8 flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
+                <a href="https://m.youtube.com/@pesantrenalkautsarsidoarjo" target="_blank" rel="noopener noreferrer" aria-label="YouTube Pesantren Al Kautsar" className="w-9 h-9 rounded-lg bg-white/6 border border-white/8 flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
                     <YoutubeIcon size={15} />
                 </a>
-                <a className="w-9 h-9 rounded-lg bg-white/6 border border-white/8 flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
+                <a href="https://wa.me/6282241696699" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Humas Putra" className="w-9 h-9 rounded-lg bg-white/6 border border-white/8 flex items-center justify-center hover:bg-amber-500 hover:border-transparent hover:-translate-y-0.5 transition-all cursor-pointer text-white/70 hover:text-white">
                     <MessageCircle size={15} />
                 </a>
               </div>
@@ -258,9 +260,9 @@ export default function MainLayout() {
               <ul className="space-y-2.5">
                 {NAV_LINKS.map((l) => (
                   <li key={l.id}>
-                    <button onClick={() => handleNav(l.path)} className="text-[13px] text-white/45 hover:text-amber-300 transition-colors text-left">
+                    <Link to={l.path} className="text-[13px] text-white/45 hover:text-amber-300 transition-colors text-left">
                       {l.label}
-                    </button>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -268,10 +270,13 @@ export default function MainLayout() {
 
             <div>
               <div className="text-[11px] font-bold tracking-wider uppercase text-white/30 mb-4">Program</div>
+              {/* <span>, bukan <a> tanpa href. Ini daftar keterangan, bukan
+                  navigasi — tidak ada halaman tujuannya. Efek hover-nya ikut
+                  dilepas: menjanjikan klik yang tidak pernah terjadi. */}
               <ul className="space-y-2.5">
                 {["Aqidah Ahlussunnah", "Bahasa Arab Aktif", "Discovery Task PISA", "Super Camp UTBK", "SIPOS Al Kautsar", "ITS Tekno Web Design"].map((p) => (
                   <li key={p}>
-                    <a className="text-[13px] text-white/45 hover:text-amber-300 transition-colors cursor-pointer">{p}</a>
+                    <span className="text-[13px] text-white/45">{p}</span>
                   </li>
                 ))}
               </ul>
@@ -304,9 +309,11 @@ export default function MainLayout() {
           <div className="h-px bg-white/6" />
           <div className="flex justify-between items-center py-5 flex-wrap gap-3">
             <span className="text-[12px] text-white/25">© 2026 Pesantren Al Kautsar Sidoarjo. Hak cipta dilindungi.</span>
+            {/* Halamannya belum ada, jadi ini <span> — bukan <a> tanpa href yang
+                berubah warna saat disentuh lalu tidak melakukan apa pun. */}
             <div className="flex gap-5">
-              <a className="text-[12px] text-white/25 hover:text-amber-300 transition-colors cursor-pointer">Kebijakan Privasi</a>
-              <a className="text-[12px] text-white/25 hover:text-amber-300 transition-colors cursor-pointer">Syarat & Ketentuan</a>
+              <span className="text-[12px] text-white/25">Kebijakan Privasi</span>
+              <span className="text-[12px] text-white/25">Syarat &amp; Ketentuan</span>
             </div>
           </div>
         </div>

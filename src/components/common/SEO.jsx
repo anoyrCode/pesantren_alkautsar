@@ -43,17 +43,22 @@ function breadcrumb(path, title) {
   };
 }
 
-export default function SEO({ title, description, path = "", image = "/og-image.png" }) {
+export default function SEO({ title, description, path = "", image = "/og-image.png", noindex = false }) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} | Boarding School Islam Modern`;
   const url       = `${BASE_URL}${path}`;
   const imageUrl  = image.startsWith("http") ? image : `${BASE_URL}${image}`;
-  const jenjang   = breadcrumb(path, title);
+  // Halaman noindex tidak diberi canonical maupun breadcrumb: keduanya
+  // menyatakan "ini halaman sah yang layak diindeks", justru sebaliknya.
+  const jenjang   = noindex ? null : breadcrumb(path, title);
 
   return (
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
-      <link rel="canonical" href={url} />
+      {/* follow, bukan nofollow — halaman 404 tetap menautkan ke halaman asli,
+          dan tautan itu masih berguna untuk ditelusuri. */}
+      {noindex && <meta name="robots" content="noindex, follow" />}
+      {!noindex && <link rel="canonical" href={url} />}
 
       {/* Open Graph */}
       <meta property="og:title"       content={fullTitle} />

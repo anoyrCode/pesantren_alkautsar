@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import MainLayout from "../layouts/MainLayouts";
 import AdminLayout from "../layouts/AdminLayout";
 import HomePage from "../pages/HomePage";
@@ -8,6 +8,7 @@ import PPDBPage from "../pages/PPDBPages";
 import FormulirPage from "../pages/FormulirPage";
 import GaleriPage from "../pages/GaleriPage";
 import KesantrianPage from "../pages/KesantrianPage";
+import NotFoundPage from "../pages/NotFoundPage";
 import AdminLogin from "../pages/admin/AdminLogin";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminDetail from "../pages/admin/AdminDetail";
@@ -50,7 +51,14 @@ export default function AppRoutes() {
         element={<ProtectedRoute><AdminSantriForm /></ProtectedRoute>}
       />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Halaman 404 sungguhan, bukan pengalihan ke beranda. Pengalihan membuat
+          setiap URL ngawur membalas 200 dengan isi beranda — Google menandainya
+          "Soft 404" dan jatah crawl terbuang untuk halaman yang tidak ada.
+          Dibungkus MainLayout supaya navbar & footer ikut tampil: pengunjung
+          yang tersesat langsung punya jalan keluar. */}
+      <Route element={<MainLayout />}>
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
     </Routes>
   );
 }
