@@ -4,6 +4,19 @@ import { apiFetch, bacaJson, errorRamah, pesanError } from "../../utils/api";
 import { ShieldCheck, Mail, Lock, User, ArrowRight, RefreshCw } from "lucide-react";
 
 const OTP_EXPIRE_SEC = 5 * 60; // 5 menit
+const DEVICE_KEY = "admin_device"; // token "percayai perangkat ini" (30 hari)
+
+// localStorage bisa melempar error (mode privat, data situs diblokir) — login
+// tetap harus jalan, hanya tanpa fitur perangkat tepercaya.
+function bacaDevice() {
+  try { return localStorage.getItem(DEVICE_KEY); } catch { return null; }
+}
+function simpanDevice(token) {
+  try { localStorage.setItem(DEVICE_KEY, token); } catch { /* abaikan */ }
+}
+function hapusDevice() {
+  try { localStorage.removeItem(DEVICE_KEY); } catch { /* abaikan */ }
+}
 
 export default function AdminLogin() {
   const navigate  = useNavigate();
@@ -14,6 +27,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(OTP_EXPIRE_SEC);
   const [username, setUsername]   = useState(""); // simpan username untuk verify-otp
+  const [trustDevice, setTrustDevice] = useState(false);
   const otpRefs = useRef([]);
   const timerRef = useRef(null);
 
@@ -66,13 +80,24 @@ export default function AdminLogin() {
     setError("");
     setLoading(true);
     try {
+      const deviceToken = bacaDevice();
       const res  = await apiFetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, deviceToken }),
       });
       const json = await bacaJson(res);
       if (!res.ok) throw errorRamah(json.error || `Error ${res.status}`);
+
+      // Perangkat tepercaya: server langsung memberi token, OTP dilewati
+      if (json.token) {
+        localStorage.setItem("admin_token", json.token);
+        navigate("/admin/dashboard");
+        return;
+      }
+
+      // Token perangkat ada tapi ditolak (kedaluwarsa / password diganti): buang
+      if (deviceToken) hapusDevice();
       setUsername(form.username);
       setStep("otp");
     } catch (err) {
@@ -94,11 +119,12 @@ export default function AdminLogin() {
       const res  = await apiFetch("/api/admin/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, otp: otpCode }),
+        body: JSON.stringify({ username, otp: otpCode, trustDevice }),
       });
       const json = await bacaJson(res);
       if (!res.ok) throw errorRamah(json.error || `Error ${res.status}`);
       localStorage.setItem("admin_token", json.token);
+      if (json.deviceToken) simpanDevice(json.deviceToken);
       navigate("/admin/dashboard");
     } catch (err) {
       setError(pesanError(err));
@@ -222,6 +248,21 @@ export default function AdminLogin() {
                   ))}
                 </div>
               </div>
+
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={trustDevice}
+                  onChange={(e) => setTrustDevice(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-[#284061] cursor-pointer"
+                />
+                <span className="text-[12.5px] text-slate-600 leading-snug">
+                  Percayai perangkat ini selama 30 hari
+                  <span className="block text-[11.5px] text-slate-400">
+                    Jangan dicentang di komputer umum atau milik bersama.
+                  </span>
+                </span>
+              </label>
 
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-2.5 text-red-600 text-[12.5px] text-center">

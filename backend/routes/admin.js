@@ -64,6 +64,43 @@ function samaAman(a, b) {
   return crypto.timingSafeEqual(ha, hb);
 }
 
+const MASA_PERANGKAT = "30d";
+
+/**
+ * Kunci penanda-tangan token perangkat tepercaya.
+ *
+ * Sengaja BUKAN JWT_SECRET mentah, dengan dua akibat:
+ * 1. Token perangkat tidak bisa dipakai sebagai token admin — middleware auth
+ *    memverifikasi dengan JWT_SECRET, jadi tanda tangannya tidak cocok.
+ * 2. Kunci ikut berubah kalau ADMIN_PASSWORD diganti, sehingga mengganti
+ *    password otomatis mencabut semua perangkat yang pernah dipercaya.
+ */
+function kunciPerangkat() {
+  return crypto
+    .createHmac("sha256", process.env.JWT_SECRET)
+    .update(`perangkat-tepercaya:${process.env.ADMIN_PASSWORD}`)
+    .digest();
+}
+
+function buatTokenPerangkat(username) {
+  return jwt.sign({ username, typ: "perangkat" }, kunciPerangkat(), {
+    algorithm: "HS256",
+    expiresIn: MASA_PERANGKAT,
+  });
+}
+
+// Token perangkat hanya menggantikan OTP — password tetap diperiksa lebih dulu.
+// Jadi token yang dicuri saja tidak cukup untuk masuk.
+function perangkatTepercaya(token, username) {
+  if (typeof token !== "string" || !token) return false;
+  try {
+    const p = jwt.verify(token, kunciPerangkat(), { algorithms: ["HS256"] });
+    return p.typ === "perangkat" && samaAman(p.username, username);
+  } catch {
+    return false;
+  }
+}
+
 async function sendOTPEmail(otp) {
   const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -108,13 +145,20 @@ router.post("/login", async (req, res) => {
     return res.status(500).json({ error: "Server belum dikonfigurasi. Hubungi administrator." });
   }
 
-  const { username, password } = req.body;
+  const { username, password, deviceToken } = req.body;
 
   if (
     !samaAman(username, process.env.ADMIN_USERNAME) ||
     !samaAman(password, process.env.ADMIN_PASSWORD)
   ) {
     return res.status(401).json({ error: "Username atau password salah." });
+  }
+
+  // Perangkat yang sudah lolos OTP dalam 30 hari terakhir: lewati OTP.
+  // Token yang tidak valid/kedaluwarsa diam-diam jatuh ke alur OTP biasa.
+  if (perangkatTepercaya(deviceToken, username)) {
+    const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: "8h" });
+    return res.json({ token });
   }
 
   const otp = generateOTP();
@@ -137,7 +181,7 @@ router.post("/verify-otp", (req, res) => {
     return res.status(429).json({ error: "Terlalu banyak percobaan. Coba lagi dalam 15 menit." });
   }
 
-  const { username, otp } = req.body;
+  const { username, otp, trustDevice } = req.body;
 
   if (!username || !otp) {
     return res.status(400).json({ error: "Data tidak lengkap." });
@@ -167,6 +211,11 @@ router.post("/verify-otp", (req, res) => {
   otpStore.delete(username);
 
   const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: "8h" });
+  // Kalau admin mencentang "percayai perangkat ini", bagikan token perangkat
+  // supaya login berikutnya dari perangkat yang sama tidak meminta OTP.
+  if (trustDevice === true) {
+    return res.json({ token, deviceToken: buatTokenPerangkat(username) });
+  }
   res.json({ token });
 });
 
