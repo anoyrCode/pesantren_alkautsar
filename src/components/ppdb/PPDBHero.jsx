@@ -3,17 +3,16 @@ import { Link } from "react-router-dom";
 import { GILDA_FONT } from "../../utils/constants";
 import useCountdown from "../../hooks/useCountdown";
 import useParallax from "../../hooks/useParallax";
+import { JENJANG } from "../../utils/jenjang";
+import PPDBJenjangSwitch from "./PPDBJenjangSwitch";
 import gedung2 from "../../assets/konten/gedung2.webp";
-
-const PPDB_START = "2026-08-01T00:00:00+07:00";
-const PPDB_END   = "2026-09-30T23:59:59+07:00";
 
 // Status dihitung dari tanggal hari ini, bukan disetel manual — supaya halaman
 // ini tidak perlu disunting tiap ganti periode.
-function getPpdbStatus() {
+function getPpdbStatus(cfg) {
   const now = Date.now();
-  if (now < new Date(PPDB_START).getTime()) return "belum";
-  if (now <= new Date(PPDB_END).getTime()) return "dibuka";
+  if (now < new Date(cfg.buka).getTime()) return "belum";
+  if (now <= new Date(cfg.tutup).getTime()) return "dibuka";
   return "tutup";
 }
 
@@ -31,9 +30,10 @@ const LABEL_STATUS = {
   tutup:  "Pendaftaran Ditutup",
 };
 
-export default function PPDBHero() {
-  const status = getPpdbStatus();
-  const countdown = useCountdown(status === "belum" ? PPDB_START : PPDB_END);
+export default function PPDBHero({ jenjang = "MTS_SMA" }) {
+  const cfg = JENJANG[jenjang];
+  const status = getPpdbStatus(cfg);
+  const countdown = useCountdown(status === "belum" ? cfg.buka : cfg.tutup);
   const { ref: sectionRef, y: pY } = useParallax(1);
 
   // Warna status di latar terang: dipilih yang lolos kontras, bukan sekadar
@@ -71,8 +71,12 @@ export default function PPDBHero() {
 
           {/* ── KIRI ── */}
           <div className="min-w-0">
-            <div className="text-[11.5px] font-semibold uppercase tracking-[0.42em] text-slate-500 animate-[fU_.7s_ease-out_both]">
-              PPDB 2027 / 2028
+            <div className="animate-[fU_.6s_ease-out_both]">
+              <PPDBJenjangSwitch aktif={jenjang} />
+            </div>
+
+            <div className="text-[11.5px] font-semibold uppercase tracking-[0.42em] text-slate-500 mt-7 animate-[fU_.7s_.04s_ease-out_both]">
+              PPDB 2027 / 2028 · {cfg.nama}
             </div>
 
             <h1
@@ -92,17 +96,16 @@ export default function PPDBHero() {
             <p className="text-[15.5px] leading-[1.95] font-light text-slate-600 max-w-xl mt-7 animate-[fU_.7s_.2s_ease-out_both]">
               {status === "tutup" ? (
                 <>
-                  Periode pendaftaran jenjang MTs dan SMA tahun ajaran 2027/2028 telah berakhir pada{" "}
-                  <b className="font-semibold text-[#1a2d47]">30 September</b>. Nantikan informasi
+                  Periode pendaftaran jenjang {cfg.nama} tahun ajaran 2027/2028 telah berakhir pada{" "}
+                  <b className="font-semibold text-[#1a2d47]">{cfg.tutupTgl}</b>. Nantikan informasi
                   pendaftaran untuk periode berikutnya.
                 </>
               ) : (
                 <>
-                  Pendaftaran jenjang MTs dan SMA tahun ajaran 2027/2028{" "}
+                  Pendaftaran jenjang {cfg.nama} tahun ajaran 2027/2028{" "}
                   {status === "dibuka" ? "kini dibuka" : "akan dibuka"} mulai{" "}
-                  <b className="font-semibold text-[#1a2d47]">1 Agustus</b> hingga{" "}
-                  <b className="font-semibold text-[#1a2d47]">30 September</b>. Terbuka untuk lulusan
-                  SD/MI dan SMP/MTs.
+                  <b className="font-semibold text-[#1a2d47]">{cfg.bukaTgl}</b> hingga{" "}
+                  <b className="font-semibold text-[#1a2d47]">{cfg.tutupTgl}</b>. {cfg.terbuka}
                 </>
               )}
             </p>
@@ -117,7 +120,7 @@ export default function PPDBHero() {
                 </button>
               ) : (
                 <Link
-                  to="/ppdb/formulir"
+                  to={cfg.formulir}
                   className="inline-flex items-center gap-2.25 bg-[#1a2d47] text-white px-7 py-3.75 rounded-xl text-[13.5px] font-semibold shadow-[0_14px_30px_-14px_rgba(26,45,71,.7)] hover:-translate-y-0.5 transition-transform hover:cursor-pointer"
                 >
                   Daftar Sekarang <ArrowRight size={15} />
@@ -149,7 +152,7 @@ export default function PPDBHero() {
 
               {status === "tutup" ? (
                 <p className="text-[13px] leading-relaxed text-white/55">
-                  Pendaftaran PPDB 2027/2028 sudah ditutup. Terima kasih atas antusiasme Anda.
+                  Pendaftaran PPDB 2027/2028 jenjang {cfg.nama} sudah ditutup. Terima kasih atas antusiasme Anda.
                 </p>
               ) : (
                 <div className="grid grid-cols-4 gap-2.5">
@@ -169,7 +172,7 @@ export default function PPDBHero() {
             <div className="rounded-xl bg-white/92 px-5 py-4.5 mt-3.75 shadow-[0_14px_34px_-20px_rgba(26,45,71,.38)] animate-[apungKecil_9s_ease-in-out_infinite] [animation-delay:.8s]">
               <div className="flex items-center justify-between text-[11.5px] text-slate-500">
                 <span>Periode pendaftaran</span>
-                <span className="font-semibold text-[#1a2d47]">1 Ags – 30 Sep</span>
+                <span className="font-semibold text-[#1a2d47]">{cfg.periodeSingkat}</span>
               </div>
               <div className="flex items-center justify-between text-[11.5px] text-slate-500 mt-2.25 pt-2.25 border-t border-[#1a2d47]/8">
                 <span>Status</span>

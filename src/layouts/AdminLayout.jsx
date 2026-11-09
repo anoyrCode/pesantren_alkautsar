@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Image, LogOut, BarChart3 } from "lucide-react";
+import { LayoutDashboard, School, Image, LogOut, BarChart3 } from "lucide-react";
 
 const TAB_CLASS = ({ isActive }) =>
   `flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition ${
@@ -23,9 +23,13 @@ export default function AdminLayout() {
             <p className="text-xs text-gray-500">Pesantren Al Kautsar</p>
           </div>
           <nav className="flex items-center gap-1">
-            <NavLink to="/admin/dashboard" className={TAB_CLASS}>
+            <NavLink to="/admin/dashboard/mts-sma" className={TAB_CLASS}>
               <LayoutDashboard size={15} />
-              Dashboard PPDB
+              Pendaftar MTs/SMA
+            </NavLink>
+            <NavLink to="/admin/dashboard/sd" className={TAB_CLASS}>
+              <School size={15} />
+              Pendaftar SD
             </NavLink>
             <NavLink to="/admin/galeri" className={TAB_CLASS}>
               <Image size={15} />

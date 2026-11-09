@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Landmark, QrCode, Copy, Check, ZoomIn, X } from "lucide-react";
+import { Landmark, QrCode, Copy, Check, ZoomIn, X, MessageCircle } from "lucide-react";
+import { JENJANG, KEUANGAN_SD } from "../../utils/jenjang";
 import qrisSrc from "../../assets/format_qris/qris.jpeg";
 
 const REKENING = {
@@ -8,7 +9,6 @@ const REKENING = {
   kodeBank: "451",
   nomor: "6006001104",
   atasNama: "Pondok Pesantren Al Kautsar Sidoarjo",
-  nominal: "Rp 450.000",
 };
 
 const QRIS = {
@@ -81,7 +81,10 @@ function QrisLightbox({ onClose }) {
   );
 }
 
-export default function RekeningInfo() {
+export default function RekeningInfo({ jenjang = "MTS_SMA" }) {
+  // Rekening dan QRIS sama untuk semua jenjang; yang berbeda hanya nominal
+  // biaya pendaftaran dan, di SD, konfirmasi ke WhatsApp keuangan.
+  const nominal = JENJANG[jenjang].biayaDaftar;
   const [tab, setTab] = useState("qris");
   const [copied, setCopied] = useState(false);
   const [zoom, setZoom] = useState(false);
@@ -143,7 +146,7 @@ export default function RekeningInfo() {
             <dt className="sr-only">Nama Merchant</dt>
             <dd className="text-[13px] font-bold text-[#284061]">{QRIS.merchant}</dd>
             <dd className="text-[11px] text-slate-500 font-mono">NMID {QRIS.nmid}</dd>
-            <dd className="mt-1.5 text-[13px] font-bold text-[#284061]">{REKENING.nominal}</dd>
+            <dd className="mt-1.5 text-[13px] font-bold text-[#284061]">{nominal}</dd>
           </dl>
         </div>
       ) : (
@@ -170,7 +173,7 @@ export default function RekeningInfo() {
             <span className="text-[13px] font-semibold text-[#284061]">{REKENING.atasNama}</span>
           </BarisRekening>
           <BarisRekening label="Nominal">
-            <span className="text-[13px] font-bold text-[#284061]">{REKENING.nominal}</span>
+            <span className="text-[13px] font-bold text-[#284061]">{nominal}</span>
           </BarisRekening>
         </dl>
       )}
@@ -178,6 +181,27 @@ export default function RekeningInfo() {
       <p className="mt-4 pt-3 border-t border-amber-100 text-[12px] text-slate-500 leading-[1.6]">
         Simpan bukti {tab === "qris" ? "pembayaran" : "transfer"}, lalu unggah di kolom di bawah.
       </p>
+
+      {jenjang === "SD" && (
+        <div className="mt-3 rounded-lg bg-white/70 border border-amber-100 px-4 py-3">
+          <p className="text-[12px] text-slate-600 leading-[1.65]">
+            Setelah membayar, konfirmasi juga ke WhatsApp keuangan{" "}
+            <b className="font-semibold text-[#284061]">{KEUANGAN_SD.nomor}</b> dengan format:
+          </p>
+          <p className="mt-1.5 font-mono text-[12px] font-semibold text-[#284061] break-all">
+            {KEUANGAN_SD.formatDaftar}
+          </p>
+          <p className="text-[11px] text-slate-400 mt-0.5">(disertai bukti transfer)</p>
+          <a
+            href={`https://wa.me/${KEUANGAN_SD.wa}?text=${encodeURIComponent("PPDB2728_")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-200 bg-white text-[11.5px] font-semibold text-amber-700 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all"
+          >
+            <MessageCircle size={12} /> Buka WhatsApp keuangan
+          </a>
+        </div>
+      )}
 
       {zoom && <QrisLightbox onClose={() => setZoom(false)} />}
     </div>

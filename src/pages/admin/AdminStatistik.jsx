@@ -5,7 +5,7 @@ import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   PieChart, Pie, Cell,
 } from "recharts";
-import { apiFetch } from "../../utils/api";
+import { apiFetch, bacaJson, errorRamah, pesanError } from "../../utils/api";
 
 function getToken() {
   return localStorage.getItem("admin_token");
@@ -49,32 +49,70 @@ export default function AdminStatistik() {
   const navigate = useNavigate();
   const [data, setData]       = useState(null);
   const [range, setRange]     = useState("day");
+  const [jenjang, setJenjang] = useState(""); // "" = semua jenjang
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
 
   useEffect(() => {
+    // Balasan yang datang terlambat dari pilihan sebelumnya (mis. SD lalu cepat
+    // diganti MTs/SMA) diabaikan, supaya angka satu jenjang tidak tampil di
+    // bawah label jenjang lain.
+    let batal = false;
     setLoading(true);
-    apiFetch(`/api/statistik?range=${range}`, {
+    apiFetch(`/api/statistik?range=${range}${jenjang ? `&jenjang=${jenjang}` : ""}`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     })
-      .then((r) => {
+      .then(async (r) => {
         if (r.status === 401) {
           localStorage.removeItem("admin_token");
           navigate("/admin/login");
           return null;
         }
-        return r.json();
+        // Dulu balasan error ({ error }) langsung dipakai sebagai data, lalu
+        // `ringkasan.total` membuat halaman crash jadi layar putih.
+        const json = await bacaJson(r);
+        if (!r.ok) throw errorRamah(json.error || "Gagal mengambil data statistik.");
+        return json;
       })
-      .then((json) => { if (json) setData(json); })
-      .catch(() => setError("Gagal mengambil data statistik."))
-      .finally(() => setLoading(false));
-  }, [range, navigate]);
+      .then((json) => {
+        if (batal || !json) return;
+        setData(json);
+        setError("");
+      })
+      .catch((err) => { if (!batal) setError(pesanError(err)); })
+      .finally(() => { if (!batal) setLoading(false); });
+    return () => { batal = true; };
+  }, [range, jenjang, navigate]);
+
+  // Judul + pilihan jenjang tetap tampil saat error, supaya admin bisa kembali
+  // ke pilihan lain tanpa memuat ulang halaman.
+  const kepala = (
+    <div className="mb-5 flex items-start justify-between gap-4">
+      <div>
+        <h2 className="text-lg font-bold text-gray-800">Statistik Pendaftaran</h2>
+        <p className="text-xs text-gray-500 mt-0.5">
+          Ringkasan data pendaftar PPDB{" "}
+          {jenjang === "SD" ? "jenjang SD" : jenjang === "MTS_SMA" ? "jenjang MTs & SMA" : "secara keseluruhan"}
+        </p>
+      </div>
+      <select
+        value={jenjang}
+        onChange={(e) => setJenjang(e.target.value)}
+        aria-label="Filter jenjang"
+        className="text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+      >
+        <option value="">Semua Jenjang</option>
+        <option value="MTS_SMA">MTs & SMA</option>
+        <option value="SD">SD</option>
+      </select>
+    </div>
+  );
 
   if (loading && !data) {
     return <main className="px-6 py-6 max-w-7xl mx-auto"><div className="bg-white rounded-xl border border-gray-200 p-10 text-center text-gray-500 text-sm">Memuat statistik...</div></main>;
   }
   if (error) {
-    return <main className="px-6 py-6 max-w-7xl mx-auto"><div className="bg-white rounded-xl border border-gray-200 p-10 text-center text-red-500 text-sm">{error}</div></main>;
+    return <main className="px-6 py-6 max-w-7xl mx-auto">{kepala}<div className="bg-white rounded-xl border border-gray-200 p-10 text-center text-red-500 text-sm">{error}</div></main>;
   }
   if (!data) return null;
 
@@ -83,10 +121,7 @@ export default function AdminStatistik() {
 
   return (
     <main className="px-6 py-6 max-w-7xl mx-auto">
-      <div className="mb-5">
-        <h2 className="text-lg font-bold text-gray-800">Statistik Pendaftaran</h2>
-        <p className="text-xs text-gray-500 mt-0.5">Ringkasan data pendaftar PPDB secara keseluruhan</p>
-      </div>
+      {kepala}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">

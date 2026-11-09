@@ -49,6 +49,19 @@ export const FAQS = [
   { q: "Bagaimana sistem keamanan dan pengawasan santri?", a: "Kami menerapkan 3 shift musyrif 24 jam dengan rasio 1:10, didukung 110 CCTV online & offline. Lingkungan pesantren bebas bullying, anti-LGBT, dan dijaga ketat." },
 ];
 
+// FAQ jenjang SD — disusun dari panduan pendaftaran resmi TA 2027/2028. SD ini
+// pulang-pergi (tanpa asrama), jadi jangan menyalin jawaban FAQS di atas yang
+// bicara soal asrama, libur 5 hari sebulan, atau musyrif.
+export const FAQS_SD = [
+  { q: "Siapa saja yang bisa mendaftar di jenjang SD?", a: "Pendaftaran terbuka untuk calon siswa muslim yang akan masuk kelas 1 SD, serta siswa pindahan. Usia calon siswa kelas 1 harus 7 tahun dan terendah 6 tahun, sesuai ketentuan pada bagian persyaratan di halaman ini." },
+  { q: "Berapa biaya pendaftaran dan biaya lainnya?", a: "Biaya pendaftaran Rp 300.000. Bagi yang dinyatakan lulus, uang pangkal Rp 6.500.000 (biaya pendidikan selama 6 tahun, sudah termasuk SPP bulan Juli 2027) dan SPP Rp 700.000 per bulan." },
+  { q: "Apa yang sudah termasuk dalam SPP bulanan?", a: "SPP bulanan sudah mencakup makan siang, listrik dan air, serta pendampingan dan pengawasan selama kegiatan belajar mengajar di sekolah." },
+  { q: "Dokumen apa yang harus disiapkan?", a: "Yang diunggah ke website hanya bukti transfer biaya pendaftaran. Fotokopi akta kelahiran, kartu keluarga, dan rapor (bagi siswa pindahan) dibawa ke pondok saat tes seleksi, tidak dikirim lewat website." },
+  { q: "Bagaimana proses seleksinya?", a: "Calon siswa mengikuti observasi dan wawancara, sedangkan calon wali santri mengikuti sesi wawancara. Jadwal diinformasikan bertahap lewat WhatsApp, dan hasil seleksi diumumkan pada 5 Januari 2027." },
+  { q: "Kapan uang pangkal harus dibayar?", a: "Setelah dinyatakan lulus seleksi, uang pangkal dibayar paling lambat 5 Maret 2027. Konfirmasi pembayaran dikirim ke WhatsApp keuangan beserta bukti transfer." },
+  { q: "Apakah ada syarat kesehatan?", a: "Calon siswa harus sehat dan tidak memiliki riwayat penyakit berat, menular, atau berbahaya seperti jantung, TBC, hepatitis, epilepsi, dan asma. Dibuktikan dengan surat keterangan sehat dari dokter dan hasil cek laboratorium HBsAg, yang diserahkan setelah calon siswa dinyatakan lulus." },
+];
+
 export const TESTIMONIALS = [
   { name: "Bapak Hadi Susanto", role: "Wali Santri MTs Kelas 8", text: "Anak saya sangat berkembang sejak masuk Al Kautsar. Bahasa Arabnya lancar, hafalannya bertambah, dan yang paling penting adabnya semakin baik. Sistem SIPOS sangat membantu kami memantau perkembangannya dari rumah.", avatar: "👨" },
   { name: "Ibu Siti Rohmah", role: "Wali Santri SMA Kelas 11", text: "Saya percaya dengan manhaj Ahlussunnah yang diterapkan di sini. Putra saya tumbuh menjadi pribadi yang mandiri, disiplin, dan tetap menjaga ibadah dengan baik. Insya Allah siap menghadapi UTBK juga.", avatar: "👩" },

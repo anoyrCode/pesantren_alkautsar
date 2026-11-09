@@ -59,7 +59,102 @@ const ENUM = {
   // dan divalidasi juga di validasiForm supaya form edit tidak bisa menulis
   // nilai di luar daftar ini — badge & filter dashboard mengandalkannya.
   status:        ["Menunggu", "Diterima", "Ditolak"],
+  jenjang:       ["MTS_SMA", "SD"],
+  // Kelas 1–6, disimpan sebagai angka-dalam-teks. Dipakai untuk kelas yang dituju
+  // dan kelas asal siswa pindahan di formulir SD.
+  kelasSD:       ["1", "2", "3", "4", "5", "6"],
 };
+
+// 42703 = kolom tidak ada. Muncul kalau backend ini sudah naik tapi migrasi
+// backend/sql/2026-11-ppdb-sd.sql belum dijalankan — setiap INSERT/UPDATE dan
+// daftar pendaftar memakai kolom-kolom baru. Tanpa penanda khusus, penyebabnya
+// tersamar di balik "Terjadi kesalahan server" dan sulit dilacak dari log.
+const KOLOM_TIDAK_ADA = "42703";
+const PESAN_MIGRASI = "Database belum diperbarui untuk PPDB SD. Hubungi pengelola server.";
+const SARAN_MIGRASI = "jalankan backend/sql/2026-11-ppdb-sd.sql di Supabase SQL Editor";
+
+function catatGalat(konteks, err) {
+  if (err.code === KOLOM_TIDAK_ADA) console.error(`${konteks}: ${err.message} — migrasi belum dijalankan, ${SARAN_MIGRASI}.`);
+  else console.error(`${konteks}:`, err.message);
+}
+
+// Pesan untuk panel admin. Formulir publik tidak memakai ini: pendaftar tidak
+// perlu tahu soal migrasi database, cukup pesan umum.
+const pesanAdmin = (err, umum) => (err.code === KOLOM_TIDAK_ADA ? PESAN_MIGRASI : umum);
+
+// Peringatan dini saat backend dinyalakan. Kalau migrasi belum jalan, formulir &
+// dashboard pasti gagal — lebih baik ketahuan di log saat start daripada saat
+// orang tua sedang mengisi formulir.
+pool.query("SELECT 1 FROM information_schema.columns WHERE table_name = 'pendaftaran' AND column_name = 'jenjang'")
+  .then((r) => {
+    if (!r.rows?.length) console.error(`PERINGATAN: kolom pendaftaran.jenjang belum ada. Formulir pendaftaran dan dashboard akan gagal sampai migrasi dijalankan — ${SARAN_MIGRASI}.`);
+  })
+  .catch(() => { /* koneksi gagal sudah dicatat oleh db.js */ });
+
+// Formulir lama (MTs/SMA) tidak mengirim `jenjang`, jadi kiriman tanpa jenjang
+// dianggap MTS_SMA. Tanpa default ini, web lama yang masih terbuka di browser
+// pendaftar saat backend baru naik akan ditolak.
+const JENJANG_DEFAULT = "MTS_SMA";
+const jenjangDari = (b) =>
+  (typeof b.jenjang === "string" && b.jenjang.trim()) || JENJANG_DEFAULT;
+
+// Awal pendaftaran tiap jenjang. Penutupnya tidak dicek di sini — pendaftaran
+// susulan sengaja tetap diterima (lihat catatan di CLAUDE.md).
+const BUKA_PENDAFTARAN = {
+  MTS_SMA: { mulai: new Date("2026-08-01T00:00:00+07:00"), label: "1 Agustus 2026" },
+  SD:      { mulai: new Date("2026-11-15T00:00:00+07:00"), label: "15 November 2026" },
+};
+
+// Isian teks bebas → nilai untuk database: dipangkas, dan kosong jadi NULL.
+const teks = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
+
+// "YYYY-MM-DD" yang benar-benar ada di kalender. Date.UTC meluap diam-diam
+// (31 Februari jadi 3 Maret), jadi hasilnya dicocokkan balik ke angka asal.
+function parseTanggal(v) {
+  if (typeof v !== "string") return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v.trim());
+  if (!m) return null;
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const t = new Date(Date.UTC(y, mo - 1, d));
+  if (t.getUTCFullYear() !== y || t.getUTCMonth() !== mo - 1 || t.getUTCDate() !== d) return null;
+  return t;
+}
+
+// Kolom yang ditambahkan untuk jenjang SD (lihat backend/sql/2026-11-ppdb-sd.sql).
+// Urutan KOLOM_JENJANG dan nilaiJenjang() HARUS sama — keduanya dipakai di INSERT
+// dan UPDATE, ditaruh di ujung daftar kolom supaya nomor $n yang lama tidak bergeser.
+const KOLOM_JENJANG = [
+  "jenjang", "tanggal_lahir", "kelas_tujuan", "dari_kelas",
+  "alamat_wali", "jk_wali", "pendidikan_wali", "pekerjaan_wali", "gaji_wali",
+];
+
+function nilaiJenjang(b) {
+  const jenjang = jenjangDari(b);
+  const SD = jenjang === "SD";
+  return [
+    jenjang,
+    teks(b.tanggalLahir),
+    // Kelas hanya bermakna di SD; di jenjang lain dikosongkan supaya isian liar
+    // tidak sampai ke kolom VARCHAR(10).
+    SD ? teks(b.kelasTujuan) : null,
+    SD ? teks(b.dariKelas) : null,
+    teks(b.alamatWali), teks(b.jkWali), teks(b.pendidikanWali), teks(b.pekerjaanWali), teks(b.gajiWali),
+  ];
+}
+
+// "$43,$44,…" mulai dari nomor `awal`.
+const urutanPlaceholder = (awal, n) =>
+  Array.from({ length: n }, (_, i) => `$${awal + i}`).join(",");
+
+// node-pg membaca kolom DATE sebagai Date pada tengah malam waktu SETEMPAT.
+// Dikirim lewat JSON (toISOString) tanggalnya bisa bergeser sehari di server
+// berzona WIB, jadi diambil komponen lokalnya dan dikirim sebagai teks.
+function rapikanBaris(row) {
+  const t = row.tanggal_lahir;
+  if (Object.prototype.toString.call(t) !== "[object Date]") return row;
+  const p = (n) => String(n).padStart(2, "0");
+  return { ...row, tanggal_lahir: `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}` };
+}
 
 function validasiForm(b) {
   const errors = [];
@@ -70,14 +165,37 @@ function validasiForm(b) {
   const isAlnum = (v, min, max) => typeof v === "string" && new RegExp(`^[A-Za-z0-9]{${min},${max}}$`).test(v);
   const inEnum  = (v, key) => ENUM[key].includes(v);
 
- 
+  const jenjang = jenjangDari(b);
+  const SD      = jenjang === "SD";
+  if (!inEnum(jenjang, "jenjang"))                   errors.push("Jenjang tidak valid.");
+
   if (!b.namaLengkap?.trim())                       errors.push("Nama lengkap wajib diisi.");
   if (!b.nomorOrtu?.trim())                          errors.push("Nomor HP orang tua wajib diisi.");
   if (!inEnum(b.jenisKelamin, "jenisKelamin"))       errors.push("Jenis kelamin tidak valid.");
   if (!b.tempatLahir?.trim())                        errors.push("Tempat lahir wajib diisi.");
   if (!isDigit(b.nikSantri?.trim(), 16))             errors.push("NIK santri harus 16 digit angka.");
   if (!isDigit(b.nomorKK?.trim(), 16))               errors.push("Nomor KK harus 16 digit angka.");
-  if (!isDigit(b.nisn?.trim(), 10))                  errors.push("NISN harus 10 digit angka.");
+
+  // NISN wajib di MTs/SMA. Di SD boleh kosong — calon siswa kelas 1 umumnya
+  // belum punya — tapi kalau diisi harus 10 digit.
+  const nisn = typeof b.nisn === "string" ? b.nisn.trim() : "";
+  if (!(SD && !nisn) && !isDigit(nisn, 10))          errors.push("NISN harus 10 digit angka.");
+
+  // Tanggal lahir: wajib di SD (syarat usia masuk), opsional di jenjang lain,
+  // tapi kalau ada harus tanggal yang nyata.
+  const tglLahir = typeof b.tanggalLahir === "string" ? b.tanggalLahir.trim() : "";
+  if (SD || tglLahir) {
+    const t = parseTanggal(tglLahir);
+    if (!tglLahir)                                   errors.push("Tanggal lahir wajib diisi.");
+    else if (!t)                                     errors.push("Tanggal lahir tidak valid.");
+    else {
+      const batasLama = new Date();
+      batasLama.setUTCFullYear(batasLama.getUTCFullYear() - 18);
+      if (t.getTime() > Date.now())                  errors.push("Tanggal lahir tidak boleh di masa depan.");
+      else if (t < batasLama)                        errors.push("Tanggal lahir terlalu lama — periksa kembali tahun lahirnya.");
+    }
+  }
+  if (SD && !inEnum(b.kelasTujuan, "kelasSD"))       errors.push("Kelas yang dituju wajib dipilih.");
 
   if (!b.alamatRumah?.trim())                        errors.push("Alamat rumah wajib diisi.");
   if (!b.kelurahan?.trim())                          errors.push("Kelurahan wajib diisi.");
@@ -104,10 +222,26 @@ function validasiForm(b) {
   if (!inEnum(b.gajiIbu, "penghasilan"))             errors.push("Penghasilan ibu tidak valid.");
   if (!inEnum(b.statusNikahIbu, "statusNikah"))      errors.push("Status nikah ibu tidak valid.");
 
-  
-  if (!b.sekolahAsal?.trim())                        errors.push("Nama sekolah asal wajib diisi.");
-  if (!isAlnum(b.npsn?.trim(), 8, 20))               errors.push("NPSN harus 8–20 karakter (huruf atau angka).");
-  if (!b.alamatSekolah?.trim())                      errors.push("Alamat sekolah wajib diisi.");
+  // Data wali opsional di semua jenjang, tapi kalau diisi pilihannya harus sah.
+  const terisi = (v) => typeof v === "string" && v.trim() !== "";
+  if (terisi(b.jkWali)         && !inEnum(b.jkWali, "jenisKelamin"))      errors.push("Jenis kelamin wali tidak valid.");
+  if (terisi(b.pendidikanWali) && !inEnum(b.pendidikanWali, "pendidikan")) errors.push("Pendidikan wali tidak valid.");
+  if (terisi(b.gajiWali)       && !inEnum(b.gajiWali, "penghasilan"))      errors.push("Penghasilan wali tidak valid.");
+
+  if (SD) {
+    // Data sekolah asal hanya untuk siswa pindahan. Selama semuanya kosong, lolos;
+    // begitu salah satu terisi, kelengkapannya diperiksa seperti di jenjang lain.
+    if ([b.sekolahAsal, b.npsn, b.alamatSekolah, b.dariKelas].some(terisi)) {
+      if (!b.sekolahAsal?.trim())                    errors.push("Nama sekolah asal wajib diisi untuk siswa pindahan.");
+      if (!isAlnum(b.npsn?.trim(), 8, 20))           errors.push("NPSN harus 8–20 karakter (huruf atau angka).");
+      if (!b.alamatSekolah?.trim())                  errors.push("Alamat sekolah wajib diisi untuk siswa pindahan.");
+      if (!inEnum(b.dariKelas, "kelasSD"))           errors.push("Kelas asal wajib dipilih untuk siswa pindahan.");
+    }
+  } else {
+    if (!b.sekolahAsal?.trim())                      errors.push("Nama sekolah asal wajib diisi.");
+    if (!isAlnum(b.npsn?.trim(), 8, 20))             errors.push("NPSN harus 8–20 karakter (huruf atau angka).");
+    if (!b.alamatSekolah?.trim())                    errors.push("Alamat sekolah wajib diisi.");
+  }
 
   // Hanya form admin yang mengirim status; formulir publik tidak, dan backend
   // mengisinya "Menunggu". Tanpa penjagaan ini, form edit bisa menulis status
@@ -154,6 +288,7 @@ function validasiForm(b) {
     ["pekerjaanIbu",  100, "Pekerjaan ibu"],
     ["namaWali",      255, "Nama wali"],
     ["waWali",         40, "No. WA wali"],
+    ["pekerjaanWali", 100, "Pekerjaan wali"],
     ["sekolahAsal",   255, "Nama sekolah asal"],
   ];
   for (const [field, batas, label] of BATAS_TEKS) {
@@ -233,8 +368,6 @@ async function insertDenganNomor(query, susunValues) {
   }
 }
 
-const PPDB_START = new Date("2026-08-01T00:00:00+07:00");
-
 // 15 kiriman per IP per jam. Angkanya sengaja longgar: satu keluarga bisa
 // mengulang beberapa kali karena isian yang ditolak, dan beberapa keluarga bisa
 // berbagi satu IP (warnet, kantor desa, sekolah). Lima belas tidak akan
@@ -260,12 +393,14 @@ router.post(
     // sudah terlanjur ada di sana dan tanpa pembersihan jadi sampah permanen.
     const uploadedPaths = [];
     try {
-      const now = new Date();
-      if (now < PPDB_START) {
-        return res.status(403).json({ error: "Pendaftaran belum dibuka. Formulir tersedia mulai 1 Agustus 2026." });
-      }
-
       const b = req.body;
+
+      // Jenjang yang tidak dikenal dibiarkan lolos ke validasiForm di bawah, yang
+      // menolaknya dengan pesan yang jelas.
+      const buka = BUKA_PENDAFTARAN[jenjangDari(b)];
+      if (buka && new Date() < buka.mulai) {
+        return res.status(403).json({ error: `Pendaftaran belum dibuka. Formulir tersedia mulai ${buka.label}.` });
+      }
 
       if (!req.files?.bukti_transfer) {
         return res.status(400).json({ error: "File bukti transfer wajib diupload." });
@@ -306,7 +441,9 @@ router.post(
           -- Sekolah
           sekolah_asal, npsn, alamat_sekolah,
           -- Dokumen
-          url_bukti_transfer
+          url_bukti_transfer,
+          -- Jenjang & isian tambahan (SD)
+          ${KOLOM_JENJANG.join(", ")}
         ) VALUES (
           $1,
           $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,
@@ -315,7 +452,8 @@ router.post(
           $30,$31,$32,$33,$34,$35,$36,
           $37,$38,
           $39,$40,$41,
-          $42
+          $42,
+          ${urutanPlaceholder(43, KOLOM_JENJANG.length)}
         )
         RETURNING id, nomor_pendaftaran, created_at
       `;
@@ -325,7 +463,7 @@ router.post(
       const rows = await insertDenganNomor(query, (nomor) => [
         nomor,
         trim(b.namaLengkap), trim(b.nomorOrtu), trim(b.emailOrtu) || null, trim(b.jenisKelamin),
-        trim(b.tempatLahir), trim(b.nikSantri), trim(b.nomorKK), trim(b.nisn),
+        trim(b.tempatLahir), trim(b.nikSantri), trim(b.nomorKK), trim(b.nisn) || null,
         trim(b.hobi)      || null, trim(b.citaCita) || null,
         b.anakKe      ? parseInt(b.anakKe)        : null,
         b.beratBadan  ? parseFloat(b.beratBadan)  : null,
@@ -335,8 +473,9 @@ router.post(
         trim(b.namaAyah), trim(b.nikAyah), trim(b.waAyah), trim(b.pendidikanAyah), trim(b.pekerjaanAyah), trim(b.gajiAyah), trim(b.statusNikahAyah),
         trim(b.namaIbu), trim(b.nikIbu), trim(b.waIbu), trim(b.pendidikanIbu), trim(b.pekerjaanIbu), trim(b.gajiIbu), trim(b.statusNikahIbu),
         trim(b.namaWali)  || null, trim(b.waWali) || null,
-        trim(b.sekolahAsal), trim(b.npsn), trim(b.alamatSekolah),
+        trim(b.sekolahAsal) || null, trim(b.npsn) || null, trim(b.alamatSekolah) || null,
         urlTransfer,
+        ...nilaiJenjang(b),
       ]);
 
       res.status(201).json({
@@ -344,7 +483,7 @@ router.post(
         data: rows[0],
       });
     } catch (err) {
-      console.error("Error pendaftaran:", err.message);
+      catatGalat("Error pendaftaran", err);
       // Buang file yang sudah terunggah supaya kegagalan tidak meninggalkan sampah.
       await hapusFileSupabase(uploadedPaths);
       res.status(500).json({ error: "Terjadi kesalahan server. Silakan coba lagi." });
@@ -397,7 +536,8 @@ router.post(
           nama_ibu, nik_ibu, wa_ibu, pendidikan_ibu, pekerjaan_ibu, gaji_ibu, status_nikah_ibu,
           nama_wali, wa_wali,
           sekolah_asal, npsn, alamat_sekolah,
-          url_bukti_transfer, status
+          url_bukti_transfer, status,
+          ${KOLOM_JENJANG.join(", ")}
         ) VALUES (
           $1,
           $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,
@@ -406,7 +546,8 @@ router.post(
           $30,$31,$32,$33,$34,$35,$36,
           $37,$38,
           $39,$40,$41,
-          $42,$43
+          $42,$43,
+          ${urutanPlaceholder(44, KOLOM_JENJANG.length)}
         )
         RETURNING id, nomor_pendaftaran, created_at
       `;
@@ -414,7 +555,7 @@ router.post(
       const rows = await insertDenganNomor(query, (nomor) => [
         nomor,
         trim(b.namaLengkap), trim(b.nomorOrtu), trim(b.emailOrtu) || null, trim(b.jenisKelamin),
-        trim(b.tempatLahir), trim(b.nikSantri), trim(b.nomorKK), trim(b.nisn),
+        trim(b.tempatLahir), trim(b.nikSantri), trim(b.nomorKK), trim(b.nisn) || null,
         trim(b.hobi)      || null, trim(b.citaCita) || null,
         b.anakKe      ? parseInt(b.anakKe)        : null,
         b.beratBadan  ? parseFloat(b.beratBadan)  : null,
@@ -424,8 +565,9 @@ router.post(
         trim(b.namaAyah), trim(b.nikAyah), trim(b.waAyah), trim(b.pendidikanAyah), trim(b.pekerjaanAyah), trim(b.gajiAyah), trim(b.statusNikahAyah),
         trim(b.namaIbu), trim(b.nikIbu), trim(b.waIbu), trim(b.pendidikanIbu), trim(b.pekerjaanIbu), trim(b.gajiIbu), trim(b.statusNikahIbu),
         trim(b.namaWali)  || null, trim(b.waWali) || null,
-        trim(b.sekolahAsal), trim(b.npsn), trim(b.alamatSekolah),
+        trim(b.sekolahAsal) || null, trim(b.npsn) || null, trim(b.alamatSekolah) || null,
         urlTransfer, trim(b.status) || "Menunggu",
+        ...nilaiJenjang(b),
       ]);
 
       res.status(201).json({
@@ -433,23 +575,59 @@ router.post(
         data: rows[0],
       });
     } catch (err) {
-      console.error("Error tambah data admin:", err.message);
+      catatGalat("Error tambah data admin", err);
       await hapusFileSupabase(uploadedPaths);
-      res.status(500).json({ error: "Terjadi kesalahan server. Silakan coba lagi." });
+      res.status(500).json({ error: pesanAdmin(err, "Terjadi kesalahan server. Silakan coba lagi.") });
     }
   }
 );
 
 
+// Filter jenjang opsional untuk daftar & export: tab dashboard SD dan MTs/SMA
+// masing-masing meminta jenjangnya sendiri. Tanpa parameter = semua jenjang,
+// jadi dashboard versi lama yang masih terbuka di browser tetap jalan.
+function bacaJenjangQuery(query) {
+  const j = query.jenjang;
+  if (j === undefined || j === "") return { jenjang: null };
+  if (typeof j === "string" && ENUM.jenjang.includes(j)) return { jenjang: j };
+  return { error: "Jenjang tidak valid." };
+}
+
 router.get("/", auth, async (req, res) => {
   try {
+    const { jenjang, error } = bacaJenjangQuery(req.query);
+    if (error) return res.status(400).json({ error });
+
     const { rows } = await pool.query(
-      "SELECT id, nomor_pendaftaran, nama_lengkap, jenis_kelamin, nomor_hp_ortu, sekolah_asal, status, created_at FROM pendaftaran ORDER BY created_at DESC"
+      `SELECT id, nomor_pendaftaran, nama_lengkap, jenis_kelamin, nomor_hp_ortu, sekolah_asal, status, jenjang, kelas_tujuan, created_at
+       FROM pendaftaran
+       ${jenjang ? "WHERE jenjang = $1" : ""}
+       ORDER BY created_at DESC`,
+      jenjang ? [jenjang] : []
     );
     res.json({ data: rows });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Gagal mengambil data." });
+    catatGalat("Error ambil data pendaftar", err);
+    res.status(500).json({ error: pesanAdmin(err, "Gagal mengambil data.") });
+  }
+});
+
+
+// Semua kolom untuk export CSV. Dipisah dari GET "/" supaya tabel dashboard
+// tidak ikut mengunduh 40+ kolom tiap kali dibuka. Wajib di atas "/:id".
+router.get("/export", auth, async (req, res) => {
+  try {
+    const { jenjang, error } = bacaJenjangQuery(req.query);
+    if (error) return res.status(400).json({ error });
+
+    const { rows } = await pool.query(
+      `SELECT * FROM pendaftaran ${jenjang ? "WHERE jenjang = $1" : ""} ORDER BY created_at DESC`,
+      jenjang ? [jenjang] : []
+    );
+    res.json({ data: rows.map(rapikanBaris) });
+  } catch (err) {
+    catatGalat("Error ambil data pendaftar", err);
+    res.status(500).json({ error: pesanAdmin(err, "Gagal mengambil data.") });
   }
 });
 
@@ -463,10 +641,10 @@ router.get("/:id", auth, async (req, res) => {
       [req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: "Data tidak ditemukan." });
-    res.json({ data: rows[0] });
+    res.json({ data: rapikanBaris(rows[0]) });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Gagal mengambil data." });
+    catatGalat("Error ambil data pendaftar", err);
+    res.status(500).json({ error: pesanAdmin(err, "Gagal mengambil data.") });
   }
 });
 
@@ -514,7 +692,11 @@ router.put(
       if (!existing.rows.length) return res.status(404).json({ error: "Data tidak ditemukan." });
       const old = existing.rows[0];
 
-      const b = req.body;
+      // Kiriman tanpa jenjang memakai jenjang yang sudah tersimpan, BUKAN default.
+      // Kalau memakai default, mengedit pendaftar SD lewat form yang belum
+      // mengirim jenjang akan diam-diam menurunkannya jadi MTS_SMA.
+      const jenjangKiriman = typeof req.body.jenjang === "string" ? req.body.jenjang.trim() : "";
+      const b = { ...req.body, jenjang: jenjangKiriman || old.jenjang };
       const errors = validasiForm(b);
       if (errors.length) {
         return res.status(400).json({ error: errors[0], errors });
@@ -546,14 +728,15 @@ router.put(
           nama_ibu = $29, nik_ibu = $30, wa_ibu = $31, pendidikan_ibu = $32, pekerjaan_ibu = $33, gaji_ibu = $34, status_nikah_ibu = $35,
           nama_wali = $36, wa_wali = $37,
           sekolah_asal = $38, npsn = $39, alamat_sekolah = $40,
-          url_bukti_transfer = $41, status = $42
-        WHERE id = $43
+          url_bukti_transfer = $41, status = $42,
+          ${KOLOM_JENJANG.map((k, i) => `${k} = $${43 + i}`).join(", ")}
+        WHERE id = $${43 + KOLOM_JENJANG.length}
         RETURNING id, nomor_pendaftaran
       `;
 
       const values = [
         trim(b.namaLengkap), trim(b.nomorOrtu), trim(b.emailOrtu) || null, trim(b.jenisKelamin),
-        trim(b.tempatLahir), trim(b.nikSantri), trim(b.nomorKK), trim(b.nisn),
+        trim(b.tempatLahir), trim(b.nikSantri), trim(b.nomorKK), trim(b.nisn) || null,
         trim(b.hobi)      || null, trim(b.citaCita) || null,
         b.anakKe      ? parseInt(b.anakKe)        : null,
         b.beratBadan  ? parseFloat(b.beratBadan)  : null,
@@ -563,8 +746,9 @@ router.put(
         trim(b.namaAyah), trim(b.nikAyah), trim(b.waAyah), trim(b.pendidikanAyah), trim(b.pekerjaanAyah), trim(b.gajiAyah), trim(b.statusNikahAyah),
         trim(b.namaIbu), trim(b.nikIbu), trim(b.waIbu), trim(b.pendidikanIbu), trim(b.pekerjaanIbu), trim(b.gajiIbu), trim(b.statusNikahIbu),
         trim(b.namaWali)  || null, trim(b.waWali) || null,
-        trim(b.sekolahAsal), trim(b.npsn), trim(b.alamatSekolah),
+        trim(b.sekolahAsal) || null, trim(b.npsn) || null, trim(b.alamatSekolah) || null,
         urlTransfer, trim(b.status) || old.status || "Menunggu",
+        ...nilaiJenjang(b),
         req.params.id,
       ];
 
@@ -575,11 +759,11 @@ router.put(
 
       res.json({ message: "Data pendaftar berhasil diperbarui.", data: rows[0] });
     } catch (err) {
-      console.error("Error edit data admin:", err.message);
+      catatGalat("Error edit data admin", err);
       // UPDATE gagal: buang file baru, biarkan file lama utuh supaya data lama
       // tetap bisa dibuka.
       if (pathBaru) await hapusFileSupabase([pathBaru]);
-      res.status(500).json({ error: "Terjadi kesalahan server. Silakan coba lagi." });
+      res.status(500).json({ error: pesanAdmin(err, "Terjadi kesalahan server. Silakan coba lagi.") });
     }
   }
 );

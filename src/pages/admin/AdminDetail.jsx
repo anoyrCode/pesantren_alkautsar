@@ -4,10 +4,22 @@ import { ArrowLeft, ExternalLink, FileDown, Pencil } from "lucide-react";
 import { apiFetch, bacaJson, errorRamah, pesanError } from "../../utils/api";
 import jsPDF from "jspdf";
 import logoSrc from "../../assets/logoPolos.png";
+import { rutaDashboard } from "../../utils/jenjang";
 
 function getToken() {
   return localStorage.getItem("admin_token");
 }
+
+// "2020-05-07" -> "7 Mei 2020". Komponennya dipecah manual: new Date("2020-05-07")
+// dibaca sebagai UTC dan di zona yang tertinggal dari UTC tampil sehari lebih awal.
+function fmtTanggal(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso ?? ""));
+  if (!m) return null;
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
+    .toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+}
+
+const namaJenjang = (j) => (j === "SD" ? "SD" : "MTs & SMA");
 
 const STATUS_BADGE = {
   Diterima: "bg-emerald-500/20 text-emerald-300 border-emerald-400/30",
@@ -65,7 +77,7 @@ async function exportPDF(d) {
   doc.setTextColor(...C_DIM);
   doc.text("Jl. Besuk RT 11 RW 04, Sambungrejo, Sukodono, Sidoarjo 61258", textX, 24);
   doc.setTextColor(220, 170, 80);
-  doc.text("Formulir Pendaftaran Peserta Didik Baru (PPDB) 2027/2028", textX, 31);
+  doc.text(`Formulir Pendaftaran Peserta Didik Baru (PPDB) 2027/2028 · Jenjang ${namaJenjang(d.jenjang)}`, textX, 31);
 
   // ── NAME STRIP ──────────────────────────────────────────
   doc.setFillColor(255, 255, 255);
@@ -197,6 +209,11 @@ async function exportPDF(d) {
     if (col === "L") yL = endY; else yR = endY;
   }
 
+  // Wali dan Asal Sekolah biasanya di kolom kanan. Di SD, wali yang lengkap bisa
+  // membuat kolom kanan lebih panjang dari halaman, jadi kalau selisihnya sudah
+  // jauh kartu itu dipindah ke kolom kiri yang masih longgar.
+  const kolomLonggar = () => (yR > yL + 8 ? "L" : "R");
+
   const bbTb = [
     d.berat_badan  ? `${d.berat_badan} kg`  : null,
     d.tinggi_badan ? `${d.tinggi_badan} cm` : null,
@@ -208,6 +225,8 @@ async function exportPDF(d) {
     { label: "Nomor KK",          value: d.nomor_kk },
     { label: "NISN",              value: d.nisn },
     { label: "Tempat Lahir",      value: d.tempat_lahir },
+    { label: "Tanggal Lahir",     value: fmtTanggal(d.tanggal_lahir) },
+    { label: "Kelas yang Dituju", value: d.kelas_tujuan ? `Kelas ${d.kelas_tujuan}` : null },
     { label: "Jenis Kelamin",     value: d.jenis_kelamin },
     { label: "Gol. Darah",        value: d.golongan_darah },
     { label: "BB / TB",           value: bbTb },
@@ -249,16 +268,24 @@ async function exportPDF(d) {
     { label: "Status Nikah",  value: d.status_nikah_ibu },
   ]);
 
-  if (d.nama_wali || d.wa_wali) {
-    drawCard("R", "Data Wali", [
+  if ([d.nama_wali, d.wa_wali, d.alamat_wali].some(Boolean)) {
+    drawCard(kolomLonggar(), "Data Wali", [
       { label: "Nama",          value: d.nama_wali },
       { label: "No. WhatsApp",  value: d.wa_wali },
+      { label: "Alamat",        value: d.alamat_wali, wide: true },
+      { label: "Jenis Kelamin", value: d.jk_wali },
+      { label: "Pendidikan",    value: d.pendidikan_wali },
+      { label: "Pekerjaan",     value: d.pekerjaan_wali },
+      { label: "Penghasilan",   value: d.gaji_wali },
     ]);
   }
 
-  drawCard("R", "Asal Sekolah", [
+  // drawCard melewati kartu yang semua isinya kosong, jadi di SD non-pindahan
+  // kartu ini tidak tercetak.
+  drawCard(kolomLonggar(), d.jenjang === "SD" ? "Asal Sekolah (Pindahan)" : "Asal Sekolah", [
     { label: "Nama Sekolah",   value: d.sekolah_asal },
     { label: "NPSN",           value: d.npsn },
+    { label: "Dari Kelas",     value: d.dari_kelas ? `Kelas ${d.dari_kelas}` : null },
     { label: "Alamat Sekolah", value: d.alamat_sekolah, wide: true },
   ]);
 
@@ -337,7 +364,10 @@ export default function AdminDetail() {
   );
 
   const stats = [
+    `Jenjang ${namaJenjang(d.jenjang)}`,
     d.jenis_kelamin,
+    d.tanggal_lahir ? `Lahir ${fmtTanggal(d.tanggal_lahir)}` : null,
+    d.kelas_tujuan ? `Kelas ${d.kelas_tujuan}` : null,
     d.golongan_darah ? `Gol. ${d.golongan_darah}` : null,
     d.anak_ke ? `Anak ke-${d.anak_ke}` : null,
     d.berat_badan && d.tinggi_badan ? `${d.berat_badan} kg · ${d.tinggi_badan} cm` : null,
@@ -350,7 +380,7 @@ export default function AdminDetail() {
       <div className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200/80 shadow-sm">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center gap-3">
           <button
-            onClick={() => navigate("/admin/dashboard")}
+            onClick={() => navigate(rutaDashboard(d.jenjang))}
             className="flex items-center gap-2 text-[13px] font-semibold text-[#284061] hover:text-amber-600 transition-colors"
           >
             <ArrowLeft size={15} />
@@ -432,6 +462,8 @@ export default function AdminDetail() {
               <Field label="Nomor KK"       value={d.nomor_kk} />
               <Field label="NISN"           value={d.nisn} />
               <Field label="Tempat Lahir"   value={d.tempat_lahir} />
+              <Field label="Tanggal Lahir"  value={fmtTanggal(d.tanggal_lahir)} />
+              <Field label="Kelas yang Dituju" value={d.kelas_tujuan ? `Kelas ${d.kelas_tujuan}` : null} />
               <Field label="No. HP Orang Tua" value={d.nomor_hp_ortu} />
               <Field label="Email Orang Tua"  value={d.email_ortu} />
               <Field label="Hobi"           value={d.hobi} />
@@ -471,18 +503,27 @@ export default function AdminDetail() {
               <Field label="Status Nikah"  value={d.status_nikah_ibu} />
             </InfoCard>
 
-            {(d.nama_wali || d.wa_wali) && (
+            {[d.nama_wali, d.wa_wali, d.alamat_wali].some(Boolean) && (
               <InfoCard title="Data Wali">
                 <Field label="Nama Wali"    value={d.nama_wali} />
                 <Field label="No. WhatsApp" value={d.wa_wali} />
+                <Field label="Alamat Rumah" value={d.alamat_wali} wide />
+                <Field label="Jenis Kelamin" value={d.jk_wali} />
+                <Field label="Pendidikan"   value={d.pendidikan_wali} />
+                <Field label="Pekerjaan"    value={d.pekerjaan_wali} />
+                <Field label="Penghasilan"  value={d.gaji_wali} />
               </InfoCard>
             )}
 
-            <InfoCard title="Asal Sekolah">
-              <Field label="Nama Sekolah"   value={d.sekolah_asal} />
-              <Field label="NPSN"           value={d.npsn} />
-              <Field label="Alamat Sekolah" value={d.alamat_sekolah} wide />
-            </InfoCard>
+            {/* Di SD data sekolah asal hanya ada pada siswa pindahan. */}
+            {[d.sekolah_asal, d.npsn, d.alamat_sekolah, d.dari_kelas].some(Boolean) && (
+              <InfoCard title={d.jenjang === "SD" ? "Asal Sekolah (Pindahan)" : "Asal Sekolah"}>
+                <Field label="Nama Sekolah"   value={d.sekolah_asal} />
+                <Field label="NPSN"           value={d.npsn} />
+                <Field label="Dari Kelas"     value={d.dari_kelas ? `Kelas ${d.dari_kelas}` : null} />
+                <Field label="Alamat Sekolah" value={d.alamat_sekolah} wide />
+              </InfoCard>
+            )}
           </div>
         </div>
 

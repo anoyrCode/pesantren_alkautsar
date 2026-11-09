@@ -4,6 +4,11 @@ import { NAV_LINKS } from "../../utils/constants";
 const SITE_NAME = "Pesantren Al Kautsar";
 const BASE_URL  = import.meta.env.VITE_SITE_URL || "https://pesantrenalkautsar.id";
 
+// Ruas perantara yang bukan menu navbar tapi punya halaman sendiri. Tanpa ini
+// nama ruasnya diambil dari potongan URL ("sd"), yang tidak berarti apa-apa
+// di hasil pencarian.
+const NAMA_RUAS = { "/ppdb/sd": "PPDB SD" };
+
 /**
  * Menyusun BreadcrumbList dari `path`, jadi tiap halaman tidak perlu menulis
  * jenjangnya sendiri-sendiri — daftar yang ditulis dua kali cepat melenceng.
@@ -27,7 +32,7 @@ function breadcrumb(path, title) {
     const nav = NAV_LINKS.find((l) => l.path === jalur);
     // Ruas perantara yang tidak ada di navbar pun tetap dimasukkan supaya
     // rantainya tidak putus; namanya diambil dari potongan URL-nya.
-    const name = terakhir ? title : nav?.label || r.replace(/-/g, " ");
+    const name = terakhir ? title : nav?.label || NAMA_RUAS[jalur] || r.replace(/-/g, " ");
     daftar.push({ name, url: `${BASE_URL}${jalur}` });
   });
 

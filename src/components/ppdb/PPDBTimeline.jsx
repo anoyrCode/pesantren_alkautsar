@@ -3,14 +3,27 @@ import SectionHeader from "../common/SectionHeader";
 import Reveal from "../common/Reveal";
 import { GILDA_FONT } from "../../utils/constants";
 
-const STEPS = [
+const STEPS_MTS_SMA = [
   { n: "01", t: "Pendaftaran Online", start: "2026-08-01", end: "2026-09-30", d: "1 Agustus – 30 Sep 2026", c: "Isi formulir pendaftaran & unggah dokumen. Biaya pendaftaran Rp 450.000." },
   { n: "02", t: "Tes Seleksi", start: "2026-10-03", end: "2026-10-11", d: "3–4 & 10–11 Oktober 2026", c: "Tes potensi akademik, baca Al-Qur'an, dan wawancara orang tua & calon santri dalam dua gelombang." },
   { n: "03", t: "Pengumuman dan Daftar Ulang", start: "2026-10-15", end: "2026-11-15", d: "15 Oktober – 15 November 2026", c: "Hasil seleksi diumumkan 15 Oktober, dilanjutkan daftar ulang dan pembayaran biaya awal masuk." },
   { n: "04", t: "Awal Tahun Ajaran", start: "2027-06-01", end: "2027-06-30", d: "Juni 2027", c: "Santri mulai masuk pesantren dan mengikuti awal tahun ajaran baru 2027/2028." },
 ];
 
+// Langkah tanpa `start`/`end` (wawancara SD) tidak punya tanggal pasti — jadwalnya
+// diberitahukan bertahap lewat WhatsApp. Statusnya "info": tidak pernah ditandai
+// selesai atau berlangsung, dan tidak ikut menentukan kartu yang disorot.
+const STEPS_SD = [
+  { n: "01", t: "Pendaftaran Online", start: "2026-11-15", end: "2026-12-31", d: "15 November – 31 Desember 2026", c: "Isi formulir, bayar biaya pendaftaran Rp 300.000, dan unggah bukti transfer." },
+  { n: "02", t: "Wawancara & Observasi", d: "Jadwal via WhatsApp", c: "Observasi dan wawancara calon santri, serta wawancara calon wali santri. Jadwal diinformasikan bertahap lewat WhatsApp." },
+  { n: "03", t: "Pengumuman Hasil Tes", start: "2027-01-05", end: "2027-01-05", d: "5 Januari 2027", c: "Hasil seleksi disampaikan lewat WhatsApp ke nomor wali santri yang terdaftar." },
+  { n: "04", t: "Pembayaran Uang Pangkal", start: "2027-01-05", end: "2027-03-05", d: "5 Januari – 5 Maret 2027", c: "Bagi yang dinyatakan lulus, uang pangkal dibayar paling lambat 5 Maret 2027." },
+];
+
+const STEPS = { MTS_SMA: STEPS_MTS_SMA, SD: STEPS_SD };
+
 function getStepStatus(start, end) {
+  if (!start || !end) return "info";
   const now = Date.now();
   const s = new Date(`${start}T00:00:00+07:00`).getTime();
   const e = new Date(`${end}T23:59:59+07:00`).getTime();
@@ -21,9 +34,11 @@ function getStepStatus(start, end) {
 
 const BADGE_LABEL = { segera: "Segera", berlangsung: "Berlangsung" };
 
-export default function PPDBTimeline() {
-  const steps = STEPS.map((s) => ({ ...s, status: getStepStatus(s.start, s.end) }));
-  const nextIndex = steps.findIndex((s) => s.status !== "selesai");
+export default function PPDBTimeline({ jenjang = "MTS_SMA" }) {
+  const steps = STEPS[jenjang].map((s) => ({ ...s, status: getStepStatus(s.start, s.end) }));
+  // Yang disorot: langkah bertanggal pertama yang belum selesai. Langkah "info"
+  // dilewati supaya tidak ikut menyorot sesuatu yang tidak punya jadwal.
+  const nextIndex = steps.findIndex((s) => s.status === "segera" || s.status === "berlangsung");
   const highlightIndex = nextIndex === -1 ? steps.length - 1 : nextIndex;
 
   return (

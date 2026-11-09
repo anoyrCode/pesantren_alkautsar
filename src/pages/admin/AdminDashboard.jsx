@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Download, Eye, Plus, Pencil, Trash2, AlertTriangle } from "lucide-react";
 import { apiFetch, bacaJson, errorRamah, pesanError } from "../../utils/api";
+import { JENJANG, SLUG_ADMIN, simpanJenjangTerakhir } from "../../utils/jenjang";
 
 function getToken() {
   return localStorage.getItem("admin_token");
@@ -13,22 +14,95 @@ const STATUS_BADGE = {
   Menunggu: "bg-amber-100 text-amber-700",
 };
 
-function exportCSV(data) {
+// [kolom DB, judul di CSV, khusus SD?]. Urutannya mengikuti section formulir.
+// Kolom bertanda `true` hanya ikut diexport untuk SD — di MTs/SMA isinya selalu
+// kosong karena memang tidak ditanyakan di formulirnya.
+const KOLOM_EXPORT = [
+  ["nomor_pendaftaran", "Nomor Pendaftaran"],
+  ["created_at",        "Tanggal Daftar"],
+  ["status",            "Status"],
+  // Data Santri
+  ["nama_lengkap",   "Nama Lengkap"],
+  ["jenis_kelamin",  "Jenis Kelamin"],
+  ["tempat_lahir",   "Tempat Lahir"],
+  ["tanggal_lahir",  "Tanggal Lahir", true],
+  ["nik_santri",     "NIK Santri"],
+  ["nomor_kk",       "Nomor KK"],
+  ["nisn",           "NISN"],
+  ["kelas_tujuan",   "Kelas yang Dituju", true],
+  ["nomor_hp_ortu",  "Nomor HP Ortu"],
+  ["email_ortu",     "Email Ortu"],
+  ["anak_ke",        "Anak Ke-"],
+  ["berat_badan",    "Berat Badan (kg)"],
+  ["tinggi_badan",   "Tinggi Badan (cm)"],
+  ["golongan_darah", "Golongan Darah"],
+  ["penyakit",       "Riwayat Penyakit"],
+  ["hobi",           "Hobi"],
+  ["cita_cita",      "Cita-cita"],
+  // Alamat
+  ["alamat_rumah", "Alamat Rumah"],
+  ["kelurahan",    "Kelurahan"],
+  ["kecamatan",    "Kecamatan"],
+  ["kabupaten",    "Kabupaten/Kota"],
+  ["provinsi",     "Provinsi"],
+  ["status_rumah", "Status Rumah"],
+  // Ayah
+  ["nama_ayah",         "Nama Ayah"],
+  ["nik_ayah",          "NIK Ayah"],
+  ["wa_ayah",           "WA Ayah"],
+  ["pendidikan_ayah",   "Pendidikan Ayah"],
+  ["pekerjaan_ayah",    "Pekerjaan Ayah"],
+  ["gaji_ayah",         "Penghasilan Ayah"],
+  ["status_nikah_ayah", "Status Ayah"],
+  // Ibu
+  ["nama_ibu",         "Nama Ibu"],
+  ["nik_ibu",          "NIK Ibu"],
+  ["wa_ibu",           "WA Ibu"],
+  ["pendidikan_ibu",   "Pendidikan Ibu"],
+  ["pekerjaan_ibu",    "Pekerjaan Ibu"],
+  ["gaji_ibu",         "Penghasilan Ibu"],
+  ["status_nikah_ibu", "Status Ibu"],
+  // Wali
+  ["nama_wali", "Nama Wali"],
+  ["wa_wali",   "WA Wali"],
+  ["alamat_wali",     "Alamat Wali", true],
+  ["jk_wali",         "Jenis Kelamin Wali", true],
+  ["pendidikan_wali", "Pendidikan Wali", true],
+  ["pekerjaan_wali",  "Pekerjaan Wali", true],
+  ["gaji_wali",       "Penghasilan Wali", true],
+  // Sekolah
+  ["sekolah_asal",   "Asal Sekolah"],
+  ["npsn",           "NPSN"],
+  ["alamat_sekolah", "Alamat Sekolah"],
+  ["dari_kelas",     "Dari Kelas", true],
+  // Dokumen
+  ["url_bukti_transfer", "Bukti Transfer"],
+];
+
+function nilaiCSV(kolom, v) {
+  if (v == null || v === "") return "";
+  if (kolom === "created_at") return new Date(v).toLocaleString("id-ID");
+  if (kolom === "kelas_tujuan" || kolom === "dari_kelas") return `Kelas ${v}`;
+  const s = String(v).trim();
+  // NIK/KK 16 digit melebihi presisi Excel (15 digit) dan nomor HP kehilangan
+  // angka 0 di depannya kalau dibaca sebagai angka — paksa jadi teks.
+  if (/^\+?\d{6,}$/.test(s)) return `="${s}"`;
+  // Isian formulir publik: cegah CSV injection (sel diawali = + - @ dijalankan
+  // Excel sebagai rumus).
+  if (/^[=+\-@\t\r]/.test(s)) return `'${s}`;
+  return s;
+}
+
+function exportCSV(data, jenjang) {
   if (!data.length) return;
 
-  const headers = [
-    "Nomor Pendaftaran", "Nama Lengkap", "Jenis Kelamin",
-    "Asal Sekolah", "Nomor HP Ortu", "Status", "Tanggal Daftar",
-  ];
-  const rows = data.map((d) => [
-    d.nomor_pendaftaran,
-    d.nama_lengkap,
-    d.jenis_kelamin,
-    d.sekolah_asal ?? "-",
-    d.nomor_hp_ortu,
-    d.status ?? "Menunggu",
-    new Date(d.created_at).toLocaleDateString("id-ID"),
-  ]);
+  const kolomJenjang = KOLOM_EXPORT.filter(([, , khusus]) => !khusus || jenjang === "SD");
+  const headers = kolomJenjang.map(([, judul]) => judul);
+  const rows = data.map((d) =>
+    kolomJenjang.map(([kolom]) =>
+      nilaiCSV(kolom, kolom === "status" ? (d.status ?? "Menunggu") : d[kolom])
+    )
+  );
 
   // Pakai semicolon agar Excel Indonesia membaca kolom dengan benar
   // ﻿ = BOM supaya karakter Indonesia tidak rusak
@@ -40,12 +114,13 @@ function exportCSV(data) {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement("a");
   a.href     = url;
-  a.download = `pendaftar-ppdb-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.download = `pendaftar-ppdb-${SLUG_ADMIN[jenjang]}-${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ jenjang }) {
+  const cfg = JENJANG[jenjang];
   const navigate = useNavigate();
   const [data, setData]       = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,25 +130,42 @@ export default function AdminDashboard() {
   const [filterStatus, setFilterStatus] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [backendLama, setBackendLama] = useState(false);
+
+  // Ingat tab ini, supaya login/"Kembali" berikutnya mendarat di sini lagi.
+  useEffect(() => { simpanJenjangTerakhir(jenjang); }, [jenjang]);
 
   useEffect(() => {
-    apiFetch("/api/pendaftaran", {
+    apiFetch(`/api/pendaftaran?jenjang=${jenjang}`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     })
-      .then((r) => {
+      .then(async (r) => {
         if (r.status === 401) {
           localStorage.removeItem("admin_token");
           navigate("/admin/login");
           return null;
         }
-        return r.json();
+        // Balasan error harus tampil sebagai error. Dulu langsung dibaca sebagai
+        // data, sehingga kegagalan server terlihat seperti "belum ada pendaftar".
+        const json = await bacaJson(r);
+        if (!r.ok) throw errorRamah(json.error || "Gagal mengambil data.");
+        return json;
       })
       .then((json) => {
-        if (json) setData(json.data || []);
+        if (!json) return;
+        const rows = json.data || [];
+        // Pengaman kalau frontend ini berpasangan dengan backend versi lama: backend
+        // lama mengabaikan ?jenjang= dan mengirim SEMUA pendaftar tanpa kolom
+        // `jenjang`, sehingga tab SD ikut berisi pendaftar MTs/SMA. Saring lagi di
+        // sini (baris tanpa jenjang = MTs/SMA, satu-satunya jenjang yang dikenal
+        // backend lama) dan beri tahu admin bahwa server perlu diperbarui.
+        setBackendLama(rows.some((d) => !("jenjang" in d)));
+        setData(rows.filter((d) => (d.jenjang ?? "MTS_SMA") === jenjang));
       })
-      .catch(() => setError("Gagal mengambil data."))
+      .catch((err) => setError(pesanError(err)))
       .finally(() => setLoading(false));
-  }, [navigate]);
+  }, [navigate, jenjang]);
 
   async function konfirmasiHapus() {
     if (!confirmDelete) return;
@@ -133,9 +225,47 @@ export default function AdminDashboard() {
     });
   }, [data, search, filterJk, filterStatus]);
 
+  // Tabel dashboard hanya memuat beberapa kolom, jadi data lengkap diambil
+  // terpisah saat export — lalu disaring mengikuti filter & urutan tabel.
+  async function handleExport() {
+    if (!filtered.length) return;
+    setExporting(true);
+    try {
+      const res = await apiFetch(`/api/pendaftaran/export?jenjang=${jenjang}`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      if (res.status === 401) {
+        localStorage.removeItem("admin_token");
+        navigate("/admin/login");
+        return;
+      }
+      const json = await bacaJson(res);
+      if (!res.ok) throw errorRamah(json.error || "Gagal mengambil data untuk export.");
+      const lengkap = new Map((json.data || []).map((d) => [d.id, d]));
+      exportCSV(filtered.map((d) => lengkap.get(d.id)).filter(Boolean), jenjang);
+    } catch (err) {
+      alert(pesanError(err));
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <>
       <main className="px-6 py-6 max-w-7xl mx-auto">
+        <div className="mb-5">
+          <h2 className="text-lg font-bold text-gray-800">Pendaftar {cfg.nama}</h2>
+          <p className="text-xs text-gray-500 mt-0.5">Data pendaftar PPDB jenjang {cfg.nama}</p>
+        </div>
+
+        {backendLama && (
+          <div role="alert" className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] leading-relaxed text-amber-800">
+            <b>Server belum diperbarui.</b> Backend yang sedang berjalan masih versi lama dan belum bisa
+            memisahkan pendaftar per jenjang. Sementara ini semua pendaftar ditampilkan di tab MTs/SMA dan tab SD
+            dikosongkan. Hubungi pengelola server untuk menjalankan migrasi database dan memperbarui backend.
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <StatCard label="Total Pendaftar" value={data.length} color="bg-blue-50 text-blue-700" />
@@ -178,15 +308,16 @@ export default function AdminDashboard() {
           </select>
 
           <button
-            onClick={() => exportCSV(filtered)}
-            className="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
+            onClick={handleExport}
+            disabled={exporting}
+            className="flex items-center gap-2 bg-green-700 hover:bg-green-800 disabled:opacity-60 disabled:cursor-wait text-white text-sm font-medium px-4 py-2 rounded-lg transition"
           >
             <Download size={15} />
-            Export CSV
+            {exporting ? "Menyiapkan..." : "Export CSV"}
           </button>
 
           <button
-            onClick={() => navigate("/admin/santri/baru")}
+            onClick={() => navigate(`/admin/santri/baru?jenjang=${jenjang}`)}
             className="flex items-center gap-2 bg-[#284061] hover:bg-[#1e3358] text-white text-sm font-medium px-4 py-2 rounded-lg transition"
           >
             <Plus size={15} />
@@ -201,7 +332,9 @@ export default function AdminDashboard() {
           ) : error ? (
             <div className="p-10 text-center text-red-500 text-sm">{error}</div>
           ) : filtered.length === 0 ? (
-            <div className="p-10 text-center text-gray-400 text-sm">Tidak ada data ditemukan.</div>
+            <div className="p-10 text-center text-gray-400 text-sm">
+              {data.length === 0 ? `Belum ada pendaftar jenjang ${cfg.nama}.` : "Tidak ada data ditemukan."}
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -210,6 +343,7 @@ export default function AdminDashboard() {
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">No</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Nomor Pendaftaran</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Nama Lengkap</th>
+                    {jenjang === "SD" && <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Kelas</th>}
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">L/P</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">No. HP Ortu</th>
                     <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
@@ -223,6 +357,7 @@ export default function AdminDashboard() {
                       <td className="px-4 py-3 text-gray-400">{i + 1}</td>
                       <td className="px-4 py-3 font-mono text-gray-700">{d.nomor_pendaftaran}</td>
                       <td className="px-4 py-3 font-medium text-gray-800">{d.nama_lengkap}</td>
+                      {jenjang === "SD" && <td className="px-4 py-3 text-gray-600">{d.kelas_tujuan ? `Kelas ${d.kelas_tujuan}` : "-"}</td>}
                       <td className="px-4 py-3">
                         <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${d.jenis_kelamin?.trim() === "Laki-laki" ? "bg-sky-100 text-sky-700" : "bg-pink-100 text-pink-700"}`}>
                           {d.jenis_kelamin?.trim() === "Laki-laki" ? "L" : "P"}

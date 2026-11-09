@@ -1,19 +1,51 @@
-﻿import { FileCheck, Check } from "lucide-react";
+﻿import { FileCheck, FileText, CalendarDays, HeartPulse, ScrollText, Check } from "lucide-react";
 import { GILDA_FONT } from "../../utils/constants";
 import Reveal from "../common/Reveal";
 
-const DOCS = [
+const DOCS_MTS_SMA = [
   { Icon: FileCheck, t: "Bukti Transfer Registrasi", d: "Bukti pembayaran registrasi santri baru sesuai nominal yang ditentukan" },
 ];
 
-const STEPS = [
+const STEPS_MTS_SMA = [
   { n: "1", t: "Daftar Online", d: "Isi formulir & unggah dokumen di website kami", time: "5 menit", done: true },
   { n: "2", t: "Verifikasi Admin", d: "Tim PPDB akan menghubungi Anda dalam 1×24 jam", time: "1 hari", done: true },
   { n: "3", t: "Tes & Wawancara", d: "Tes potensi, baca Al-Qur'an & wawancara orang tua", time: "1 hari", done: false },
   { n: "4", t: "Pengumuman & Daftar Ulang", d: "Pengumuman hasil & pembayaran biaya awal masuk", time: "1 bulan", done: false },
 ];
 
-export default function PPDBDokumen() {
+// SD: hanya bukti transfer yang diunggah ke website. Akta, KK, dan rapor dibawa
+// ke pondok saat tes seleksi — jangan ditulis seolah-olah harus diunggah.
+const DOCS_SD = [
+  { Icon: FileCheck, t: "Bukti Transfer Biaya Pendaftaran", d: "Rp 300.000, diunggah saat mengisi formulir (JPG, PNG, atau PDF, maksimal 1MB)" },
+  { Icon: FileText, t: "Akta Kelahiran & Kartu Keluarga", d: "Fotokopi, dibawa ke pondok saat tes seleksi — tidak diunggah ke website" },
+  { Icon: FileText, t: "Rapor (siswa pindahan)", d: "Fotokopi, dibawa ke pondok saat tes seleksi" },
+  { Icon: CalendarDays, t: "Usia Calon Siswa Kelas 1", d: "Berusia 7 tahun, dan terendah 6 tahun pada 1 Juli 2026" },
+  { Icon: HeartPulse, t: "Sehat Jasmani dan Rohani", d: "Tanpa riwayat penyakit berat/menular (jantung, TBC, hepatitis, epilepsi, asma). Surat keterangan sehat dari dokter dan hasil cek lab HBsAg diserahkan setelah dinyatakan lulus" },
+  { Icon: ScrollText, t: "Tata Tertib Pesantren", d: "Bersedia mematuhi seluruh tata tertib pesantren" },
+];
+
+const STEPS_SD = [
+  { n: "1", t: "Bayar & Daftar Online", d: "Transfer biaya pendaftaran, isi formulir, dan unggah bukti transfer", time: "5 menit", done: true },
+  { n: "2", t: "Konfirmasi WhatsApp", d: "Kirim bukti transfer ke WhatsApp keuangan sesuai format yang tertera di formulir", time: "5 menit", done: true },
+  { n: "3", t: "Wawancara & Observasi", d: "Calon santri datang ke pondok, wali mengikuti wawancara. Bawa akta, KK, dan rapor (pindahan)", time: "1 hari", done: false },
+  { n: "4", t: "Pengumuman & Uang Pangkal", d: "Hasil diumumkan lewat WhatsApp; yang lulus membayar uang pangkal", time: "2 bulan", done: false },
+];
+
+const KONTEN = {
+  MTS_SMA: {
+    docs: DOCS_MTS_SMA,
+    steps: STEPS_MTS_SMA,
+    pengantar: "Siapkan dokumen-dokumen berikut sebelum mengisi formulir pendaftaran. Format file: JPG, PNG, atau PDF dengan ukuran maksimal 1MB.",
+  },
+  SD: {
+    docs: DOCS_SD,
+    steps: STEPS_SD,
+    pengantar: "Siapkan hal-hal berikut sebelum mengisi formulir pendaftaran. Hanya bukti transfer yang diunggah ke website; berkas lainnya dibawa ke pondok saat tes seleksi.",
+  },
+};
+
+export default function PPDBDokumen({ jenjang = "MTS_SMA" }) {
+  const { docs: DOCS, steps: STEPS, pengantar } = KONTEN[jenjang];
   return (
     <section className="py-20 lg:py-24 bg-slate-50">
       <div className="w-[min(1180px,92vw)] mx-auto">
@@ -26,7 +58,7 @@ export default function PPDBDokumen() {
               Dokumen yang <em className="italic text-amber-500">Disiapkan</em>
             </h2>
             <p className="text-[14px] text-slate-500 mb-7 leading-relaxed font-light">
-              Siapkan dokumen-dokumen berikut sebelum mengisi formulir pendaftaran. Format file: JPG, PNG, atau PDF dengan ukuran maksimal 1MB.
+              {pengantar}
             </p>
             <div className="space-y-3">
               {DOCS.map((d, i) => (

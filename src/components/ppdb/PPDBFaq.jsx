@@ -1,28 +1,31 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Plus } from "lucide-react";
-import { FAQS } from "../../utils/constants";
+import { FAQS, FAQS_SD } from "../../utils/constants";
 import SectionHeader from "../common/SectionHeader";
 import Reveal from "../common/Reveal";
 
+const DAFTAR_FAQ = { MTS_SMA: FAQS, SD: FAQS_SD };
+
 // JSON-LD FAQPage — agar pertanyaan ini bisa tampil sebagai rich snippet di Google
-const FAQ_JSON_LD = {
+const faqJsonLd = (faqs) => ({
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  "mainEntity": FAQS.map((f) => ({
+  "mainEntity": faqs.map((f) => ({
     "@type": "Question",
     "name": f.q,
     "acceptedAnswer": { "@type": "Answer", "text": f.a },
   })),
-};
+});
 
-export default function PPDBFaq() {
+export default function PPDBFaq({ jenjang = "MTS_SMA" }) {
   const [open, setOpen] = useState(0);
+  const faqs = DAFTAR_FAQ[jenjang];
 
   return (
     <section className="py-20 lg:py-24 bg-white">
       <Helmet>
-        <script type="application/ld+json">{JSON.stringify(FAQ_JSON_LD)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd(faqs))}</script>
       </Helmet>
       <div className="w-[min(1180px,92vw)] mx-auto max-w-4xl">
         <SectionHeader
@@ -34,7 +37,7 @@ export default function PPDBFaq() {
 
 
         <div className="space-y-3">
-          {FAQS.map((f, i) => (
+          {faqs.map((f, i) => (
             <Reveal key={i} delay={i * 50}>
               <div className={`border rounded-xl overflow-hidden transition-all ${open === i ? "border-[#284061] shadow-md" : "border-slate-200 hover:border-slate-300"}`}>
                 <button

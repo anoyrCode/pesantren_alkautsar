@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "../layouts/MainLayouts";
 import HomePage from "../pages/HomePage";
 import TentangPage from "../pages/TentangPage";
@@ -10,6 +10,7 @@ import GaleriPage from "../pages/GaleriPage";
 import KesantrianPage from "../pages/KesantrianPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoute from "../components/admin/ProtectedRoute";
+import { jenjangTerakhir, rutaDashboard } from "../utils/jenjang";
 
 /**
  * Panel admin dimuat terpisah.
@@ -37,6 +38,12 @@ function MemuatAdmin() {
   );
 }
 
+// "/admin/dashboard" tanpa jenjang diteruskan ke tab yang terakhir dibuka. Alamat
+// lama ini tetap dipertahankan karena dipakai login, tombol Kembali, dan bookmark.
+function DashboardAwal() {
+  return <Navigate to={rutaDashboard(jenjangTerakhir())} replace />;
+}
+
 export default function AppRoutes() {
   return (
     <Suspense fallback={<MemuatAdmin />}>
@@ -45,8 +52,13 @@ export default function AppRoutes() {
           <Route path="/" element={<HomePage />} />
           <Route path="/tentang" element={<TentangPage />} />
           <Route path="/kurikulum" element={<KurikulumPage />} />
-          <Route path="/ppdb" element={<PPDBPage />} />
-          <Route path="/ppdb/formulir" element={<FormulirPage />} />
+          {/* `key` memaksa komponen dibuat ulang saat berpindah jenjang. Tanpa itu
+              React memakai ulang instance yang sama (tipe komponennya sama), dan
+              state seperti FAQ yang sedang terbuka ikut terbawa ke jenjang lain. */}
+          <Route path="/ppdb" element={<PPDBPage key="mts-sma" />} />
+          <Route path="/ppdb/formulir" element={<FormulirPage key="mts-sma" />} />
+          <Route path="/ppdb/sd" element={<PPDBPage key="sd" jenjang="SD" />} />
+          <Route path="/ppdb/sd/formulir" element={<FormulirPage key="sd" jenjang="SD" />} />
           <Route path="/galeri" element={<GaleriPage />} />
           <Route path="/kesantrian" element={<KesantrianPage />} />
         </Route>
@@ -54,7 +66,11 @@ export default function AppRoutes() {
         <Route path="/admin/login" element={<AdminLogin />} />
 
         <Route element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={<DashboardAwal />} />
+          {/* `key` membuat dashboard dibuat ulang tiap pindah tab, jadi pencarian
+              dan filter satu jenjang tidak terbawa ke jenjang lain. */}
+          <Route path="/admin/dashboard/mts-sma" element={<AdminDashboard key="mts-sma" jenjang="MTS_SMA" />} />
+          <Route path="/admin/dashboard/sd" element={<AdminDashboard key="sd" jenjang="SD" />} />
           <Route path="/admin/galeri" element={<AdminGaleri />} />
           <Route path="/admin/statistik" element={<AdminStatistik />} />
         </Route>

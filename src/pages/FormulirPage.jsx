@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Check, ChevronDown, Upload, Clock, CalendarX2 } from "lucide-react";
 import useCountdown from "../hooks/useCountdown";
 import { GILDA_FONT, GAJI } from "../utils/constants";
+import { JENJANG, OPSI_KELAS_SD, KEUANGAN_SD } from "../utils/jenjang";
 import SEO from "../components/common/SEO";
 import Reveal from "../components/common/Reveal";
 import RekeningInfo from "../components/common/RekeningInfo";
@@ -54,9 +55,12 @@ function SelectField({ label, value, onChange, options, required, className = ""
           className="w-full appearance-none px-4 py-3 pr-10 rounded-xl border-[1.5px] border-slate-200 text-[13px] bg-slate-50 focus:bg-white focus:border-[#284061] focus:ring-2 focus:ring-[#284061]/15 outline-none transition-all cursor-pointer"
         >
           <option value="" disabled>Pilih...</option>
-          {options.map((o) => (
-            <option key={o} value={o}>{o}</option>
-          ))}
+          {options.map((o) => {
+            // Opsi berupa teks biasa (nilai = label) atau {value, label}.
+            const nilai = typeof o === "string" ? o : o.value;
+            const label = typeof o === "string" ? o : o.label;
+            return <option key={nilai} value={nilai}>{label}</option>;
+          })}
         </select>
         <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
       </div>
@@ -111,16 +115,14 @@ const STATUS_NIKAH = ["Menikah", "Cerai Hidup", "Cerai Mati"];
 const STATUS_RUMAH = ["Milik Pribadi", "Sewa", "Kontrak", "Milik Orang Tua"];
 const GOL_DARAH = ["A", "B", "AB", "O", "Tidak Diketahui"];
 
-const PPDB_OPEN = new Date("2026-08-01T00:00:00");
-
 // Proxy di depan backend membatasi ukuran request sekitar 1MB. Batas ini
 // diselaraskan dengan backend/routes/pendaftaran.js (MAKS_UKURAN_BUKTI) supaya
 // file yang terlalu besar ditolak di sini dengan pesan jelas, bukan lolos dan
 // baru gagal setelah menunggu jaringan lalu dibalas HTML error dari proxy.
 const MAKS_UKURAN_BUKTI = 1_000_000; // ~977 KiB
 
-function PpdbClosedModal() {
-  const countdown = useCountdown("2026-08-01");
+function PpdbClosedModal({ cfg }) {
+  const countdown = useCountdown(cfg.buka);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1a2d47]/80 backdrop-blur-sm px-4">
       <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden"
@@ -131,7 +133,7 @@ function PpdbClosedModal() {
             <CalendarX2 size={26} className="text-amber-300" />
           </div>
           <h2 className="text-white text-[22px] mb-1" style={GILDA_FONT}>Pendaftaran Belum Dibuka</h2>
-          <p className="text-white/60 text-[13px]">Formulir akan tersedia mulai <span className="text-amber-300 font-semibold">1 Agustus 2026</span></p>
+          <p className="text-white/60 text-[13px]">Formulir akan tersedia mulai <span className="text-amber-300 font-semibold">{cfg.bukaLabel}</span></p>
         </div>
         {/* Countdown */}
         <div className="px-8 pt-6 pb-2">
@@ -149,13 +151,13 @@ function PpdbClosedModal() {
             ))}
           </div>
           <p className="text-[13px] text-slate-500 text-center leading-relaxed mb-6">
-            Periode pendaftaran berlangsung <strong className="text-[#284061]">1 Agustus – 30 September 2026</strong>. Pantau terus halaman PPDB untuk informasi terbaru.
+            Periode pendaftaran berlangsung <strong className="text-[#284061]">{cfg.periodeLabel}</strong>. Pantau terus halaman PPDB untuk informasi terbaru.
           </p>
         </div>
         {/* Actions */}
         <div className="px-8 pb-8 flex flex-col gap-3">
           <Link
-            to="/ppdb"
+            to={cfg.ppdb}
             className="w-full bg-linear-to-br from-[#284061] to-[#1a2d47] text-white py-3 rounded-xl text-[13.5px] font-semibold hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
           >
             Kembali ke Halaman PPDB <ArrowRight size={15} />
@@ -166,7 +168,11 @@ function PpdbClosedModal() {
   );
 }
 
-export default function FormulirPage() {
+export default function FormulirPage({ jenjang = "MTS_SMA" }) {
+  const cfg = JENJANG[jenjang];
+  const sd = jenjang === "SD";
+  // Batas atas kolom tanggal lahir: tidak boleh di masa depan.
+  const hariIni = new Date().toISOString().slice(0, 10);
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -174,7 +180,7 @@ export default function FormulirPage() {
   const [files, setFiles] = useState({ bukti_transfer: null });
   const [hPos, setHPos] = useState({ x: 0, y: 0 });
   const [hPx, setHPx] = useState({ x: 0, y: 0 });
-  const showClosedModal = new Date() < PPDB_OPEN;
+  const showClosedModal = new Date() < new Date(cfg.buka);
 
   // Track saat halaman formulir dibuka
   useEffect(() => { GA.formOpen(); }, []);
@@ -189,8 +195,16 @@ export default function FormulirPage() {
     namaIbu: "", nikIbu: "", waIbu: "", pendidikanIbu: "", pekerjaanIbu: "", gajiIbu: "", statusNikahIbu: "",
     namaWali: "", waWali: "",
     sekolahAsal: "", alamatSekolah: "", npsn: "",
+    // Khusus SD. Di MTs/SMA tetap kosong dan backend mengabaikannya.
+    tanggalLahir: "", kelasTujuan: "", dariKelas: "",
+    alamatWali: "", jkWali: "", pendidikanWali: "", pekerjaanWali: "", gajiWali: "",
     setuju: false,
   });
+
+  // Data sekolah asal di SD hanya untuk siswa pindahan. Selama semuanya kosong
+  // bagian itu opsional; begitu salah satu terisi, ketiganya jadi wajib —
+  // aturan yang sama dengan validasi di backend.
+  const pindahan = sd && [form.sekolahAsal, form.npsn, form.alamatSekolah, form.dariKelas].some((v) => String(v).trim() !== "");
 
   const set = (k) => (e) =>
     setForm((f) => ({ ...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
@@ -213,7 +227,7 @@ export default function FormulirPage() {
   // Tombol "Batal" di dalam form — itu aksi, bukan tautan, jadi tetap <button>.
   function keluarKePpdb() {
     if (adaIsi && !window.confirm(PESAN_KELUAR)) return;
-    navigate("/ppdb");
+    navigate(cfg.ppdb);
   }
 
   // Tautan "Kembali ke PPDB" di header. Dibiarkan sebagai <Link> supaya punya
@@ -261,6 +275,7 @@ export default function FormulirPage() {
 
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => { if (k !== "setuju") fd.append(k, v); });
+      fd.append("jenjang", jenjang);
       fd.append("bukti_transfer", buktiTransfer);
 
       const res = await apiFetch("/api/pendaftaran", {
@@ -289,10 +304,22 @@ export default function FormulirPage() {
           </div>
           <h1 className="text-[28px] text-[#284061] mb-3" style={GILDA_FONT}>Pendaftaran Diterima!</h1>
           <p className="text-[14px] text-slate-500 leading-relaxed mb-8">
-            Terima kasih telah mendaftar. Tim PPDB Pesantren Al Kautsar akan menghubungi Anda dalam 1×24 jam melalui nomor yang telah didaftarkan.
+            {sd
+              ? "Terima kasih telah mendaftar. Jadwal wawancara dan observasi akan diinformasikan bertahap lewat WhatsApp ke nomor yang telah didaftarkan."
+              : "Terima kasih telah mendaftar. Tim PPDB Pesantren Al Kautsar akan menghubungi Anda dalam 1×24 jam melalui nomor yang telah didaftarkan."}
           </p>
+          {sd && (
+            <div className="mb-8 rounded-xl border border-amber-100 bg-amber-50/60 px-5 py-4 text-left">
+              <p className="text-[12.5px] text-slate-600 leading-[1.7]">
+                <b className="text-[#284061]">Jangan lupa konfirmasi pembayaran</b> ke WhatsApp keuangan{" "}
+                <b className="text-[#284061]">{KEUANGAN_SD.nomor}</b> dengan format:
+              </p>
+              <p className="mt-1.5 font-mono text-[12px] font-semibold text-[#284061] break-all">{KEUANGAN_SD.formatDaftar}</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">(disertai bukti transfer)</p>
+            </div>
+          )}
           <Link
-            to="/ppdb"
+            to={cfg.ppdb}
             className="inline-flex items-center gap-2 bg-linear-to-br from-[#284061] to-[#1a2d47] text-white px-7 py-3 rounded-xl text-[13.5px] font-semibold hover:-translate-y-0.5 transition-all"
           >
             Kembali ke PPDB <ArrowRight size={15} />
@@ -304,12 +331,14 @@ export default function FormulirPage() {
 
   return (
     <>
-    {showClosedModal && <PpdbClosedModal />}
+    {showClosedModal && <PpdbClosedModal cfg={cfg} />}
     <WhatsAppHelp />
     <SEO
-      title="Formulir Pendaftaran PPDB"
-      description="Isi formulir pendaftaran online Pesantren Al Kautsar. Lengkapi data diri santri, data orang tua/wali, asal sekolah, dan upload dokumen persyaratan secara mudah."
-      path="/ppdb/formulir"
+      title={sd ? "Formulir Pendaftaran PPDB SD" : "Formulir Pendaftaran PPDB"}
+      description={sd
+        ? "Isi formulir pendaftaran online jenjang SD Pesantren Al Kautsar. Lengkapi data calon siswa, data orang tua/wali, dan upload bukti transfer secara mudah."
+        : "Isi formulir pendaftaran online Pesantren Al Kautsar. Lengkapi data diri santri, data orang tua/wali, asal sekolah, dan upload dokumen persyaratan secara mudah."}
+      path={cfg.formulir}
     />
     <div className="bg-slate-50 min-h-screen">
       <style>{`@keyframes fU{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}`}</style>
@@ -327,12 +356,15 @@ export default function FormulirPage() {
         <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle 300px at ${hPx.x}px ${hPx.y}px, rgba(212,140,26,.07), transparent 65%)` }} />
         <div className="relative z-10 w-[min(1180px,92vw)] mx-auto">
           <Link
-            to="/ppdb"
+            to={cfg.ppdb}
             onClick={cegahKeluar}
             className="inline-flex items-center gap-1.5 text-white/60 hover:text-white text-[12.5px] font-medium mb-6 transition-colors animate-[fU_.5s_ease-out_both]"
           >
             <ArrowLeft size={14} /> Kembali ke PPDB
           </Link>
+          <div className="text-amber-300 text-[11.5px] font-semibold uppercase tracking-[0.3em] mb-3 animate-[fU_.55s_.05s_ease-out_both]">
+            PPDB 2027 / 2028 · Jenjang {cfg.nama}
+          </div>
           <h1
             className="text-white text-[clamp(28px,4vw,46px)] leading-tight animate-[fU_.6s_.1s_ease-out_both]"
             style={GILDA_FONT}
@@ -357,9 +389,11 @@ export default function FormulirPage() {
               <Field label="Email Orang Tua" type="email" placeholder="email@contoh.com" value={form.emailOrtu} onChange={set("emailOrtu")} />
               <SelectField label="Jenis Kelamin" value={form.jenisKelamin} onChange={set("jenisKelamin")} options={["Laki-laki", "Perempuan"]} required />
               <Field label="Tempat Lahir" placeholder="Kota tempat lahir" value={form.tempatLahir} onChange={set("tempatLahir")} required />
+              {sd && <Field label="Tanggal Lahir" type="date" value={form.tanggalLahir} onChange={set("tanggalLahir")} required max={hariIni} />}
               <Field label="NIK Santri" placeholder="16 digit NIK" value={form.nikSantri} onChange={set("nikSantri")} required maxLength={16} minLength={16} pattern="\d{16}" title="NIK harus 16 digit angka" inputMode="numeric" />
               <Field label="Nomor KK" placeholder="16 digit nomor KK" value={form.nomorKK} onChange={set("nomorKK")} required maxLength={16} minLength={16} pattern="\d{16}" title="Nomor KK harus 16 digit angka" inputMode="numeric" />
-              <Field label="NISN" placeholder="10 digit NISN" value={form.nisn} onChange={set("nisn")} required maxLength={10} minLength={10} pattern="\d{10}" title="NISN harus 10 digit angka" inputMode="numeric" />
+              <Field label="NISN" placeholder={sd ? "Kosongkan jika belum punya" : "10 digit NISN"} value={form.nisn} onChange={set("nisn")} required={!sd} maxLength={10} minLength={10} pattern="\d{10}" title="NISN harus 10 digit angka" inputMode="numeric" />
+              {sd && <SelectField label="Kelas yang Dituju" value={form.kelasTujuan} onChange={set("kelasTujuan")} options={OPSI_KELAS_SD} required />}
               <Field label="Hobi" placeholder="Hobi santri" value={form.hobi} onChange={set("hobi")} />
               <Field label="Cita-cita" placeholder="Cita-cita santri" value={form.citaCita} onChange={set("citaCita")} />
               <Field label="Anak Ke-" type="number" placeholder="Contoh: 2" value={form.anakKe} onChange={set("anakKe")} min={1} max={20} title="Isi antara 1 sampai 20" />
@@ -409,14 +443,29 @@ export default function FormulirPage() {
             <SectionCard title="5. Data Wali (jika ada)">
               <Field label="Nama Wali" placeholder="Kosongkan jika tidak ada" value={form.namaWali} onChange={set("namaWali")} />
               <Field label="No. WA Wali" type="tel" placeholder="08xx xxxx xxxx" value={form.waWali} onChange={set("waWali")} />
+              {sd && (
+                <>
+                  <Field label="Alamat Rumah Wali" placeholder="Kosongkan jika tidak ada wali" value={form.alamatWali} onChange={set("alamatWali")} className="sm:col-span-2" />
+                  <SelectField label="Jenis Kelamin Wali" value={form.jkWali} onChange={set("jkWali")} options={["Laki-laki", "Perempuan"]} />
+                  <SelectField label="Pendidikan Terakhir" value={form.pendidikanWali} onChange={set("pendidikanWali")} options={PENDIDIKAN} />
+                  <Field label="Pekerjaan" placeholder="Pekerjaan wali" value={form.pekerjaanWali} onChange={set("pekerjaanWali")} />
+                  <SelectField label="Penghasilan Per Bulan" value={form.gajiWali} onChange={set("gajiWali")} options={GAJI} />
+                </>
+              )}
             </SectionCard>
           </Reveal>
 
           <Reveal>
-            <SectionCard title="6. Data Sekolah Asal">
-              <Field label="Nama Sekolah Asal" placeholder="Nama sekolah saat ini" value={form.sekolahAsal} onChange={set("sekolahAsal")} required />
-              <Field label="NPSN" placeholder="NPSN sekolah (8–20 karakter)" value={form.npsn} onChange={set("npsn")} required maxLength={20} minLength={8} pattern="[A-Za-z0-9]{8,20}" title="NPSN 8–20 karakter, boleh huruf atau angka" hint="8–20 karakter" />
-              <Field label="Alamat Sekolah" placeholder="Alamat lengkap sekolah" value={form.alamatSekolah} onChange={set("alamatSekolah")} required className="sm:col-span-2" />
+            <SectionCard title={sd ? "6. Data Sekolah Asal (khusus siswa pindahan)" : "6. Data Sekolah Asal"}>
+              {sd && (
+                <p className="sm:col-span-2 text-[12.5px] leading-relaxed text-slate-500 -mt-1">
+                  Kosongkan bagian ini jika calon santri bukan siswa pindahan.
+                </p>
+              )}
+              <Field label="Nama Sekolah Asal" placeholder="Nama sekolah saat ini" value={form.sekolahAsal} onChange={set("sekolahAsal")} required={!sd || pindahan} />
+              <Field label="NPSN" placeholder="NPSN sekolah (8–20 karakter)" value={form.npsn} onChange={set("npsn")} required={!sd || pindahan} maxLength={20} minLength={8} pattern="[A-Za-z0-9]{8,20}" title="NPSN 8–20 karakter, boleh huruf atau angka" hint="8–20 karakter" />
+              <Field label="Alamat Sekolah" placeholder="Alamat lengkap sekolah" value={form.alamatSekolah} onChange={set("alamatSekolah")} required={!sd || pindahan} className="sm:col-span-2" />
+              {sd && <SelectField label="Dari Kelas" value={form.dariKelas} onChange={set("dariKelas")} options={OPSI_KELAS_SD} required={pindahan} className="sm:col-span-2" />}
             </SectionCard>
           </Reveal>
 
@@ -425,7 +474,7 @@ export default function FormulirPage() {
               <h2 className="text-[16px] font-bold text-[#284061] mb-5 pb-3 border-b border-slate-100" style={GILDA_FONT}>
                 7. Upload Dokumen
               </h2>
-              <RekeningInfo />
+              <RekeningInfo jenjang={jenjang} />
               <div className="grid gap-4">
                 <UploadField label="Foto Bukti Transfer Biaya Daftar" accept="image/*,.pdf" hint="Format: JPG/PNG/PDF · Max 1MB" required onChange={(f) => setFiles((p) => ({ ...p, bukti_transfer: f }))} />
               </div>

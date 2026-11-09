@@ -2,8 +2,9 @@ import { useState } from "react";
 import { ChevronDown, Upload, ExternalLink } from "lucide-react";
 import RekeningInfo from "../common/RekeningInfo";
 import { GAJI } from "../../utils/constants";
+import { OPSI_KELAS_SD } from "../../utils/jenjang";
 
-function Field({ label, placeholder, type = "text", value, onChange, required, className = "", maxLength, minLength, pattern, title, inputMode, satuan = "digit", hint }) {
+function Field({ label, placeholder, type = "text", value, onChange, required, className = "", maxLength, minLength, pattern, title, inputMode, satuan = "digit", hint, max }) {
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
       <label className="text-[12.5px] font-semibold text-[#284061]">
@@ -23,6 +24,7 @@ function Field({ label, placeholder, type = "text", value, onChange, required, c
         pattern={pattern}
         title={title}
         inputMode={inputMode}
+        max={max}
         className="px-4 py-3 rounded-xl border-[1.5px] border-slate-200 text-[13px] bg-slate-50 focus:bg-white focus:border-[#284061] focus:ring-2 focus:ring-[#284061]/15 outline-none transition-all placeholder:text-slate-400"
       />
     </div>
@@ -43,9 +45,12 @@ function SelectField({ label, value, onChange, options, required, className = ""
           className="w-full appearance-none px-4 py-3 pr-10 rounded-xl border-[1.5px] border-slate-200 text-[13px] bg-slate-50 focus:bg-white focus:border-[#284061] focus:ring-2 focus:ring-[#284061]/15 outline-none transition-all cursor-pointer"
         >
           <option value="" disabled>Pilih...</option>
-          {options.map((o) => (
-            <option key={o} value={o}>{o}</option>
-          ))}
+          {options.map((o) => {
+            // Opsi berupa teks biasa (nilai = label) atau {value, label}.
+            const nilai = typeof o === "string" ? o : o.value;
+            const label = typeof o === "string" ? o : o.label;
+            return <option key={nilai} value={nilai}>{label}</option>;
+          })}
         </select>
         <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
       </div>
@@ -110,10 +115,21 @@ export const EMPTY_FORM = {
   namaWali: "", waWali: "",
   sekolahAsal: "", alamatSekolah: "", npsn: "",
   status: "Menunggu",
+  jenjang: "MTS_SMA",
+  // Khusus SD (kolom lain di jenjang MTs/SMA dibiarkan kosong)
+  tanggalLahir: "", kelasTujuan: "", dariKelas: "",
+  alamatWali: "", jkWali: "", pendidikanWali: "", pekerjaanWali: "", gajiWali: "",
 };
 
 export default function SantriForm({ mode, form, setForm, onFile, currentUrls, onSubmit, submitting, errorMsg }) {
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const sd = form.jenjang === "SD";
+  const hariIni = new Date().toISOString().slice(0, 10);
+  // Sama seperti formulir publik dan validasi backend: sekolah asal di SD hanya
+  // untuk siswa pindahan — kosong semua boleh, tapi kalau salah satu terisi
+  // semuanya wajib.
+  const pindahan = sd && [form.sekolahAsal, form.npsn, form.alamatSekolah, form.dariKelas].some((v) => String(v ?? "").trim() !== "");
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5">
@@ -123,9 +139,11 @@ export default function SantriForm({ mode, form, setForm, onFile, currentUrls, o
         <Field label="Email Orang Tua" type="email" placeholder="email@contoh.com" value={form.emailOrtu} onChange={set("emailOrtu")} />
         <SelectField label="Jenis Kelamin" value={form.jenisKelamin} onChange={set("jenisKelamin")} options={["Laki-laki", "Perempuan"]} required />
         <Field label="Tempat Lahir" placeholder="Kota tempat lahir" value={form.tempatLahir} onChange={set("tempatLahir")} required />
+        {sd && <Field label="Tanggal Lahir" type="date" value={form.tanggalLahir} onChange={set("tanggalLahir")} required max={hariIni} />}
         <Field label="NIK Santri" placeholder="16 digit NIK" value={form.nikSantri} onChange={set("nikSantri")} required maxLength={16} minLength={16} pattern="\d{16}" title="NIK harus 16 digit angka" inputMode="numeric" />
         <Field label="Nomor KK" placeholder="16 digit nomor KK" value={form.nomorKK} onChange={set("nomorKK")} required maxLength={16} minLength={16} pattern="\d{16}" title="Nomor KK harus 16 digit angka" inputMode="numeric" />
-        <Field label="NISN" placeholder="10 digit NISN" value={form.nisn} onChange={set("nisn")} required maxLength={10} minLength={10} pattern="\d{10}" title="NISN harus 10 digit angka" inputMode="numeric" />
+        <Field label="NISN" placeholder={sd ? "Kosongkan jika belum punya" : "10 digit NISN"} value={form.nisn} onChange={set("nisn")} required={!sd} maxLength={10} minLength={10} pattern="\d{10}" title="NISN harus 10 digit angka" inputMode="numeric" />
+        {sd && <SelectField label="Kelas yang Dituju" value={form.kelasTujuan} onChange={set("kelasTujuan")} options={OPSI_KELAS_SD} required />}
         <Field label="Hobi" placeholder="Hobi santri" value={form.hobi} onChange={set("hobi")} />
         <Field label="Cita-cita" placeholder="Cita-cita santri" value={form.citaCita} onChange={set("citaCita")} />
         <Field label="Anak Ke-" type="number" placeholder="Contoh: 2" value={form.anakKe} onChange={set("anakKe")} />
@@ -167,12 +185,27 @@ export default function SantriForm({ mode, form, setForm, onFile, currentUrls, o
       <SectionCard title="5. Data Wali (jika ada)">
         <Field label="Nama Wali" placeholder="Kosongkan jika tidak ada" value={form.namaWali} onChange={set("namaWali")} />
         <Field label="No. WA Wali" type="tel" placeholder="08xx xxxx xxxx" value={form.waWali} onChange={set("waWali")} />
+        {sd && (
+          <>
+            <Field label="Alamat Rumah Wali" placeholder="Kosongkan jika tidak ada wali" value={form.alamatWali} onChange={set("alamatWali")} className="sm:col-span-2" />
+            <SelectField label="Jenis Kelamin Wali" value={form.jkWali} onChange={set("jkWali")} options={["Laki-laki", "Perempuan"]} />
+            <SelectField label="Pendidikan Terakhir" value={form.pendidikanWali} onChange={set("pendidikanWali")} options={PENDIDIKAN} />
+            <Field label="Pekerjaan" placeholder="Pekerjaan wali" value={form.pekerjaanWali} onChange={set("pekerjaanWali")} />
+            <SelectField label="Penghasilan Per Bulan" value={form.gajiWali} onChange={set("gajiWali")} options={GAJI} />
+          </>
+        )}
       </SectionCard>
 
-      <SectionCard title="6. Data Sekolah Asal">
-        <Field label="Nama Sekolah Asal" placeholder="Nama sekolah saat ini" value={form.sekolahAsal} onChange={set("sekolahAsal")} required />
-        <Field label="NPSN" placeholder="NPSN sekolah (8–20 karakter)" value={form.npsn} onChange={set("npsn")} required maxLength={20} minLength={8} pattern="[A-Za-z0-9]{8,20}" title="NPSN 8–20 karakter, boleh huruf atau angka" hint="8–20 karakter" />
-        <Field label="Alamat Sekolah" placeholder="Alamat lengkap sekolah" value={form.alamatSekolah} onChange={set("alamatSekolah")} required className="sm:col-span-2" />
+      <SectionCard title={sd ? "6. Data Sekolah Asal (khusus siswa pindahan)" : "6. Data Sekolah Asal"}>
+        {sd && (
+          <p className="sm:col-span-2 text-[12.5px] leading-relaxed text-slate-500 -mt-1">
+            Kosongkan bagian ini jika calon santri bukan siswa pindahan.
+          </p>
+        )}
+        <Field label="Nama Sekolah Asal" placeholder="Nama sekolah saat ini" value={form.sekolahAsal} onChange={set("sekolahAsal")} required={!sd || pindahan} />
+        <Field label="NPSN" placeholder="NPSN sekolah (8–20 karakter)" value={form.npsn} onChange={set("npsn")} required={!sd || pindahan} maxLength={20} minLength={8} pattern="[A-Za-z0-9]{8,20}" title="NPSN 8–20 karakter, boleh huruf atau angka" hint="8–20 karakter" />
+        <Field label="Alamat Sekolah" placeholder="Alamat lengkap sekolah" value={form.alamatSekolah} onChange={set("alamatSekolah")} required={!sd || pindahan} className="sm:col-span-2" />
+        {sd && <SelectField label="Dari Kelas" value={form.dariKelas} onChange={set("dariKelas")} options={OPSI_KELAS_SD} required={pindahan} className="sm:col-span-2" />}
       </SectionCard>
 
       <SectionCard title="7. Status Pendaftaran">
@@ -182,7 +215,7 @@ export default function SantriForm({ mode, form, setForm, onFile, currentUrls, o
       <div className="bg-white border border-slate-100 rounded-2xl p-6 lg:p-8 shadow-sm">
         <h2 className="text-[16px] font-bold text-[#284061] mb-5 pb-3 border-b border-slate-100">8. Dokumen</h2>
         <p className="text-[12px] text-slate-400 mb-4">Opsional — kosongkan jika belum ada file, sistem akan memakai gambar placeholder sementara.</p>
-        <RekeningInfo />
+        <RekeningInfo jenjang={form.jenjang} />
         <div className="grid gap-4">
           <UploadField label="Foto Bukti Transfer Biaya Daftar" accept="image/*,.pdf" hint="Format: JPG/PNG/PDF · Max 1MB" currentUrl={currentUrls?.bukti} onChange={(f) => onFile("bukti_transfer", f)} />
         </div>

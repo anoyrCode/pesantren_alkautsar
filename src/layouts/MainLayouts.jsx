@@ -76,7 +76,12 @@ export default function MainLayout() {
     return () => window.removeEventListener("keydown", onKey);
   }, [mobileOpen]);
 
-  const isActive = (path) => location.pathname === path;
+  // Menu tetap menyala di halaman anaknya (/ppdb/sd, /ppdb/formulir, ...).
+  // Beranda dikecualikan: "/" adalah awalan dari semua alamat.
+  const isActive = (path) =>
+    path === "/"
+      ? location.pathname === "/"
+      : location.pathname === path || location.pathname.startsWith(`${path}/`);
 
   return (
     <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden antialiased" style={{ fontFamily: "'Outfit', sans-serif" }}>
